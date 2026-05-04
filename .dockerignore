@@ -4,9 +4,13 @@ __pycache__/
 *.pyc
 .DS_Store
 .pytest_cache/
+pytest-cache-files-*/
 env/
 .env
 *.pyo
 dist/
 build/
 *.egg-info/
+node_modules/
+apps/web/node_modules/
+apps/web/dist/

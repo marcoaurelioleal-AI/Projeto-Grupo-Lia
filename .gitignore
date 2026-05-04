@@ -1,2 +1,15 @@
 .env
 __pycache__/
+.pytest_cache/
+pytest-cache-files-*/
+.venv/
+*.pyc
+*.pyo
+*.db
+lia.db
+node_modules/
+dist/
+apps/web/node_modules/
+apps/web/dist/
+apps/web/.vite/
+apps/web/*.tsbuildinfo

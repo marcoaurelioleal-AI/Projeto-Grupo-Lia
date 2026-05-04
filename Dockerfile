@@ -1,26 +1,34 @@
+FROM node:24-alpine AS web-build
+
+WORKDIR /web
+COPY apps/web/package*.json ./
+RUN npm ci
+COPY apps/web ./
+RUN npm run build
+
 FROM python:3.11-slim
 
-# Set working directory
 WORKDIR /app
 
-# Prevent Python from writing .pyc files and buffer stdout/stderr
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PORT=8501
+    PORT=8000
 
-# Install system deps
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install Python dependencies
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy project
-COPY . /app
+RUN adduser --disabled-password --gecos "" appuser
 
-EXPOSE 8501
+COPY --chown=appuser:appuser apps ./apps
+COPY --chown=appuser:appuser alembic.ini ./alembic.ini
+COPY --chown=appuser:appuser alembic ./alembic
+COPY --from=web-build --chown=appuser:appuser /web/dist ./apps/web/dist
 
-# Run Streamlit
-CMD ["streamlit", "run", "meu_assistente.py", "--server.port=8501", "--server.address=0.0.0.0"]
+USER appuser
+
+EXPOSE 8000
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+    CMD python -c "import os, urllib.request; urllib.request.urlopen(f'http://127.0.0.1:{os.getenv(\"PORT\", \"8000\")}/health').read()"
+
+CMD ["sh", "-c", "uvicorn apps.api.app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

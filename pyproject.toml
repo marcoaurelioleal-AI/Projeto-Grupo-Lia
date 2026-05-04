@@ -1,0 +1,4 @@
+[tool.pytest.ini_options]
+testpaths = ["tests", "apps/api/tests"]
+addopts = "-q -p no:cacheprovider"
+pythonpath = ["."]

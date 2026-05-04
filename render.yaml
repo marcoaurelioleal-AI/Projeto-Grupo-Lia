@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: projeto-lia
+    env: docker
+    plan: free
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: LIA_ADMIN_USER
+        value: admin
+      - key: LIA_ADMIN_PASSWORD
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: MODELO_GEMINI
+        value: gemini-2.5-flash
+      - key: FRONTEND_ORIGINS
+        value: https://projeto-lia.onrender.com
