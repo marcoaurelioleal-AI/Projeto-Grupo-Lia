@@ -7,7 +7,7 @@ services:
     autoDeploy: true
     envVars:
       - key: DATABASE_URL
-        sync: false
+        value: sqlite:////app/data/lia.db
       - key: JWT_SECRET
         generateValue: true
       - key: LIA_ADMIN_USER

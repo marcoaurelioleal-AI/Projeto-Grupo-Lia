@@ -83,7 +83,7 @@ Variáveis importantes no Render:
 - `MODELO_GEMINI`
 - `FRONTEND_ORIGINS`
 
-Para produção real, prefira PostgreSQL no `DATABASE_URL` e troque todos os segredos padrão.
+Para o serviço Docker no Render, use `DATABASE_URL=sqlite:////app/data/lia.db` se quiser um teste simples. Para produção real, prefira PostgreSQL no `DATABASE_URL` e troque todos os segredos padrão.
 
 ## Próximos passos recomendados
 

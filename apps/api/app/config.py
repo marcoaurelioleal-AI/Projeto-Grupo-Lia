@@ -15,7 +15,7 @@ def _split_origins(value: str) -> list[str]:
 @dataclass(frozen=True)
 class Settings:
     app_name: str = "Projeto LIA API"
-    database_url: str = os.getenv("DATABASE_URL", "sqlite:///./lia.db")
+    database_url: str = os.getenv("DATABASE_URL", "sqlite:////app/data/lia.db")
     jwt_secret: str = os.getenv("JWT_SECRET", os.getenv("SENHA_ACESSO", "lia-dev-secret-change-me"))
     access_token_minutes: int = int(os.getenv("ACCESS_TOKEN_MINUTES", "480"))
     frontend_origins: list[str] = field(default_factory=list)
