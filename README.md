@@ -1,31 +1,130 @@
 # Projeto LIA
 
-Painel operacional para o Grupo Empresarial Lia, que reúne Lia Burguer, Lia Pizza e Lia Salgados. O projeto nasceu em Streamlit e agora passa a ter uma arquitetura profissional com React no frontend e FastAPI no backend.
+Central operacional para o **Grupo Empresarial Lia**, reunindo processos internos da Lia Burguer, Lia Pizza e Lia Salgados em uma plataforma web com login, dashboard, checklists, manuais técnicos e a assistente operacional **Lia**.
+
+O projeto nasceu como uma aplicação Streamlit e está em migração para uma arquitetura mais profissional com **React + TypeScript** no frontend e **FastAPI** no backend.
+
+## Visão Geral
+
+O objetivo da Central LIA é ajudar a operação diária das lojas a manter padrão, organização e rastreabilidade.
+
+Principais recursos:
+
+- Login interno com usuário, senha com hash e token JWT.
+- Dashboard operacional.
+- Checklists persistentes por data e loja.
+- Observação de fechamento de turno.
+- Manuais técnicos por unidade.
+- Chatbot **Lia**, com respostas baseadas nos manuais internos.
+- Histórico resumido das conversas da Lia.
+- Backend preparado para SQLite em desenvolvimento e PostgreSQL em produção.
+- Migrations com Alembic.
+- Deploy Docker com React e FastAPI no mesmo serviço.
 
 ## Arquitetura
 
-- `apps/web`: frontend React + TypeScript + Vite, responsivo e otimizado para mobile.
-- `apps/api`: backend FastAPI com autenticação, checklists, manuais e IA.
-- `meu_assistente.py`: versão Streamlit legada, mantida temporariamente como referência.
-- `alembic`: base para futuras migrações de banco.
+```text
+PROJETO_LIA/
+├── apps/
+│   ├── api/
+│   │   └── app/
+│   │       ├── routers/
+│   │       ├── services/
+│   │       ├── repositories/
+│   │       ├── config.py
+│   │       ├── database.py
+│   │       ├── models.py
+│   │       ├── schemas.py
+│   │       ├── security.py
+│   │       └── seed.py
+│   └── web/
+│       └── src/
+├── alembic/
+├── assets/
+├── Dockerfile
+├── render.yaml
+├── requirements.txt
+└── meu_assistente.py
+```
 
-## Funcionalidades da nova versão
+### Backend
 
-- Login por usuário com token e senha com hash.
-- Dashboard de operação diária.
-- Checklists persistentes por data e loja.
-- Observação de fechamento de turno.
-- Manuais técnicos filtráveis por unidade.
-- Assistente IA protegido no backend, sem expor chave Gemini ao navegador.
-- Docker multi-stage servindo React + API em um único serviço.
+O backend fica em `apps/api` e usa:
 
-## Rodando localmente
+- FastAPI para API HTTP.
+- SQLAlchemy para ORM.
+- Alembic para migrations.
+- PyJWT para autenticação.
+- Gemini via `google-genai` para a Lia.
+- Repository/Service no módulo de checklists para separar responsabilidades.
 
-Crie um `.env` a partir do `.env.example` e ajuste os valores.
+Camadas principais:
 
-Backend:
+- `routers`: endpoints e injeção de dependências.
+- `services`: regras de negócio.
+- `repositories`: consultas e persistência no banco.
+- `models.py`: modelos SQLAlchemy.
+- `schemas.py`: contratos Pydantic.
 
-```bash
+### Frontend
+
+O frontend fica em `apps/web` e usa:
+
+- React.
+- TypeScript.
+- Vite.
+- Tailwind CSS.
+- TanStack Query.
+- React Router.
+- Lucide React.
+
+### Legado
+
+`meu_assistente.py` mantém a versão Streamlit original como referência temporária. A evolução principal do produto deve acontecer em `apps/web` e `apps/api`.
+
+## Requisitos
+
+- Python 3.11+ recomendado para produção.
+- Node.js compatível com o projeto Vite.
+- npm.
+- Git.
+
+No ambiente atual de desenvolvimento, o projeto também foi validado com Python instalado localmente no Windows.
+
+## Configuração Local
+
+Crie um arquivo `.env` a partir do exemplo:
+
+```powershell
+copy .env.example .env
+```
+
+Edite o `.env` com seus valores locais.
+
+Exemplo mínimo para desenvolvimento:
+
+```env
+DATABASE_URL="sqlite:///./lia.db"
+AUTO_CREATE_TABLES="true"
+JWT_SECRET="troque-esse-segredo"
+ACCESS_TOKEN_MINUTES="480"
+FRONTEND_ORIGINS="http://localhost:5173,http://127.0.0.1:5173,http://127.0.0.1:8062"
+
+LIA_ADMIN_USER="admin"
+LIA_ADMIN_PASSWORD="troque-essa-senha"
+
+GEMINI_API_KEY="sua_chave_gemini"
+MODELO_GEMINI="gemini-2.5-flash"
+```
+
+Não commite `.env`. Ele deve ficar apenas na máquina local ou nas variáveis do Render.
+
+## Rodando Localmente
+
+### Backend
+
+```powershell
+cd E:\PROJETO_LIA
 python -m venv .venv
 .\.venv\Scripts\activate
 pip install -r requirements.txt -r requirements-dev.txt
@@ -33,83 +132,256 @@ alembic upgrade head
 uvicorn apps.api.app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-Frontend:
+API local:
 
-```bash
-cd apps/web
+```text
+http://127.0.0.1:8000
+```
+
+Healthcheck:
+
+```text
+http://127.0.0.1:8000/health
+```
+
+### Frontend
+
+Em outro terminal:
+
+```powershell
+cd E:\PROJETO_LIA\apps\web
 npm install
 npm run dev
 ```
 
-Acesse `http://127.0.0.1:5173`.
+Frontend local:
 
-Usuário inicial de desenvolvimento:
+```text
+http://127.0.0.1:5173
+```
+
+### Rodando o Build Integrado
+
+Quando o frontend já foi buildado, o FastAPI pode servir a SPA diretamente:
+
+```powershell
+cd E:\PROJETO_LIA
+npm --prefix apps/web run build
+.\.venv\Scripts\python.exe -m uvicorn apps.api.app.main:app --host 127.0.0.1 --port 8062
+```
+
+Acesse:
+
+```text
+http://127.0.0.1:8062
+```
+
+Esse endereço só funciona enquanto o `uvicorn` estiver rodando.
+
+## Banco de Dados
+
+O projeto usa `DATABASE_URL` como configuração central.
+
+### SQLite
+
+Recomendado apenas para desenvolvimento local e testes simples:
 
 ```env
-LIA_ADMIN_USER="admin"
-LIA_ADMIN_PASSWORD="troque-essa-senha"
+DATABASE_URL="sqlite:///./lia.db"
+AUTO_CREATE_TABLES="true"
 ```
+
+### PostgreSQL
+
+Recomendado para produção:
+
+```env
+DATABASE_URL="postgresql+psycopg://usuario:senha@host:5432/banco"
+AUTO_CREATE_TABLES="false"
+```
+
+O backend também normaliza URLs `postgres://` e `postgresql://` para o driver `postgresql+psycopg://`.
+
+## Migrations com Alembic
+
+Aplicar migrations:
+
+```powershell
+alembic upgrade head
+```
+
+Ver migration atual:
+
+```powershell
+alembic current
+```
+
+Gerar nova migration:
+
+```powershell
+alembic revision --autogenerate -m "descricao_da_migration"
+```
+
+Em produção, não dependa de `Base.metadata.create_all`. Use migrations com `AUTO_CREATE_TABLES=false`.
+
+## Variáveis de Ambiente
+
+### Backend
+
+| Variável | Uso |
+| --- | --- |
+| `DATABASE_URL` | URL do banco SQLite ou PostgreSQL. |
+| `AUTO_CREATE_TABLES` | Controla criação automática de tabelas no startup. Use `false` em produção. |
+| `JWT_SECRET` | Segredo para assinar tokens JWT. |
+| `ACCESS_TOKEN_MINUTES` | Duração da sessão. |
+| `FRONTEND_ORIGINS` | Origens permitidas no CORS. |
+| `LIA_ADMIN_USER` | Usuário admin inicial. |
+| `LIA_ADMIN_PASSWORD` | Senha admin inicial. |
+| `GEMINI_API_KEY` | Chave da API Gemini usada pela Lia. |
+| `MODELO_GEMINI` | Modelo Gemini. Padrão recomendado: `gemini-2.5-flash`. |
+
+### Frontend
+
+| Variável | Uso |
+| --- | --- |
+| `VITE_API_URL` | URL da API quando frontend e backend rodam separados. |
+
+Quando o FastAPI serve o build React no mesmo domínio, `VITE_API_URL` pode ficar vazio.
+
+## IA: Chatbot Lia
+
+A Lia é a assistente operacional da Central LIA.
+
+Na versão atual, ela:
+
+- responde dúvidas operacionais;
+- usa os manuais internos como contexto;
+- mostra fontes usadas;
+- salva histórico resumido;
+- pede confirmação da gestão quando a base não é suficiente;
+- não executa ações no sistema.
+
+Camada de conhecimento:
+
+```text
+apps/api/app/manual_knowledge.py
+```
+
+Essa camada foi criada para permitir evolução futura para RAG sem reescrever a rota inteira.
+
+## Endpoints Principais
+
+| Método | Rota | Descrição |
+| --- | --- | --- |
+| `GET` | `/health` | Healthcheck da API. |
+| `POST` | `/auth/login` | Login. |
+| `GET` | `/auth/me` | Usuário autenticado. |
+| `GET` | `/manuals` | Lista manuais técnicos. |
+| `GET` | `/checklists` | Lista checklists por data e loja. |
+| `PATCH` | `/checklists/{run_id}/items` | Atualiza item de checklist. |
+| `PATCH` | `/checklists/{run_id}/closing-note` | Atualiza observação de fechamento. |
+| `POST` | `/ai/chat` | Conversa com a Lia. |
+| `GET` | `/ai/history` | Histórico resumido da Lia. |
+| `GET` | `/ai/status` | Diagnóstico seguro da configuração de IA. |
 
 ## Validações
 
 Backend:
 
-```bash
-python -m py_compile meu_assistente.py dados_operacionais.py apps/api/app/main.py
+```powershell
+python -m py_compile apps/api/app/main.py apps/api/app/config.py apps/api/app/database.py apps/api/app/routers/checklists.py apps/api/app/services/checklist_service.py apps/api/app/repositories/checklist_repository.py
 pytest
+alembic current
+alembic upgrade head
 ```
 
 Frontend:
 
-```bash
+```powershell
 cd apps/web
 npm run lint
 npm run typecheck
 npm run build
 ```
 
-## Banco de dados e migrations
+## Deploy no Render
 
-O projeto usa `DATABASE_URL` como configuracao central do banco. SQLite e adequado para desenvolvimento local e testes simples. Para producao, prefira PostgreSQL.
+O projeto possui `Dockerfile` multi-stage:
 
-Exemplos:
+1. builda o React;
+2. instala dependências Python;
+3. copia o build do frontend para a API;
+4. roda `alembic upgrade head`;
+5. inicia o Uvicorn.
+
+Comando final do container:
+
+```sh
+alembic upgrade head && uvicorn apps.api.app.main:app --host 0.0.0.0 --port ${PORT:-8000}
+```
+
+Variáveis recomendadas no Render:
 
 ```env
-DATABASE_URL="sqlite:///./lia.db"
-DATABASE_URL="postgresql+psycopg://usuario:senha@host:5432/banco"
+DATABASE_URL=postgresql+psycopg://usuario:senha@host:5432/banco
+AUTO_CREATE_TABLES=false
+JWT_SECRET=um_segredo_forte
+LIA_ADMIN_USER=admin
+LIA_ADMIN_PASSWORD=senha_forte
+GEMINI_API_KEY=sua_chave_gemini
+MODELO_GEMINI=gemini-2.5-flash
+FRONTEND_ORIGINS=https://seu-dominio.onrender.com
 ```
 
-Em desenvolvimento, `AUTO_CREATE_TABLES=true` permite manter o fluxo local simples. Em producao, use `AUTO_CREATE_TABLES=false` e aplique migrations com Alembic.
+Para teste simples no plano gratuito, SQLite funciona:
 
-Gerar migration:
-
-```bash
-alembic revision --autogenerate -m "descricao_da_migration"
+```env
+DATABASE_URL=sqlite:////app/data/lia.db
 ```
 
-Aplicar migrations:
+Para produção real, use PostgreSQL. SQLite em serviço cloud gratuito pode perder dados dependendo da configuração de disco.
 
-```bash
-alembic upgrade head
+## Git e Versionamento
+
+Fluxo básico:
+
+```powershell
+git status
+git add .
+git commit -m "Descricao objetiva da mudanca"
+git push origin main
 ```
 
-## Deploy
+Antes de commitar:
 
-O `Dockerfile` atual constrói o React e copia o build para a API FastAPI, que serve a SPA em produção. Isso permite manter um único Web Service no Render.
+- confirme que `.env` não aparece no `git status`;
+- rode testes quando houver mudança de backend;
+- rode `npm run build` quando houver mudança de frontend.
 
-No Docker, o comando de inicializacao aplica `alembic upgrade head` antes de iniciar o Uvicorn.
+## Segurança
 
-O arquivo `render.yaml` deixa a configuração base pronta para Blueprint/Infrastructure as Code no Render.
+Boas práticas atuais:
 
-Variáveis importantes no Render:
+- Chaves Gemini ficam apenas no backend.
+- Senhas são armazenadas com hash.
+- Tokens JWT são assinados com `JWT_SECRET`.
+- `.env` não deve ser versionado.
 
-- `DATABASE_URL`
-- `AUTO_CREATE_TABLES`
-- `JWT_SECRET`
-- `LIA_ADMIN_USER`
-- `LIA_ADMIN_PASSWORD`
-- `GEMINI_API_KEY`
-- `MODELO_GEMINI`
-- `FRONTEND_ORIGINS`
+Pontos importantes para produção:
 
-Para o serviço Docker no Render, use `DATABASE_URL=sqlite:////app/data/lia.db` apenas para teste simples. Para produção real, prefira PostgreSQL no `DATABASE_URL`, use `AUTO_CREATE_TABLES=false` e troque todos os segredos padrão.
+- trocar todos os segredos padrão;
+- usar PostgreSQL;
+- usar domínio HTTPS;
+- evitar plano gratuito com cold start para entrega final;
+- revisar política de usuários e permissões antes de uso amplo.
+
+## Status do Produto
+
+Este projeto está em evolução ativa. A base atual já permite demonstração e acompanhamento pelo cliente, mas para entrega final recomenda-se:
+
+- Render pago ou infraestrutura sem cold start;
+- PostgreSQL;
+- domínio próprio;
+- rotina de backup;
+- revisão de segurança e permissões;
+- documentação operacional para a equipe das lojas.
