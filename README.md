@@ -308,6 +308,15 @@ Essa camada foi criada para permitir evolução futura para RAG sem reescrever a
 | `PATCH` | `/admin/checklist-template-items/{item_id}` | Atualiza item de template. |
 | `DELETE` | `/admin/checklist-template-items/{item_id}` | Desativa item sem remover histórico. |
 | `GET` | `/admin/manuals` | Lista manuais para administradores. |
+| `POST` | `/admin/manuals` | Cria manual operacional. |
+| `PATCH` | `/admin/manuals/{manual_id}` | Atualiza manual operacional. |
+| `DELETE` | `/admin/manuals/{manual_id}` | Desativa manual sem remover histórico. |
+| `POST` | `/admin/manuals/{manual_id}/sections` | Cria seção em um manual. |
+| `PATCH` | `/admin/manual-sections/{section_id}` | Atualiza seção de manual. |
+| `DELETE` | `/admin/manual-sections/{section_id}` | Desativa seção de manual. |
+| `POST` | `/admin/manual-sections/{section_id}/steps` | Cria passo em uma seção. |
+| `PATCH` | `/admin/manual-steps/{step_id}` | Atualiza passo de manual. |
+| `DELETE` | `/admin/manual-steps/{step_id}` | Desativa passo de manual. |
 | `GET` | `/incidents` | Lista ocorrências operacionais. |
 | `POST` | `/incidents` | Cria ocorrência operacional. |
 | `GET` | `/incidents/{incident_id}` | Consulta uma ocorrência. |
@@ -320,7 +329,7 @@ Essa camada foi criada para permitir evolução futura para RAG sem reescrever a
 
 ## Novas Áreas Operacionais
 
-- `/admin`: painel administrativo com criação/edição/desativação de usuários, lojas, templates de checklist e itens, além de manuais, ocorrências, relatórios e auditoria de evidências.
+- `/admin`: painel administrativo com criação/edição/desativação de usuários, lojas, templates de checklist, itens, manuais, seções e passos, além de ocorrências, relatórios e auditoria de evidências.
 - `/incidents`: registro e acompanhamento de ocorrências reais do turno.
 - `/reports`: resumo semanal ou mensal para gestão.
 - Checklists: cada item agora aceita foto como evidência, com storage local protegido por autenticação.

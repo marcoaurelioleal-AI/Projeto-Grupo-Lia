@@ -11,6 +11,11 @@ import type {
   IncidentStatus,
   LoginResponse,
   Manual,
+  ManualCreate,
+  ManualSection,
+  ManualSectionCreate,
+  ManualStep,
+  ManualStepCreate,
   OperationalIncident,
   OperationalIncidentCreate,
   ReportSummary,
@@ -177,6 +182,48 @@ export const api = {
       method: 'DELETE'
     }),
   adminManuals: () => request<Manual[]>('/admin/manuals'),
+  createManual: (payload: ManualCreate) =>
+    request<Manual>('/admin/manuals', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    }),
+  updateManual: (manualId: number, payload: Partial<ManualCreate> & { active?: boolean }) =>
+    request<Manual>(`/admin/manuals/${manualId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload)
+    }),
+  deactivateManual: (manualId: number) =>
+    request<Manual>(`/admin/manuals/${manualId}`, {
+      method: 'DELETE'
+    }),
+  createManualSection: (manualId: number, payload: ManualSectionCreate) =>
+    request<Manual>(`/admin/manuals/${manualId}/sections`, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    }),
+  updateManualSection: (sectionId: number, payload: Partial<Pick<ManualSection, 'title' | 'active'>>) =>
+    request<Manual>(`/admin/manual-sections/${sectionId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload)
+    }),
+  deactivateManualSection: (sectionId: number) =>
+    request<Manual>(`/admin/manual-sections/${sectionId}`, {
+      method: 'DELETE'
+    }),
+  createManualStep: (sectionId: number, payload: ManualStepCreate) =>
+    request<Manual>(`/admin/manual-sections/${sectionId}/steps`, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    }),
+  updateManualStep: (stepId: number, payload: Partial<Pick<ManualStep, 'text' | 'active'>>) =>
+    request<Manual>(`/admin/manual-steps/${stepId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload)
+    }),
+  deactivateManualStep: (stepId: number) =>
+    request<Manual>(`/admin/manual-steps/${stepId}`, {
+      method: 'DELETE'
+    }),
   incidents: (options: { status?: IncidentStatus | 'todas'; store?: string } = {}) =>
     request<OperationalIncident[]>(
       withParams('/incidents', {

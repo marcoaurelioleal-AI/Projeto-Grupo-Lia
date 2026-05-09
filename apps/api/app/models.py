@@ -41,6 +41,7 @@ class Manual(Base):
     time_standard: Mapped[str] = mapped_column(String(120))
     critical_point: Mapped[str] = mapped_column(String(180))
     tip: Mapped[str] = mapped_column(Text)
+    active: Mapped[bool] = mapped_column(Boolean, default=True)
     sections: Mapped[list["ManualSection"]] = relationship(
         back_populates="manual", cascade="all, delete-orphan", order_by="ManualSection.position"
     )
@@ -53,6 +54,7 @@ class ManualSection(Base):
     manual_id: Mapped[int] = mapped_column(ForeignKey("manuals.id"))
     title: Mapped[str] = mapped_column(String(160))
     position: Mapped[int] = mapped_column(Integer, default=0)
+    active: Mapped[bool] = mapped_column(Boolean, default=True)
     manual: Mapped[Manual] = relationship(back_populates="sections")
     steps: Mapped[list["ManualStep"]] = relationship(
         back_populates="section", cascade="all, delete-orphan", order_by="ManualStep.position"
@@ -66,6 +68,7 @@ class ManualStep(Base):
     section_id: Mapped[int] = mapped_column(ForeignKey("manual_sections.id"))
     text: Mapped[str] = mapped_column(Text)
     position: Mapped[int] = mapped_column(Integer, default=0)
+    active: Mapped[bool] = mapped_column(Boolean, default=True)
     section: Mapped[ManualSection] = relationship(back_populates="steps")
 
 

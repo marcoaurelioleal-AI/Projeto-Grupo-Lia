@@ -9,6 +9,7 @@ from ..models import (
     ChecklistTemplateItem,
     Manual,
     ManualSection,
+    ManualStep,
     OperationalIncident,
     Store,
     User,
@@ -57,6 +58,40 @@ class AdminRepository:
                 .order_by(Manual.unit)
             ).all()
         )
+
+    def get_manual(self, manual_id: int) -> Manual | None:
+        return self.db.scalar(
+            select(Manual)
+            .options(selectinload(Manual.sections).selectinload(ManualSection.steps))
+            .where(Manual.id == manual_id)
+        )
+
+    def get_manual_by_unit(self, unit: str) -> Manual | None:
+        return self.db.scalar(select(Manual).where(Manual.unit == unit))
+
+    def add_manual(self, manual: Manual) -> Manual:
+        self.db.add(manual)
+        self.db.commit()
+        self.db.refresh(manual)
+        return manual
+
+    def get_manual_section(self, section_id: int) -> ManualSection | None:
+        return self.db.get(ManualSection, section_id)
+
+    def get_manual_step(self, step_id: int) -> ManualStep | None:
+        return self.db.get(ManualStep, step_id)
+
+    def next_manual_section_position(self, manual_id: int) -> int:
+        manual = self.get_manual(manual_id)
+        if not manual or not manual.sections:
+            return 0
+        return max(section.position for section in manual.sections) + 1
+
+    def next_manual_step_position(self, section_id: int) -> int:
+        section = self.get_manual_section(section_id)
+        if not section or not section.steps:
+            return 0
+        return max(step.position for step in section.steps) + 1
 
     def list_checklist_templates(self) -> list[ChecklistTemplate]:
         return list(

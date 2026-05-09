@@ -44,17 +44,37 @@ class ManualStepRead(BaseModel):
     id: int
     text: str
     position: int
+    active: bool
 
     model_config = {"from_attributes": True}
+
+
+class ManualStepCreate(BaseModel):
+    text: str = Field(min_length=1, max_length=1200)
+
+
+class ManualStepUpdate(BaseModel):
+    text: str | None = Field(default=None, min_length=1, max_length=1200)
+    active: bool | None = None
 
 
 class ManualSectionRead(BaseModel):
     id: int
     title: str
     position: int
+    active: bool
     steps: list[ManualStepRead]
 
     model_config = {"from_attributes": True}
+
+
+class ManualSectionCreate(BaseModel):
+    title: str = Field(min_length=1, max_length=160)
+
+
+class ManualSectionUpdate(BaseModel):
+    title: str | None = Field(default=None, min_length=1, max_length=160)
+    active: bool | None = None
 
 
 class ManualRead(BaseModel):
@@ -65,9 +85,29 @@ class ManualRead(BaseModel):
     time_standard: str
     critical_point: str
     tip: str
+    active: bool
     sections: list[ManualSectionRead]
 
     model_config = {"from_attributes": True}
+
+
+class ManualCreate(BaseModel):
+    unit: str = Field(min_length=2, max_length=80)
+    title: str = Field(min_length=2, max_length=180)
+    temperature: str = Field(min_length=1, max_length=120)
+    time_standard: str = Field(min_length=1, max_length=120)
+    critical_point: str = Field(min_length=1, max_length=180)
+    tip: str = Field(min_length=1, max_length=1500)
+
+
+class ManualUpdate(BaseModel):
+    unit: str | None = Field(default=None, min_length=2, max_length=80)
+    title: str | None = Field(default=None, min_length=2, max_length=180)
+    temperature: str | None = Field(default=None, min_length=1, max_length=120)
+    time_standard: str | None = Field(default=None, min_length=1, max_length=120)
+    critical_point: str | None = Field(default=None, min_length=1, max_length=180)
+    tip: str | None = Field(default=None, min_length=1, max_length=1500)
+    active: bool | None = None
 
 
 class ChecklistItemRead(BaseModel):

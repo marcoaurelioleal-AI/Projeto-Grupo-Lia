@@ -3,13 +3,19 @@ from __future__ import annotations
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from ..models import ChecklistTemplate, ChecklistTemplateItem, Manual, Store, User
+from ..models import ChecklistTemplate, ChecklistTemplateItem, Manual, ManualSection, ManualStep, Store, User
 from ..repositories.admin_repository import AdminRepository
 from ..schemas import (
     ChecklistTemplateCreate,
     ChecklistTemplateItemCreate,
     ChecklistTemplateItemUpdate,
     ChecklistTemplateUpdate,
+    ManualCreate,
+    ManualSectionCreate,
+    ManualSectionUpdate,
+    ManualStepCreate,
+    ManualStepUpdate,
+    ManualUpdate,
     StoreCreate,
     StoreUpdate,
     UserCreate,
@@ -183,3 +189,133 @@ class AdminService:
 
     def list_manuals(self) -> list[Manual]:
         return self.repository.list_manuals()
+
+    def create_manual(self, payload: ManualCreate) -> Manual:
+        unit = payload.unit.strip()
+        if self.repository.get_manual_by_unit(unit):
+            raise HTTPException(status_code=409, detail="Manual ja cadastrado para esta unidade")
+
+        return self.repository.add_manual(
+            Manual(
+                unit=unit,
+                title=payload.title.strip(),
+                temperature=payload.temperature.strip(),
+                time_standard=payload.time_standard.strip(),
+                critical_point=payload.critical_point.strip(),
+                tip=payload.tip.strip(),
+                active=True,
+            )
+        )
+
+    def update_manual(self, manual_id: int, payload: ManualUpdate) -> Manual:
+        manual = self.repository.get_manual(manual_id)
+        if not manual:
+            raise HTTPException(status_code=404, detail="Manual nao encontrado")
+
+        changes = payload.model_dump(exclude_unset=True)
+        if "unit" in changes and changes["unit"] is not None:
+            unit = changes["unit"].strip()
+            existing = self.repository.get_manual_by_unit(unit)
+            if existing and existing.id != manual.id:
+                raise HTTPException(status_code=409, detail="Manual ja cadastrado para esta unidade")
+            manual.unit = unit
+        if "title" in changes and changes["title"] is not None:
+            manual.title = changes["title"].strip()
+        if "temperature" in changes and changes["temperature"] is not None:
+            manual.temperature = changes["temperature"].strip()
+        if "time_standard" in changes and changes["time_standard"] is not None:
+            manual.time_standard = changes["time_standard"].strip()
+        if "critical_point" in changes and changes["critical_point"] is not None:
+            manual.critical_point = changes["critical_point"].strip()
+        if "tip" in changes and changes["tip"] is not None:
+            manual.tip = changes["tip"].strip()
+        if "active" in changes and changes["active"] is not None:
+            manual.active = changes["active"]
+
+        self.repository.commit()
+        refreshed = self.repository.get_manual(manual_id)
+        if not refreshed:
+            raise HTTPException(status_code=404, detail="Manual nao encontrado")
+        return refreshed
+
+    def deactivate_manual(self, manual_id: int) -> Manual:
+        return self.update_manual(manual_id, ManualUpdate(active=False))
+
+    def create_manual_section(self, manual_id: int, payload: ManualSectionCreate) -> Manual:
+        manual = self.repository.get_manual(manual_id)
+        if not manual:
+            raise HTTPException(status_code=404, detail="Manual nao encontrado")
+
+        manual.sections.append(
+            ManualSection(
+                title=payload.title.strip(),
+                position=self.repository.next_manual_section_position(manual_id),
+                active=True,
+            )
+        )
+        self.repository.commit()
+        refreshed = self.repository.get_manual(manual_id)
+        if not refreshed:
+            raise HTTPException(status_code=404, detail="Manual nao encontrado")
+        return refreshed
+
+    def update_manual_section(self, section_id: int, payload: ManualSectionUpdate) -> Manual:
+        section = self.repository.get_manual_section(section_id)
+        if not section:
+            raise HTTPException(status_code=404, detail="Secao do manual nao encontrada")
+
+        changes = payload.model_dump(exclude_unset=True)
+        if "title" in changes and changes["title"] is not None:
+            section.title = changes["title"].strip()
+        if "active" in changes and changes["active"] is not None:
+            section.active = changes["active"]
+
+        manual_id = section.manual_id
+        self.repository.commit()
+        refreshed = self.repository.get_manual(manual_id)
+        if not refreshed:
+            raise HTTPException(status_code=404, detail="Manual nao encontrado")
+        return refreshed
+
+    def deactivate_manual_section(self, section_id: int) -> Manual:
+        return self.update_manual_section(section_id, ManualSectionUpdate(active=False))
+
+    def create_manual_step(self, section_id: int, payload: ManualStepCreate) -> Manual:
+        section = self.repository.get_manual_section(section_id)
+        if not section:
+            raise HTTPException(status_code=404, detail="Secao do manual nao encontrada")
+
+        section.steps.append(
+            ManualStep(
+                text=payload.text.strip(),
+                position=self.repository.next_manual_step_position(section_id),
+                active=True,
+            )
+        )
+        manual_id = section.manual_id
+        self.repository.commit()
+        refreshed = self.repository.get_manual(manual_id)
+        if not refreshed:
+            raise HTTPException(status_code=404, detail="Manual nao encontrado")
+        return refreshed
+
+    def update_manual_step(self, step_id: int, payload: ManualStepUpdate) -> Manual:
+        step = self.repository.get_manual_step(step_id)
+        if not step:
+            raise HTTPException(status_code=404, detail="Passo do manual nao encontrado")
+
+        changes = payload.model_dump(exclude_unset=True)
+        if "text" in changes and changes["text"] is not None:
+            step.text = changes["text"].strip()
+        if "active" in changes and changes["active"] is not None:
+            step.active = changes["active"]
+
+        manual_id = step.section.manual_id
+        self.repository.commit()
+        refreshed = self.repository.get_manual(manual_id)
+        if not refreshed:
+            raise HTTPException(status_code=404, detail="Manual nao encontrado")
+        return refreshed
+
+    def deactivate_manual_step(self, step_id: int) -> Manual:
+        return self.update_manual_step(step_id, ManualStepUpdate(active=False))

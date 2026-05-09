@@ -211,11 +211,12 @@ def seed_manuals(db: Session) -> None:
             time_standard=manual_data["time_standard"],
             critical_point=manual_data["critical_point"],
             tip=manual_data["tip"],
+            active=True,
         )
         for section_index, (section_title, steps) in enumerate(manual_data["sections"].items()):
-            section = ManualSection(title=section_title, position=section_index)
+            section = ManualSection(title=section_title, position=section_index, active=True)
             for step_index, step in enumerate(steps):
-                section.steps.append(ManualStep(text=step, position=step_index))
+                section.steps.append(ManualStep(text=step, position=step_index, active=True))
             manual.sections.append(section)
         db.add(manual)
 

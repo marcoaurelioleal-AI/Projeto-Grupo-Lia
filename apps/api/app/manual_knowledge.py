@@ -5,9 +5,9 @@ import unicodedata
 from dataclasses import dataclass
 
 from sqlalchemy import select
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import Session, selectinload, with_loader_criteria
 
-from .models import Manual, ManualSection
+from .models import Manual, ManualSection, ManualStep
 from .schemas import ChatSource
 
 
@@ -67,7 +67,16 @@ class ManualKnowledgeService:
         )
 
     def _load_manuals(self, unit: str | None) -> list[Manual]:
-        query = select(Manual).options(selectinload(Manual.sections).selectinload(ManualSection.steps)).order_by(Manual.unit)
+        query = (
+            select(Manual)
+            .where(Manual.active.is_(True))
+            .options(
+                selectinload(Manual.sections).selectinload(ManualSection.steps),
+                with_loader_criteria(ManualSection, ManualSection.active.is_(True)),
+                with_loader_criteria(ManualStep, ManualStep.active.is_(True)),
+            )
+            .order_by(Manual.unit)
+        )
         if unit:
             query = query.where(Manual.unit == unit)
         return list(self.db.scalars(query).unique().all())

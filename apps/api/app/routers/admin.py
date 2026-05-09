@@ -11,7 +11,13 @@ from ..schemas import (
     ChecklistTemplateItemCreate,
     ChecklistTemplateItemUpdate,
     ChecklistTemplateUpdate,
+    ManualCreate,
     ManualRead,
+    ManualSectionCreate,
+    ManualSectionUpdate,
+    ManualStepCreate,
+    ManualStepUpdate,
+    ManualUpdate,
     StoreCreate,
     StoreRead,
     StoreUpdate,
@@ -172,3 +178,89 @@ def list_manuals(
     service: AdminService = Depends(get_admin_service),
 ) -> list[Manual]:
     return service.list_manuals()
+
+
+@router.post("/manuals", response_model=ManualRead)
+def create_manual(
+    payload: ManualCreate,
+    _: User = Depends(require_admin_user),
+    service: AdminService = Depends(get_admin_service),
+) -> Manual:
+    return service.create_manual(payload)
+
+
+@router.patch("/manuals/{manual_id}", response_model=ManualRead)
+def update_manual(
+    manual_id: int,
+    payload: ManualUpdate,
+    _: User = Depends(require_admin_user),
+    service: AdminService = Depends(get_admin_service),
+) -> Manual:
+    return service.update_manual(manual_id, payload)
+
+
+@router.delete("/manuals/{manual_id}", response_model=ManualRead)
+def deactivate_manual(
+    manual_id: int,
+    _: User = Depends(require_admin_user),
+    service: AdminService = Depends(get_admin_service),
+) -> Manual:
+    return service.deactivate_manual(manual_id)
+
+
+@router.post("/manuals/{manual_id}/sections", response_model=ManualRead)
+def create_manual_section(
+    manual_id: int,
+    payload: ManualSectionCreate,
+    _: User = Depends(require_admin_user),
+    service: AdminService = Depends(get_admin_service),
+) -> Manual:
+    return service.create_manual_section(manual_id, payload)
+
+
+@router.patch("/manual-sections/{section_id}", response_model=ManualRead)
+def update_manual_section(
+    section_id: int,
+    payload: ManualSectionUpdate,
+    _: User = Depends(require_admin_user),
+    service: AdminService = Depends(get_admin_service),
+) -> Manual:
+    return service.update_manual_section(section_id, payload)
+
+
+@router.delete("/manual-sections/{section_id}", response_model=ManualRead)
+def deactivate_manual_section(
+    section_id: int,
+    _: User = Depends(require_admin_user),
+    service: AdminService = Depends(get_admin_service),
+) -> Manual:
+    return service.deactivate_manual_section(section_id)
+
+
+@router.post("/manual-sections/{section_id}/steps", response_model=ManualRead)
+def create_manual_step(
+    section_id: int,
+    payload: ManualStepCreate,
+    _: User = Depends(require_admin_user),
+    service: AdminService = Depends(get_admin_service),
+) -> Manual:
+    return service.create_manual_step(section_id, payload)
+
+
+@router.patch("/manual-steps/{step_id}", response_model=ManualRead)
+def update_manual_step(
+    step_id: int,
+    payload: ManualStepUpdate,
+    _: User = Depends(require_admin_user),
+    service: AdminService = Depends(get_admin_service),
+) -> Manual:
+    return service.update_manual_step(step_id, payload)
+
+
+@router.delete("/manual-steps/{step_id}", response_model=ManualRead)
+def deactivate_manual_step(
+    step_id: int,
+    _: User = Depends(require_admin_user),
+    service: AdminService = Depends(get_admin_service),
+) -> Manual:
+    return service.deactivate_manual_step(step_id)

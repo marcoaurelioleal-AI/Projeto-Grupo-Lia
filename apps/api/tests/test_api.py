@@ -170,3 +170,47 @@ def test_admin_can_manage_checklist_templates() -> None:
         disabled_template = client.delete(f"/admin/checklist-templates/{template_id}", headers=headers)
         assert disabled_template.status_code == 200
         assert disabled_template.json()["active"] is False
+
+
+def test_admin_can_manage_manuals() -> None:
+    with TestClient(app) as client:
+        headers = auth_headers(client)
+
+        created = client.post(
+            "/admin/manuals",
+            headers=headers,
+            json={
+                "unit": "Lia Manual Teste",
+                "title": "Manual Teste",
+                "temperature": "180C",
+                "time_standard": "5 min",
+                "critical_point": "Conferir padrao",
+                "tip": "Registrar ajuste",
+            },
+        )
+        assert created.status_code == 200
+        manual_id = created.json()["id"]
+
+        updated = client.patch(f"/admin/manuals/{manual_id}", headers=headers, json={"temperature": "190C"})
+        assert updated.status_code == 200
+        assert updated.json()["temperature"] == "190C"
+
+        with_section = client.post(f"/admin/manuals/{manual_id}/sections", headers=headers, json={"title": "Abertura"})
+        assert with_section.status_code == 200
+        section = with_section.json()["sections"][0]
+
+        with_step = client.post(
+            f"/admin/manual-sections/{section['id']}/steps",
+            headers=headers,
+            json={"text": "Conferir bancada antes de iniciar."},
+        )
+        assert with_step.status_code == 200
+        step = with_step.json()["sections"][0]["steps"][0]
+
+        disabled_step = client.delete(f"/admin/manual-steps/{step['id']}", headers=headers)
+        assert disabled_step.status_code == 200
+        assert disabled_step.json()["sections"][0]["steps"][0]["active"] is False
+
+        disabled_manual = client.delete(f"/admin/manuals/{manual_id}", headers=headers)
+        assert disabled_manual.status_code == 200
+        assert disabled_manual.json()["active"] is False

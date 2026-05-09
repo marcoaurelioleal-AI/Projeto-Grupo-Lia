@@ -25,12 +25,14 @@ export interface ManualStep {
   id: number;
   text: string;
   position: number;
+  active: boolean;
 }
 
 export interface ManualSection {
   id: number;
   title: string;
   position: number;
+  active: boolean;
   steps: ManualStep[];
 }
 
@@ -42,7 +44,25 @@ export interface Manual {
   time_standard: string;
   critical_point: string;
   tip: string;
+  active: boolean;
   sections: ManualSection[];
+}
+
+export interface ManualCreate {
+  unit: string;
+  title: string;
+  temperature: string;
+  time_standard: string;
+  critical_point: string;
+  tip: string;
+}
+
+export interface ManualSectionCreate {
+  title: string;
+}
+
+export interface ManualStepCreate {
+  text: string;
 }
 
 export interface ChecklistItem {

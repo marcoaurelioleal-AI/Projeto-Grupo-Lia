@@ -10,6 +10,12 @@ import type {
   ChecklistTemplateCreate,
   ChecklistTemplateItem,
   ChecklistTemplateItemCreate,
+  Manual,
+  ManualCreate,
+  ManualSection,
+  ManualSectionCreate,
+  ManualStep,
+  ManualStepCreate,
   Role,
   StoreOption,
   User,
@@ -31,6 +37,23 @@ const emptyTemplate: ChecklistTemplateCreate = {
 
 const emptyTemplateItem: ChecklistTemplateItemCreate = {
   section: '',
+  text: ''
+};
+
+const emptyManual: ManualCreate = {
+  unit: '',
+  title: '',
+  temperature: '',
+  time_standard: '',
+  critical_point: '',
+  tip: ''
+};
+
+const emptyManualSection: ManualSectionCreate = {
+  title: ''
+};
+
+const emptyManualStep: ManualStepCreate = {
   text: ''
 };
 
@@ -126,6 +149,10 @@ export function AdminPage() {
             <p className="mt-3 text-sm text-lia-muted">Nenhuma evidencia enviada ainda.</p>
           )}
         </div>
+      </section>
+
+      <section className="mt-5">
+        <ManualsAdminSection manuals={manuals.data ?? []} stores={stores.data ?? []} loading={manuals.isLoading} />
       </section>
 
       <section className="mt-5 rounded-lg border border-lia-red/10 bg-white/70 p-4">
@@ -591,6 +618,390 @@ function TemplateItemRow({
           onClick={() => onSave({ active: !item.active })}
         >
           {item.active ? 'Desativar' : 'Ativar'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function ManualsAdminSection({
+  manuals,
+  stores,
+  loading
+}: {
+  manuals: Manual[];
+  stores: StoreOption[];
+  loading: boolean;
+}) {
+  const queryClient = useQueryClient();
+  const [form, setForm] = useState<ManualCreate>(emptyManual);
+
+  const createManual = useMutation({
+    mutationFn: api.createManual,
+    onSuccess: () => {
+      setForm(emptyManual);
+      queryClient.invalidateQueries({ queryKey: ['admin-manuals'] });
+      queryClient.invalidateQueries({ queryKey: ['manuals'] });
+    }
+  });
+
+  const updateManual = useMutation({
+    mutationFn: ({ manualId, payload }: { manualId: number; payload: Partial<ManualCreate> & { active?: boolean } }) =>
+      api.updateManual(manualId, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-manuals'] });
+      queryClient.invalidateQueries({ queryKey: ['manuals'] });
+    }
+  });
+
+  const createSection = useMutation({
+    mutationFn: ({ manualId, payload }: { manualId: number; payload: ManualSectionCreate }) =>
+      api.createManualSection(manualId, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-manuals'] });
+      queryClient.invalidateQueries({ queryKey: ['manuals'] });
+    }
+  });
+
+  const updateSection = useMutation({
+    mutationFn: ({ sectionId, payload }: { sectionId: number; payload: Partial<Pick<ManualSection, 'title' | 'active'>> }) =>
+      api.updateManualSection(sectionId, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-manuals'] });
+      queryClient.invalidateQueries({ queryKey: ['manuals'] });
+    }
+  });
+
+  const createStep = useMutation({
+    mutationFn: ({ sectionId, payload }: { sectionId: number; payload: ManualStepCreate }) =>
+      api.createManualStep(sectionId, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-manuals'] });
+      queryClient.invalidateQueries({ queryKey: ['manuals'] });
+    }
+  });
+
+  const updateStep = useMutation({
+    mutationFn: ({ stepId, payload }: { stepId: number; payload: Partial<Pick<ManualStep, 'text' | 'active'>> }) =>
+      api.updateManualStep(stepId, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-manuals'] });
+      queryClient.invalidateQueries({ queryKey: ['manuals'] });
+    }
+  });
+
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    createManual.mutate(form);
+  }
+
+  return (
+    <div className="surface rounded-lg p-4">
+      <h3 className="text-lg font-black text-lia-burgundy">Manuais operacionais</h3>
+      <p className="mt-1 text-sm text-lia-muted">Conteudo usado pela tela de manuais e pela Lia.</p>
+
+      <form onSubmit={submit} className="mt-3 grid gap-3 rounded-lg bg-white p-3">
+        <div className="grid gap-3 md:grid-cols-3">
+          <select
+            className="focus-ring rounded-lg border border-lia-red/15 px-3 py-2 text-sm"
+            value={form.unit}
+            onChange={(event) => setForm((current) => ({ ...current, unit: event.target.value }))}
+            required
+          >
+            <option value="">Unidade</option>
+            {stores
+              .filter((store) => store.active && store.name !== 'Grupo Lia')
+              .map((store) => (
+                <option key={store.id}>{store.name}</option>
+              ))}
+          </select>
+          <input
+            className="focus-ring rounded-lg border border-lia-red/15 px-3 py-2 text-sm"
+            placeholder="Titulo"
+            value={form.title}
+            onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))}
+            required
+          />
+          <input
+            className="focus-ring rounded-lg border border-lia-red/15 px-3 py-2 text-sm"
+            placeholder="Temperatura"
+            value={form.temperature}
+            onChange={(event) => setForm((current) => ({ ...current, temperature: event.target.value }))}
+            required
+          />
+          <input
+            className="focus-ring rounded-lg border border-lia-red/15 px-3 py-2 text-sm"
+            placeholder="Tempo padrao"
+            value={form.time_standard}
+            onChange={(event) => setForm((current) => ({ ...current, time_standard: event.target.value }))}
+            required
+          />
+          <input
+            className="focus-ring rounded-lg border border-lia-red/15 px-3 py-2 text-sm"
+            placeholder="Ponto critico"
+            value={form.critical_point}
+            onChange={(event) => setForm((current) => ({ ...current, critical_point: event.target.value }))}
+            required
+          />
+          <input
+            className="focus-ring rounded-lg border border-lia-red/15 px-3 py-2 text-sm"
+            placeholder="Dica"
+            value={form.tip}
+            onChange={(event) => setForm((current) => ({ ...current, tip: event.target.value }))}
+            required
+          />
+        </div>
+        {createManual.error ? <p className="text-sm font-semibold text-lia-red">{createManual.error.message}</p> : null}
+        <button
+          className="focus-ring rounded-lg bg-lia-red px-3 py-2 text-sm font-bold text-white disabled:opacity-60"
+          disabled={createManual.isPending}
+        >
+          {createManual.isPending ? 'Criando...' : 'Criar manual'}
+        </button>
+      </form>
+
+      <div className="mt-3 grid gap-3 xl:grid-cols-2">
+        {loading ? <p className="text-sm text-lia-muted">Carregando manuais...</p> : null}
+        {manuals.map((manual) => (
+          <ManualRow
+            key={manual.id}
+            manual={manual}
+            stores={stores}
+            onSave={(payload) => updateManual.mutate({ manualId: manual.id, payload })}
+            onCreateSection={(payload) => createSection.mutate({ manualId: manual.id, payload })}
+            onSaveSection={(sectionId, payload) => updateSection.mutate({ sectionId, payload })}
+            onCreateStep={(sectionId, payload) => createStep.mutate({ sectionId, payload })}
+            onSaveStep={(stepId, payload) => updateStep.mutate({ stepId, payload })}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ManualRow({
+  manual,
+  stores,
+  onSave,
+  onCreateSection,
+  onSaveSection,
+  onCreateStep,
+  onSaveStep
+}: {
+  manual: Manual;
+  stores: StoreOption[];
+  onSave: (payload: Partial<ManualCreate> & { active?: boolean }) => void;
+  onCreateSection: (payload: ManualSectionCreate) => void;
+  onSaveSection: (sectionId: number, payload: Partial<Pick<ManualSection, 'title' | 'active'>>) => void;
+  onCreateStep: (sectionId: number, payload: ManualStepCreate) => void;
+  onSaveStep: (stepId: number, payload: Partial<Pick<ManualStep, 'text' | 'active'>>) => void;
+}) {
+  const [unit, setUnit] = useState(manual.unit);
+  const [title, setTitle] = useState(manual.title);
+  const [temperature, setTemperature] = useState(manual.temperature);
+  const [timeStandard, setTimeStandard] = useState(manual.time_standard);
+  const [criticalPoint, setCriticalPoint] = useState(manual.critical_point);
+  const [tip, setTip] = useState(manual.tip);
+  const [sectionForm, setSectionForm] = useState<ManualSectionCreate>(emptyManualSection);
+
+  function submitSection(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    onCreateSection(sectionForm);
+    setSectionForm(emptyManualSection);
+  }
+
+  return (
+    <div className="rounded-lg bg-white p-3">
+      <div className="grid gap-2 md:grid-cols-2">
+        <select
+          className="focus-ring rounded-lg border border-lia-red/15 px-3 py-2 text-sm"
+          value={unit}
+          onChange={(event) => setUnit(event.target.value)}
+        >
+          {stores
+            .filter((store) => store.active && store.name !== 'Grupo Lia')
+            .map((store) => (
+              <option key={store.id}>{store.name}</option>
+            ))}
+        </select>
+        <input
+          className="focus-ring rounded-lg border border-lia-red/15 px-3 py-2 text-sm font-semibold text-lia-burgundy"
+          value={title}
+          onChange={(event) => setTitle(event.target.value)}
+        />
+        <input
+          className="focus-ring rounded-lg border border-lia-red/15 px-3 py-2 text-sm"
+          value={temperature}
+          onChange={(event) => setTemperature(event.target.value)}
+        />
+        <input
+          className="focus-ring rounded-lg border border-lia-red/15 px-3 py-2 text-sm"
+          value={timeStandard}
+          onChange={(event) => setTimeStandard(event.target.value)}
+        />
+        <input
+          className="focus-ring rounded-lg border border-lia-red/15 px-3 py-2 text-sm"
+          value={criticalPoint}
+          onChange={(event) => setCriticalPoint(event.target.value)}
+        />
+        <input
+          className="focus-ring rounded-lg border border-lia-red/15 px-3 py-2 text-sm"
+          value={tip}
+          onChange={(event) => setTip(event.target.value)}
+        />
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <StatusPill active={manual.active} />
+        <button
+          className="focus-ring rounded-lg border border-lia-red/20 px-3 py-2 text-xs font-bold text-lia-burgundy"
+          onClick={() =>
+            onSave({
+              unit,
+              title,
+              temperature,
+              time_standard: timeStandard,
+              critical_point: criticalPoint,
+              tip
+            })
+          }
+        >
+          Salvar manual
+        </button>
+        <button
+          className="focus-ring rounded-lg border border-lia-red/20 px-3 py-2 text-xs font-bold text-lia-burgundy"
+          onClick={() => onSave({ active: !manual.active })}
+        >
+          {manual.active ? 'Desativar' : 'Ativar'}
+        </button>
+      </div>
+
+      <form onSubmit={submitSection} className="mt-3 flex gap-2 rounded-lg bg-lia-cream/60 p-2">
+        <input
+          className="focus-ring min-w-0 flex-1 rounded-lg border border-lia-red/15 px-3 py-2 text-sm"
+          placeholder="Nova secao"
+          value={sectionForm.title}
+          onChange={(event) => setSectionForm({ title: event.target.value })}
+          required
+        />
+        <button className="focus-ring rounded-lg bg-lia-burgundy px-3 py-2 text-xs font-bold text-white">
+          Adicionar
+        </button>
+      </form>
+
+      <div className="mt-3 space-y-2">
+        {manual.sections.map((section) => (
+          <ManualSectionRow
+            key={section.id}
+            section={section}
+            onSave={(payload) => onSaveSection(section.id, payload)}
+            onCreateStep={(payload) => onCreateStep(section.id, payload)}
+            onSaveStep={onSaveStep}
+          />
+        ))}
+        {!manual.sections.length ? <p className="text-sm text-lia-muted">Nenhuma secao cadastrada neste manual.</p> : null}
+      </div>
+    </div>
+  );
+}
+
+function ManualSectionRow({
+  section,
+  onSave,
+  onCreateStep,
+  onSaveStep
+}: {
+  section: ManualSection;
+  onSave: (payload: Partial<Pick<ManualSection, 'title' | 'active'>>) => void;
+  onCreateStep: (payload: ManualStepCreate) => void;
+  onSaveStep: (stepId: number, payload: Partial<Pick<ManualStep, 'text' | 'active'>>) => void;
+}) {
+  const [title, setTitle] = useState(section.title);
+  const [stepForm, setStepForm] = useState<ManualStepCreate>(emptyManualStep);
+
+  function submitStep(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    onCreateStep(stepForm);
+    setStepForm(emptyManualStep);
+  }
+
+  return (
+    <div className="rounded-lg border border-lia-red/10 bg-lia-cream/50 p-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <input
+          className="focus-ring min-w-0 flex-1 rounded-lg border border-lia-red/15 px-3 py-2 text-sm font-semibold text-lia-burgundy"
+          value={title}
+          onChange={(event) => setTitle(event.target.value)}
+        />
+        <StatusPill active={section.active} />
+      </div>
+      <div className="mt-2 flex flex-wrap gap-2">
+        <button
+          className="focus-ring rounded-lg border border-lia-red/20 px-3 py-2 text-xs font-bold text-lia-burgundy"
+          onClick={() => onSave({ title })}
+        >
+          Salvar secao
+        </button>
+        <button
+          className="focus-ring rounded-lg border border-lia-red/20 px-3 py-2 text-xs font-bold text-lia-burgundy"
+          onClick={() => onSave({ active: !section.active })}
+        >
+          {section.active ? 'Desativar' : 'Ativar'}
+        </button>
+      </div>
+
+      <form onSubmit={submitStep} className="mt-2 flex gap-2">
+        <input
+          className="focus-ring min-w-0 flex-1 rounded-lg border border-lia-red/15 px-3 py-2 text-xs"
+          placeholder="Novo passo"
+          value={stepForm.text}
+          onChange={(event) => setStepForm({ text: event.target.value })}
+          required
+        />
+        <button className="focus-ring rounded-lg bg-lia-burgundy px-3 py-2 text-xs font-bold text-white">
+          Adicionar
+        </button>
+      </form>
+
+      <div className="mt-2 space-y-2">
+        {section.steps.map((step) => (
+          <ManualStepRow key={step.id} step={step} onSave={(payload) => onSaveStep(step.id, payload)} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ManualStepRow({
+  step,
+  onSave
+}: {
+  step: ManualStep;
+  onSave: (payload: Partial<Pick<ManualStep, 'text' | 'active'>>) => void;
+}) {
+  const [text, setText] = useState(step.text);
+
+  return (
+    <div className="rounded-lg bg-white p-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <input
+          className="focus-ring min-w-0 flex-1 rounded-lg border border-lia-red/15 px-3 py-2 text-xs"
+          value={text}
+          onChange={(event) => setText(event.target.value)}
+        />
+        <StatusPill active={step.active} />
+      </div>
+      <div className="mt-2 flex flex-wrap gap-2">
+        <button
+          className="focus-ring rounded-lg border border-lia-red/20 px-3 py-2 text-xs font-bold text-lia-burgundy"
+          onClick={() => onSave({ text })}
+        >
+          Salvar passo
+        </button>
+        <button
+          className="focus-ring rounded-lg border border-lia-red/20 px-3 py-2 text-xs font-bold text-lia-burgundy"
+          onClick={() => onSave({ active: !step.active })}
+        >
+          {step.active ? 'Desativar' : 'Ativar'}
         </button>
       </div>
     </div>
