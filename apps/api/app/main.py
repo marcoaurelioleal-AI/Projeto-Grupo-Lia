@@ -40,14 +40,14 @@ def health() -> HealthResponse:
     return HealthResponse(status="ok", service=settings.app_name)
 
 
-app.include_router(auth.router)
-app.include_router(manuals.router)
-app.include_router(checklists.router)
-app.include_router(ai.router)
-app.include_router(admin.router)
-app.include_router(incidents.router)
-app.include_router(evidences.router)
-app.include_router(reports.router)
+app.include_router(auth.router, prefix="/api")
+app.include_router(manuals.router, prefix="/api")
+app.include_router(checklists.router, prefix="/api")
+app.include_router(ai.router, prefix="/api")
+app.include_router(admin.router, prefix="/api")
+app.include_router(incidents.router, prefix="/api")
+app.include_router(evidences.router, prefix="/api")
+app.include_router(reports.router, prefix="/api")
 
 STATIC_DIR = Path(__file__).resolve().parents[3] / "apps" / "web" / "dist"
 if STATIC_DIR.exists():

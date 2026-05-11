@@ -17,7 +17,7 @@ from apps.api.app.services.rag_service import RagService  # noqa: E402
 
 
 def auth_headers(client: TestClient) -> dict[str, str]:
-    response = client.post("/auth/login", json={"username": "admin", "password": "admin123"})
+    response = client.post("/api/auth/login", json={"username": "admin", "password": "admin123"})
     assert response.status_code == 200
     token = response.json()["access_token"]
     return {"Authorization": f"Bearer {token}"}
@@ -26,7 +26,7 @@ def auth_headers(client: TestClient) -> dict[str, str]:
 def test_login_and_me() -> None:
     with TestClient(app) as client:
         headers = auth_headers(client)
-        response = client.get("/auth/me", headers=headers)
+        response = client.get("/api/auth/me", headers=headers)
         assert response.status_code == 200
         assert response.json()["role"] == "admin"
 
@@ -34,17 +34,17 @@ def test_login_and_me() -> None:
 def test_manuals_and_checklists() -> None:
     with TestClient(app) as client:
         headers = auth_headers(client)
-        manuals = client.get("/manuals", headers=headers)
+        manuals = client.get("/api/manuals", headers=headers)
         assert manuals.status_code == 200
         assert {manual["unit"] for manual in manuals.json()} == {"Lia Burguer", "Lia Pizza", "Lia Salgados"}
 
-        checklists = client.get("/checklists", headers=headers)
+        checklists = client.get("/api/checklists", headers=headers)
         assert checklists.status_code == 200
         runs = checklists.json()
         assert len(runs) == 3
         first_item = runs[0]["items"][0]
         updated = client.patch(
-            f"/checklists/{runs[0]['id']}/items",
+            f"/api/checklists/{runs[0]['id']}/items",
             headers=headers,
             json={"item_id": first_item["id"], "done": True},
         )
@@ -69,7 +69,7 @@ def test_ai_offline_mode() -> None:
     with TestClient(app) as client:
         headers = auth_headers(client)
         response = client.post(
-            "/ai/chat",
+            "/api/ai/chat",
             headers=headers,
             json={"messages": [{"role": "user", "content": "Qual temperatura da chapa?"}]},
         )
@@ -87,7 +87,7 @@ def test_ai_logs_summarized_history() -> None:
     with TestClient(app) as client:
         headers = auth_headers(client)
         response = client.post(
-            "/ai/chat",
+            "/api/ai/chat",
             headers=headers,
             json={
                 "messages": [{"role": "user", "content": "Como conferir validade dos insumos?"}],
@@ -97,7 +97,7 @@ def test_ai_logs_summarized_history() -> None:
         )
         assert response.status_code == 200
 
-        history = client.get("/ai/history", headers=headers)
+        history = client.get("/api/ai/history", headers=headers)
         assert history.status_code == 200
         items = history.json()
         assert items
@@ -110,7 +110,7 @@ def test_ai_accepts_response_modes_and_records_interaction() -> None:
     with TestClient(app) as client:
         headers = auth_headers(client)
         response = client.post(
-            "/ai/chat",
+            "/api/ai/chat",
             headers=headers,
             json={
                 "messages": [{"role": "user", "content": "Como treinar alguem para fritar salgados?"}],
@@ -123,7 +123,7 @@ def test_ai_accepts_response_modes_and_records_interaction() -> None:
         assert payload["response_mode"] == "treinamento"
         assert payload["sources"]
 
-        interactions = client.get("/ai/interactions?response_mode=treinamento", headers=headers)
+        interactions = client.get("/api/ai/interactions?response_mode=treinamento", headers=headers)
         assert interactions.status_code == 200
         items = interactions.json()
         assert items
@@ -137,7 +137,7 @@ def test_ai_unknown_question_requires_manager_confirmation() -> None:
     with TestClient(app) as client:
         headers = auth_headers(client)
         response = client.post(
-            "/ai/chat",
+            "/api/ai/chat",
             headers=headers,
             json={"messages": [{"role": "user", "content": "Como calibrar um foguete orbital?"}]},
         )
@@ -151,7 +151,7 @@ def test_ai_rejects_blank_question() -> None:
     with TestClient(app) as client:
         headers = auth_headers(client)
         response = client.post(
-            "/ai/chat",
+            "/api/ai/chat",
             headers=headers,
             json={"messages": [{"role": "user", "content": "   "}]},
         )
@@ -161,7 +161,7 @@ def test_ai_rejects_blank_question() -> None:
 
 def test_ai_requires_token() -> None:
     with TestClient(app) as client:
-        response = client.post("/ai/chat", json={"messages": [{"role": "user", "content": "Oi"}]})
+        response = client.post("/api/ai/chat", json={"messages": [{"role": "user", "content": "Oi"}]})
         assert response.status_code == 401
 
 
@@ -170,30 +170,30 @@ def test_admin_can_manage_users_and_stores() -> None:
         headers = auth_headers(client)
 
         created_user = client.post(
-            "/admin/users",
+            "/api/admin/users",
             headers=headers,
             json={"username": "operador_teste", "name": "Operador Teste", "role": "operacao", "password": "senha123"},
         )
         assert created_user.status_code == 200
         user_id = created_user.json()["id"]
 
-        promoted = client.patch(f"/admin/users/{user_id}", headers=headers, json={"role": "admin"})
+        promoted = client.patch(f"/api/admin/users/{user_id}", headers=headers, json={"role": "admin"})
         assert promoted.status_code == 200
         assert promoted.json()["role"] == "admin"
 
-        disabled_user = client.delete(f"/admin/users/{user_id}", headers=headers)
+        disabled_user = client.delete(f"/api/admin/users/{user_id}", headers=headers)
         assert disabled_user.status_code == 200
         assert disabled_user.json()["active"] is False
 
-        created_store = client.post("/admin/stores", headers=headers, json={"name": "Lia Teste"})
+        created_store = client.post("/api/admin/stores", headers=headers, json={"name": "Lia Teste"})
         assert created_store.status_code == 200
         store_id = created_store.json()["id"]
 
-        renamed = client.patch(f"/admin/stores/{store_id}", headers=headers, json={"name": "Lia Teste 2"})
+        renamed = client.patch(f"/api/admin/stores/{store_id}", headers=headers, json={"name": "Lia Teste 2"})
         assert renamed.status_code == 200
         assert renamed.json()["name"] == "Lia Teste 2"
 
-        disabled_store = client.delete(f"/admin/stores/{store_id}", headers=headers)
+        disabled_store = client.delete(f"/api/admin/stores/{store_id}", headers=headers)
         assert disabled_store.status_code == 200
         assert disabled_store.json()["active"] is False
 
@@ -203,7 +203,7 @@ def test_admin_can_manage_checklist_templates() -> None:
         headers = auth_headers(client)
 
         created = client.post(
-            "/admin/checklist-templates",
+            "/api/admin/checklist-templates",
             headers=headers,
             json={"title": "Checklist Teste", "category": "teste", "store": "Grupo Lia"},
         )
@@ -211,7 +211,7 @@ def test_admin_can_manage_checklist_templates() -> None:
         template_id = created.json()["id"]
 
         with_item = client.post(
-            f"/admin/checklist-templates/{template_id}/items",
+            f"/api/admin/checklist-templates/{template_id}/items",
             headers=headers,
             json={"section": "Abertura", "text": "Conferir item de teste"},
         )
@@ -219,11 +219,11 @@ def test_admin_can_manage_checklist_templates() -> None:
         item = with_item.json()["items"][0]
         assert item["active"] is True
 
-        disabled_item = client.delete(f"/admin/checklist-template-items/{item['id']}", headers=headers)
+        disabled_item = client.delete(f"/api/admin/checklist-template-items/{item['id']}", headers=headers)
         assert disabled_item.status_code == 200
         assert disabled_item.json()["items"][0]["active"] is False
 
-        disabled_template = client.delete(f"/admin/checklist-templates/{template_id}", headers=headers)
+        disabled_template = client.delete(f"/api/admin/checklist-templates/{template_id}", headers=headers)
         assert disabled_template.status_code == 200
         assert disabled_template.json()["active"] is False
 
@@ -233,7 +233,7 @@ def test_admin_can_manage_manuals() -> None:
         headers = auth_headers(client)
 
         created = client.post(
-            "/admin/manuals",
+            "/api/admin/manuals",
             headers=headers,
             json={
                 "unit": "Lia Manual Teste",
@@ -247,26 +247,26 @@ def test_admin_can_manage_manuals() -> None:
         assert created.status_code == 200
         manual_id = created.json()["id"]
 
-        updated = client.patch(f"/admin/manuals/{manual_id}", headers=headers, json={"temperature": "190C"})
+        updated = client.patch(f"/api/admin/manuals/{manual_id}", headers=headers, json={"temperature": "190C"})
         assert updated.status_code == 200
         assert updated.json()["temperature"] == "190C"
 
-        with_section = client.post(f"/admin/manuals/{manual_id}/sections", headers=headers, json={"title": "Abertura"})
+        with_section = client.post(f"/api/admin/manuals/{manual_id}/sections", headers=headers, json={"title": "Abertura"})
         assert with_section.status_code == 200
         section = with_section.json()["sections"][0]
 
         with_step = client.post(
-            f"/admin/manual-sections/{section['id']}/steps",
+            f"/api/admin/manual-sections/{section['id']}/steps",
             headers=headers,
             json={"text": "Conferir bancada antes de iniciar."},
         )
         assert with_step.status_code == 200
         step = with_step.json()["sections"][0]["steps"][0]
 
-        disabled_step = client.delete(f"/admin/manual-steps/{step['id']}", headers=headers)
+        disabled_step = client.delete(f"/api/admin/manual-steps/{step['id']}", headers=headers)
         assert disabled_step.status_code == 200
         assert disabled_step.json()["sections"][0]["steps"][0]["active"] is False
 
-        disabled_manual = client.delete(f"/admin/manuals/{manual_id}", headers=headers)
+        disabled_manual = client.delete(f"/api/admin/manuals/{manual_id}", headers=headers)
         assert disabled_manual.status_code == 200
         assert disabled_manual.json()["active"] is False

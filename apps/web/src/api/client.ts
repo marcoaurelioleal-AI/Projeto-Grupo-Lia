@@ -27,6 +27,7 @@ import type {
 } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? '';
+const API_ROOT = `${API_BASE_URL.replace(/\/$/, '')}/api`;
 const TOKEN_KEY = 'lia_access_token';
 
 export function getToken() {
@@ -51,7 +52,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     headers.set('Authorization', `Bearer ${token}`);
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetch(`${API_ROOT}${path}`, {
     ...options,
     headers
   });
@@ -77,7 +78,7 @@ function withParams(path: string, params: Record<string, string | number | null 
 
 export async function fetchEvidenceBlob(path: string): Promise<Blob> {
   const token = getToken();
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetch(`${API_ROOT}${path}`, {
     headers: token ? { Authorization: `Bearer ${token}` } : undefined
   });
   if (!response.ok) {

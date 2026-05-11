@@ -285,53 +285,55 @@ A primeira versão usa busca textual por relevância, sem vector database. A arq
 
 ## Endpoints Principais
 
+As rotas de API ficam sob o prefixo `/api` para não conflitar com as páginas React, como `/checklists`, `/manuals`, `/admin`, `/api/incidents` e `/reports`.
+
 | Método | Rota | Descrição |
 | --- | --- | --- |
 | `GET` | `/health` | Healthcheck da API. |
-| `POST` | `/auth/login` | Login. |
-| `GET` | `/auth/me` | Usuário autenticado. |
-| `GET` | `/manuals` | Lista manuais técnicos. |
-| `GET` | `/checklists` | Lista checklists por data e loja. |
-| `PATCH` | `/checklists/{run_id}/items` | Atualiza item de checklist. |
-| `PATCH` | `/checklists/{run_id}/closing-note` | Atualiza observação de fechamento. |
-| `POST` | `/ai/chat` | Conversa com a Lia. |
-| `GET` | `/ai/history` | Histórico resumido da Lia. |
-| `GET` | `/ai/interactions` | Histórico auditável das interações da IA para administradores. |
-| `GET` | `/ai/status` | Diagnóstico seguro da configuração de IA. |
-| `GET` | `/admin/users` | Lista usuários para administradores. |
-| `POST` | `/admin/users` | Cria usuário. |
-| `PATCH` | `/admin/users/{user_id}` | Atualiza nome, papel ou status do usuário. |
-| `DELETE` | `/admin/users/{user_id}` | Desativa usuário sem remover histórico. |
-| `GET` | `/admin/stores` | Lista lojas derivadas dos dados atuais. |
-| `POST` | `/admin/stores` | Cria loja. |
-| `PATCH` | `/admin/stores/{store_id}` | Atualiza nome ou status da loja. |
-| `DELETE` | `/admin/stores/{store_id}` | Desativa loja sem remover histórico. |
-| `GET` | `/admin/checklist-templates` | Lista templates de checklist. |
-| `POST` | `/admin/checklist-templates` | Cria template de checklist. |
-| `PATCH` | `/admin/checklist-templates/{template_id}` | Atualiza template de checklist. |
-| `DELETE` | `/admin/checklist-templates/{template_id}` | Desativa template sem remover histórico. |
-| `POST` | `/admin/checklist-templates/{template_id}/items` | Cria item em um template. |
-| `PATCH` | `/admin/checklist-template-items/{item_id}` | Atualiza item de template. |
-| `DELETE` | `/admin/checklist-template-items/{item_id}` | Desativa item sem remover histórico. |
-| `GET` | `/admin/manuals` | Lista manuais para administradores. |
-| `POST` | `/admin/manuals` | Cria manual operacional. |
-| `PATCH` | `/admin/manuals/{manual_id}` | Atualiza manual operacional. |
-| `DELETE` | `/admin/manuals/{manual_id}` | Desativa manual sem remover histórico. |
-| `POST` | `/admin/manuals/{manual_id}/sections` | Cria seção em um manual. |
-| `PATCH` | `/admin/manual-sections/{section_id}` | Atualiza seção de manual. |
-| `DELETE` | `/admin/manual-sections/{section_id}` | Desativa seção de manual. |
-| `POST` | `/admin/manual-sections/{section_id}/steps` | Cria passo em uma seção. |
-| `PATCH` | `/admin/manual-steps/{step_id}` | Atualiza passo de manual. |
-| `DELETE` | `/admin/manual-steps/{step_id}` | Desativa passo de manual. |
-| `GET` | `/incidents` | Lista ocorrências operacionais. |
-| `POST` | `/incidents` | Cria ocorrência operacional. |
-| `GET` | `/incidents/{incident_id}` | Consulta uma ocorrência. |
-| `PATCH` | `/incidents/{incident_id}` | Atualiza status/dados de uma ocorrência. |
-| `POST` | `/checklists/items/{item_id}/evidences` | Envia foto de evidência para item de checklist. |
-| `GET` | `/checklists/items/{item_id}/evidences` | Lista evidências de um item. |
-| `GET` | `/checklists/{run_id}/evidences` | Lista evidências de um checklist. |
-| `GET` | `/evidences` | Auditoria de evidências para administradores. |
-| `GET` | `/reports/summary` | Resumo operacional por período. |
+| `POST` | `/api/auth/login` | Login. |
+| `GET` | `/api/auth/me` | Usuário autenticado. |
+| `GET` | `/api/manuals` | Lista manuais técnicos. |
+| `GET` | `/api/checklists` | Lista checklists por data e loja. |
+| `PATCH` | `/api/checklists/{run_id}/items` | Atualiza item de checklist. |
+| `PATCH` | `/api/checklists/{run_id}/closing-note` | Atualiza observação de fechamento. |
+| `POST` | `/api/ai/chat` | Conversa com a Lia. |
+| `GET` | `/api/ai/history` | Histórico resumido da Lia. |
+| `GET` | `/api/ai/interactions` | Histórico auditável das interações da IA para administradores. |
+| `GET` | `/api/ai/status` | Diagnóstico seguro da configuração de IA. |
+| `GET` | `/api/admin/users` | Lista usuários para administradores. |
+| `POST` | `/api/admin/users` | Cria usuário. |
+| `PATCH` | `/api/admin/users/{user_id}` | Atualiza nome, papel ou status do usuário. |
+| `DELETE` | `/api/admin/users/{user_id}` | Desativa usuário sem remover histórico. |
+| `GET` | `/api/admin/stores` | Lista lojas derivadas dos dados atuais. |
+| `POST` | `/api/admin/stores` | Cria loja. |
+| `PATCH` | `/api/admin/stores/{store_id}` | Atualiza nome ou status da loja. |
+| `DELETE` | `/api/admin/stores/{store_id}` | Desativa loja sem remover histórico. |
+| `GET` | `/api/admin/checklist-templates` | Lista templates de checklist. |
+| `POST` | `/api/admin/checklist-templates` | Cria template de checklist. |
+| `PATCH` | `/api/admin/checklist-templates/{template_id}` | Atualiza template de checklist. |
+| `DELETE` | `/api/admin/checklist-templates/{template_id}` | Desativa template sem remover histórico. |
+| `POST` | `/api/admin/checklist-templates/{template_id}/items` | Cria item em um template. |
+| `PATCH` | `/api/admin/checklist-template-items/{item_id}` | Atualiza item de template. |
+| `DELETE` | `/api/admin/checklist-template-items/{item_id}` | Desativa item sem remover histórico. |
+| `GET` | `/api/admin/manuals` | Lista manuais para administradores. |
+| `POST` | `/api/admin/manuals` | Cria manual operacional. |
+| `PATCH` | `/api/admin/manuals/{manual_id}` | Atualiza manual operacional. |
+| `DELETE` | `/api/admin/manuals/{manual_id}` | Desativa manual sem remover histórico. |
+| `POST` | `/api/admin/manuals/{manual_id}/sections` | Cria seção em um manual. |
+| `PATCH` | `/api/admin/manual-sections/{section_id}` | Atualiza seção de manual. |
+| `DELETE` | `/api/admin/manual-sections/{section_id}` | Desativa seção de manual. |
+| `POST` | `/api/admin/manual-sections/{section_id}/steps` | Cria passo em uma seção. |
+| `PATCH` | `/api/admin/manual-steps/{step_id}` | Atualiza passo de manual. |
+| `DELETE` | `/api/admin/manual-steps/{step_id}` | Desativa passo de manual. |
+| `GET` | `/api/incidents` | Lista ocorrências operacionais. |
+| `POST` | `/api/incidents` | Cria ocorrência operacional. |
+| `GET` | `/api/incidents/{incident_id}` | Consulta uma ocorrência. |
+| `PATCH` | `/api/incidents/{incident_id}` | Atualiza status/dados de uma ocorrência. |
+| `POST` | `/api/checklists/items/{item_id}/evidences` | Envia foto de evidência para item de checklist. |
+| `GET` | `/api/checklists/items/{item_id}/evidences` | Lista evidências de um item. |
+| `GET` | `/api/checklists/{run_id}/evidences` | Lista evidências de um checklist. |
+| `GET` | `/api/evidences` | Auditoria de evidências para administradores. |
+| `GET` | `/api/reports/summary` | Resumo operacional por período. |
 
 ## Novas Áreas Operacionais
 
