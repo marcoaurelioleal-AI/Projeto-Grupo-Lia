@@ -68,6 +68,8 @@ class Settings:
     gemini_model: str = _clean_env(os.getenv("MODELO_GEMINI")) or "gemini-2.5-flash"
     default_admin_username: str = _clean_env(os.getenv("LIA_ADMIN_USER")) or "admin"
     default_admin_password: str = _clean_env(os.getenv("LIA_ADMIN_PASSWORD") or os.getenv("SENHA_ACESSO")) or "lia-admin"
+    leadership_username: str = _clean_env(os.getenv("LIA_LEADERSHIP_USER")) or "lideranca"
+    leadership_password: str | None = _clean_secret(os.getenv("LIA_LEADERSHIP_PASSWORD"))
     upload_dir: str = _clean_env(os.getenv("UPLOAD_DIR")) or "data/uploads/checklist-evidences"
     max_upload_bytes: int = int(_clean_env(os.getenv("MAX_UPLOAD_BYTES")) or str(5 * 1024 * 1024))
 

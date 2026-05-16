@@ -22,6 +22,33 @@ class User(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now)
 
 
+class LeadershipEmployee(Base):
+    __tablename__ = "leadership_employees"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String(120), index=True)
+    store: Mapped[str] = mapped_column(String(80), default="Grupo Lia", index=True)
+    position: Mapped[str] = mapped_column(String(120), nullable=True)
+    active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now)
+    records: Mapped[list["LeadershipRecord"]] = relationship(
+        back_populates="employee", cascade="all, delete-orphan", order_by="LeadershipRecord.applied_at.desc()"
+    )
+
+
+class LeadershipRecord(Base):
+    __tablename__ = "leadership_records"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    employee_id: Mapped[int] = mapped_column(ForeignKey("leadership_employees.id"), index=True)
+    record_type: Mapped[str] = mapped_column(String(30), index=True)
+    description: Mapped[str] = mapped_column(Text)
+    applied_at: Mapped[date] = mapped_column(Date, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now)
+    created_by: Mapped[str] = mapped_column(String(120), default="lideranca")
+    employee: Mapped[LeadershipEmployee] = relationship(back_populates="records")
+
+
 class Store(Base):
     __tablename__ = "stores"
 

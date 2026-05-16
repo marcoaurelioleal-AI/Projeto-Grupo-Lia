@@ -16,6 +16,10 @@ services:
         value: admin
       - key: LIA_ADMIN_PASSWORD
         sync: false
+      - key: LIA_LEADERSHIP_USER
+        value: lideranca
+      - key: LIA_LEADERSHIP_PASSWORD
+        sync: false
       - key: GEMINI_API_KEY
         sync: false
       - key: MODELO_GEMINI

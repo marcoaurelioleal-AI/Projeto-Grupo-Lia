@@ -5,6 +5,8 @@ import os
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 os.environ["LIA_ADMIN_USER"] = "admin"
 os.environ["LIA_ADMIN_PASSWORD"] = "admin123"
+os.environ["LIA_LEADERSHIP_USER"] = "lideranca"
+os.environ["LIA_LEADERSHIP_PASSWORD"] = "lider123"
 os.environ.pop("OPENAI_API_KEY", None)
 os.environ["GEMINI_API_KEY"] = "sua_nova_chave_gemini"
 os.environ["CHAVE_API"] = "sua_nova_chave_gemini"
@@ -18,6 +20,13 @@ from apps.api.app.services.rag_service import RagService  # noqa: E402
 
 def auth_headers(client: TestClient) -> dict[str, str]:
     response = client.post("/api/auth/login", json={"username": "admin", "password": "admin123"})
+    assert response.status_code == 200
+    token = response.json()["access_token"]
+    return {"Authorization": f"Bearer {token}"}
+
+
+def leadership_headers(client: TestClient) -> dict[str, str]:
+    response = client.post("/api/leadership/login", json={"username": "lideranca", "password": "lider123"})
     assert response.status_code == 200
     token = response.json()["access_token"]
     return {"Authorization": f"Bearer {token}"}
@@ -163,6 +172,47 @@ def test_ai_requires_token() -> None:
     with TestClient(app) as client:
         response = client.post("/api/ai/chat", json={"messages": [{"role": "user", "content": "Oi"}]})
         assert response.status_code == 401
+
+
+def test_leadership_area_requires_dedicated_login_and_records_employee_feedback() -> None:
+    with TestClient(app) as client:
+        no_token = client.get("/api/leadership/employees")
+        assert no_token.status_code == 401
+
+        invalid_login = client.post("/api/leadership/login", json={"username": "admin", "password": "admin123"})
+        assert invalid_login.status_code == 401
+
+        headers = leadership_headers(client)
+        me = client.get("/api/leadership/me", headers=headers)
+        assert me.status_code == 200
+        assert me.json()["area"] == "leadership"
+
+        employee = client.post(
+            "/api/leadership/employees",
+            headers=headers,
+            json={"name": "Funcionario Teste", "store": "Lia Burguer", "position": "Atendente"},
+        )
+        assert employee.status_code == 200
+        employee_payload = employee.json()
+        assert employee_payload["name"] == "Funcionario Teste"
+        assert employee_payload["record_count"] == 0
+
+        record = client.post(
+            f"/api/leadership/employees/{employee_payload['id']}/records",
+            headers=headers,
+            json={
+                "record_type": "advertencia",
+                "description": "Advertencia aplicada por quebra de procedimento.",
+                "applied_at": "2026-05-16",
+            },
+        )
+        assert record.status_code == 200
+        assert record.json()["record_type"] == "advertencia"
+        assert record.json()["employee_name"] == "Funcionario Teste"
+
+        records = client.get("/api/leadership/records", headers=headers)
+        assert records.status_code == 200
+        assert any(item["employee_name"] == "Funcionario Teste" for item in records.json())
 
 
 def test_admin_can_manage_users_and_stores() -> None:

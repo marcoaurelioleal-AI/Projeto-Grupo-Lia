@@ -19,6 +19,7 @@ Principais recursos:
 - Histórico resumido das conversas da Lia.
 - Painel administrativo inicial para gestão.
 - Gestão administrativa básica de usuários e lojas.
+- Área exclusiva da liderança com login próprio, cadastro de funcionários, feedbacks e medidas disciplinares.
 - Ocorrências operacionais com status e severidade.
 - Upload protegido de fotos como evidências de checklist.
 - Relatórios semanais/mensais de checklists, pendências, ocorrências e evidências.
@@ -117,6 +118,8 @@ FRONTEND_ORIGINS="http://localhost:5173,http://127.0.0.1:5173,http://127.0.0.1:8
 
 LIA_ADMIN_USER="admin"
 LIA_ADMIN_PASSWORD="troque-essa-senha"
+LIA_LEADERSHIP_USER="lideranca"
+LIA_LEADERSHIP_PASSWORD="troque-essa-senha-da-lideranca"
 
 GEMINI_API_KEY="sua_chave_gemini"
 MODELO_GEMINI="gemini-2.5-flash"
@@ -244,6 +247,8 @@ Em produção, não dependa de `Base.metadata.create_all`. Use migrations com `A
 | `FRONTEND_ORIGINS` | Origens permitidas no CORS. |
 | `LIA_ADMIN_USER` | Usuário admin inicial. |
 | `LIA_ADMIN_PASSWORD` | Senha admin inicial. |
+| `LIA_LEADERSHIP_USER` | Usuário do acesso exclusivo da liderança. |
+| `LIA_LEADERSHIP_PASSWORD` | Senha do acesso exclusivo da liderança. |
 | `GEMINI_API_KEY` | Chave da API Gemini usada pela Lia. |
 | `MODELO_GEMINI` | Modelo Gemini. Padrão recomendado: `gemini-2.5-flash`. |
 | `UPLOAD_DIR` | Pasta local para evidências em desenvolvimento. |
@@ -300,6 +305,13 @@ As rotas de API ficam sob o prefixo `/api` para não conflitar com as páginas R
 | `GET` | `/api/ai/history` | Histórico resumido da Lia. |
 | `GET` | `/api/ai/interactions` | Histórico auditável das interações da IA para administradores. |
 | `GET` | `/api/ai/status` | Diagnóstico seguro da configuração de IA. |
+| `POST` | `/api/leadership/login` | Login exclusivo da liderança. |
+| `GET` | `/api/leadership/me` | Valida sessão da liderança. |
+| `GET` | `/api/leadership/employees` | Lista funcionários cadastrados pela liderança. |
+| `POST` | `/api/leadership/employees` | Cadastra funcionário para registros internos. |
+| `PATCH` | `/api/leadership/employees/{employee_id}` | Atualiza status/dados do funcionário. |
+| `GET` | `/api/leadership/records` | Lista registros recentes da liderança. |
+| `POST` | `/api/leadership/employees/{employee_id}/records` | Registra feedback, advertência, suspensão ou demissão. |
 | `GET` | `/api/admin/users` | Lista usuários para administradores. |
 | `POST` | `/api/admin/users` | Cria usuário. |
 | `PATCH` | `/api/admin/users/{user_id}` | Atualiza nome, papel ou status do usuário. |
@@ -338,6 +350,7 @@ As rotas de API ficam sob o prefixo `/api` para não conflitar com as páginas R
 ## Novas Áreas Operacionais
 
 - `/admin`: painel administrativo com criação/edição/desativação de usuários, lojas, templates de checklist, itens, manuais, seções e passos, além de ocorrências, relatórios e auditoria de evidências.
+- `/lideranca`: área exclusiva para liderança registrar funcionários, feedbacks e medidas disciplinares.
 - `/incidents`: registro e acompanhamento de ocorrências reais do turno.
 - `/reports`: resumo semanal ou mensal para gestão.
 - Checklists: cada item agora aceita foto como evidência, com storage local protegido por autenticação.
@@ -388,6 +401,8 @@ AUTO_CREATE_TABLES=false
 JWT_SECRET=um_segredo_forte
 LIA_ADMIN_USER=admin
 LIA_ADMIN_PASSWORD=senha_forte
+LIA_LEADERSHIP_USER=lideranca
+LIA_LEADERSHIP_PASSWORD=senha_forte_da_lideranca
 GEMINI_API_KEY=sua_chave_gemini
 MODELO_GEMINI=gemini-2.5-flash
 FRONTEND_ORIGINS=https://seu-dominio.onrender.com

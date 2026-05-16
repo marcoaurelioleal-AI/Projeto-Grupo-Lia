@@ -6,12 +6,16 @@ import { AssistantPage } from './pages/AssistantPage';
 import { ChecklistsPage } from './pages/ChecklistsPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { IncidentsPage } from './pages/IncidentsPage';
+import { LeadershipLoginPage } from './pages/LeadershipLoginPage';
+import { LeadershipPage } from './pages/LeadershipPage';
 import { LoginPage } from './pages/LoginPage';
 import { ManualsPage } from './pages/ManualsPage';
 import { ReportsPage } from './pages/ReportsPage';
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
+  { path: '/lideranca/login', element: <LeadershipLoginPage /> },
+  { path: '/lideranca', element: <LeadershipPage /> },
   {
     path: '/',
     element: (

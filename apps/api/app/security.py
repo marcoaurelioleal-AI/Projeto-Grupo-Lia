@@ -44,6 +44,41 @@ def create_access_token(user: User) -> str:
     return jwt.encode(payload, settings.jwt_secret, algorithm="HS256")
 
 
+def verify_leadership_credentials(username: str, password: str) -> bool:
+    if not settings.leadership_password:
+        return False
+    username_ok = hmac.compare_digest(username, settings.leadership_username)
+    password_ok = hmac.compare_digest(password, settings.leadership_password)
+    return username_ok and password_ok
+
+
+def create_leadership_access_token() -> str:
+    expires_at = datetime.now(timezone.utc) + timedelta(minutes=settings.access_token_minutes)
+    payload = {
+        "sub": settings.leadership_username,
+        "scope": "leadership",
+        "role": "leadership",
+        "exp": expires_at,
+    }
+    return jwt.encode(payload, settings.jwt_secret, algorithm="HS256")
+
+
+def get_current_leadership(
+    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
+) -> str:
+    if credentials is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token ausente")
+
+    try:
+        payload = jwt.decode(credentials.credentials, settings.jwt_secret, algorithms=["HS256"])
+    except Exception as exc:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token invÃ¡lido") from exc
+
+    if payload.get("scope") != "leadership" or payload.get("sub") != settings.leadership_username:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Acesso restrito a lideranca")
+    return settings.leadership_username
+
+
 def get_current_user(
     credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
     db: Session = Depends(get_db),

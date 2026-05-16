@@ -11,6 +11,12 @@ import type {
   ChecklistTemplateCreate,
   ChecklistTemplateItemCreate,
   IncidentStatus,
+  LeadershipEmployee,
+  LeadershipEmployeeCreate,
+  LeadershipEmployeeUpdate,
+  LeadershipRecord,
+  LeadershipRecordCreate,
+  LeadershipTokenResponse,
   LoginResponse,
   Manual,
   ManualCreate,
@@ -29,6 +35,7 @@ import type {
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? '';
 const API_ROOT = `${API_BASE_URL.replace(/\/$/, '')}/api`;
 const TOKEN_KEY = 'lia_access_token';
+const LEADERSHIP_TOKEN_KEY = 'lia_leadership_token';
 
 export function getToken() {
   return localStorage.getItem(TOKEN_KEY);
@@ -40,6 +47,18 @@ export function setToken(token: string) {
 
 export function clearToken() {
   localStorage.removeItem(TOKEN_KEY);
+}
+
+export function getLeadershipToken() {
+  return localStorage.getItem(LEADERSHIP_TOKEN_KEY);
+}
+
+export function setLeadershipToken(token: string) {
+  localStorage.setItem(LEADERSHIP_TOKEN_KEY, token);
+}
+
+export function clearLeadershipToken() {
+  localStorage.removeItem(LEADERSHIP_TOKEN_KEY);
 }
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
@@ -60,6 +79,29 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   if (!response.ok) {
     const detail = await response.json().catch(() => ({}));
     throw new Error(detail.detail ?? 'Não foi possível completar a solicitação.');
+  }
+
+  return response.json() as Promise<T>;
+}
+
+async function requestLeadership<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const token = getLeadershipToken();
+  const headers = new Headers(options.headers);
+  if (!headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json');
+  }
+  if (token) {
+    headers.set('Authorization', `Bearer ${token}`);
+  }
+
+  const response = await fetch(`${API_ROOT}${path}`, {
+    ...options,
+    headers
+  });
+
+  if (!response.ok) {
+    const detail = await response.json().catch(() => ({}));
+    throw new Error(detail.detail ?? 'Nao foi possivel completar a solicitacao.');
   }
 
   return response.json() as Promise<T>;
@@ -92,6 +134,31 @@ export const api = {
     request<LoginResponse>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ username, password })
+    }),
+  leadershipLogin: (username: string, password: string) =>
+    requestLeadership<LeadershipTokenResponse>('/leadership/login', {
+      method: 'POST',
+      body: JSON.stringify({ username, password })
+    }),
+  leadershipMe: () => requestLeadership<{ username: string; area: 'leadership' }>('/leadership/me'),
+  leadershipEmployees: () => requestLeadership<LeadershipEmployee[]>('/leadership/employees'),
+  createLeadershipEmployee: (payload: LeadershipEmployeeCreate) =>
+    requestLeadership<LeadershipEmployee>('/leadership/employees', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    }),
+  updateLeadershipEmployee: (employeeId: number, payload: LeadershipEmployeeUpdate) =>
+    requestLeadership<LeadershipEmployee>(`/leadership/employees/${employeeId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload)
+    }),
+  leadershipRecords: () => requestLeadership<LeadershipRecord[]>('/leadership/records'),
+  employeeLeadershipRecords: (employeeId: number) =>
+    requestLeadership<LeadershipRecord[]>(`/leadership/employees/${employeeId}/records`),
+  createLeadershipRecord: (employeeId: number, payload: LeadershipRecordCreate) =>
+    requestLeadership<LeadershipRecord>(`/leadership/employees/${employeeId}/records`, {
+      method: 'POST',
+      body: JSON.stringify(payload)
     }),
   me: () => request<User>('/auth/me'),
   manuals: () => request<Manual[]>('/manuals'),

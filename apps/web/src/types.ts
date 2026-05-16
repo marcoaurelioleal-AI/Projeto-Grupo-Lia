@@ -21,6 +21,55 @@ export interface LoginResponse {
   user: User;
 }
 
+export type LeadershipRecordType = 'feedback' | 'advertencia' | 'suspensao' | 'demissao';
+
+export interface LeadershipTokenResponse {
+  access_token: string;
+  token_type: 'bearer';
+  area: 'leadership';
+}
+
+export interface LeadershipEmployee {
+  id: number;
+  name: string;
+  store: string;
+  position: string | null;
+  active: boolean;
+  created_at: string;
+  record_count: number;
+}
+
+export interface LeadershipEmployeeCreate {
+  name: string;
+  store: string;
+  position?: string;
+}
+
+export interface LeadershipEmployeeUpdate {
+  name?: string;
+  store?: string;
+  position?: string | null;
+  active?: boolean;
+}
+
+export interface LeadershipRecord {
+  id: number;
+  employee_id: number;
+  employee_name: string;
+  employee_store: string;
+  record_type: LeadershipRecordType;
+  description: string;
+  applied_at: string;
+  created_at: string;
+  created_by: string;
+}
+
+export interface LeadershipRecordCreate {
+  record_type: LeadershipRecordType;
+  description: string;
+  applied_at?: string;
+}
+
 export interface ManualStep {
   id: number;
   text: string;

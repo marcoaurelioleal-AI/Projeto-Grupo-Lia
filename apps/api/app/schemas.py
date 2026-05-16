@@ -40,6 +40,56 @@ class TokenResponse(BaseModel):
     user: UserRead
 
 
+class LeadershipTokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    area: str = "leadership"
+
+
+LeadershipRecordType = Literal["feedback", "advertencia", "suspensao", "demissao"]
+
+
+class LeadershipEmployeeCreate(BaseModel):
+    name: str = Field(min_length=2, max_length=120)
+    store: str = Field(default="Grupo Lia", min_length=1, max_length=80)
+    position: str | None = Field(default=None, max_length=120)
+
+
+class LeadershipEmployeeUpdate(BaseModel):
+    name: str | None = Field(default=None, min_length=2, max_length=120)
+    store: str | None = Field(default=None, min_length=1, max_length=80)
+    position: str | None = Field(default=None, max_length=120)
+    active: bool | None = None
+
+
+class LeadershipEmployeeRead(BaseModel):
+    id: int
+    name: str
+    store: str
+    position: str | None = None
+    active: bool
+    created_at: datetime
+    record_count: int = 0
+
+
+class LeadershipRecordCreate(BaseModel):
+    record_type: LeadershipRecordType
+    description: str = Field(min_length=1, max_length=4000)
+    applied_at: date | None = None
+
+
+class LeadershipRecordRead(BaseModel):
+    id: int
+    employee_id: int
+    employee_name: str
+    employee_store: str
+    record_type: str
+    description: str
+    applied_at: date
+    created_at: datetime
+    created_by: str
+
+
 class ManualStepRead(BaseModel):
     id: int
     text: str

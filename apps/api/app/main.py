@@ -10,7 +10,7 @@ from fastapi.staticfiles import StaticFiles
 
 from .config import settings
 from .database import Base, SessionLocal, engine
-from .routers import admin, ai, auth, checklists, evidences, incidents, manuals, reports
+from .routers import admin, ai, auth, checklists, evidences, incidents, leadership, manuals, reports
 from .schemas import HealthResponse
 from .seed import seed_database
 
@@ -46,6 +46,7 @@ app.include_router(checklists.router, prefix="/api")
 app.include_router(ai.router, prefix="/api")
 app.include_router(admin.router, prefix="/api")
 app.include_router(incidents.router, prefix="/api")
+app.include_router(leadership.router, prefix="/api")
 app.include_router(evidences.router, prefix="/api")
 app.include_router(reports.router, prefix="/api")
 
