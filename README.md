@@ -2,7 +2,7 @@
 
 Central operacional para o **Grupo Empresarial Lia**, reunindo processos internos da Lia Burguer, Lia Pizza e Lia Salgados em uma plataforma web com login, dashboard, checklists, manuais técnicos e a assistente operacional **Lia**.
 
-O projeto nasceu como uma aplicação Streamlit e está em migração para uma arquitetura mais profissional com **React + TypeScript** no frontend e **FastAPI** no backend.
+O projeto nasceu como uma aplicação Streamlit e hoje evolui sobre uma arquitetura web com **React + TypeScript** no frontend e **FastAPI** no backend. A versão Streamlit permanece apenas como referência legado enquanto a Central LIA atual concentra a evolução do produto.
 
 ## Visão Geral
 
@@ -23,6 +23,8 @@ Principais recursos:
 - Ocorrências operacionais com status e severidade.
 - Upload protegido de fotos como evidências de checklist.
 - Relatórios semanais/mensais de checklists, pendências, ocorrências e evidências.
+- Auditoria automática de escritas da API.
+- Observabilidade básica com `X-Request-ID` e métricas agregadas.
 - Backend preparado para SQLite em desenvolvimento e PostgreSQL em produção.
 - Migrations com Alembic.
 - Deploy Docker com React e FastAPI no mesmo serviço.
@@ -368,7 +370,16 @@ As rotas de API ficam sob o prefixo `/api` para não conflitar com as páginas R
 | `GET` | `/api/checklists/items/{item_id}/evidences` | Lista evidências de um item. |
 | `GET` | `/api/checklists/{run_id}/evidences` | Lista evidências de um checklist. |
 | `GET` | `/api/evidences` | Auditoria de evidências para administradores. |
+| `GET` | `/api/audit/logs` | Lista eventos de auditoria de escritas da API para perfis com `view_audit`. |
+| `GET` | `/api/observability/status` | Snapshot seguro de ambiente, banco, storage e métricas de requisições. |
 | `GET` | `/api/reports/summary` | Resumo operacional por período. |
+
+## Auditoria e Observabilidade
+
+- Toda requisição `POST`, `PATCH` e `DELETE` sob `/api/*` gera um evento em `audit_logs`, com método, rota, status, latência, `request_id`, ator autenticado quando existir e metadados seguros.
+- Toda resposta recebe `X-Request-ID`, permitindo correlacionar logs de aplicação, resposta HTTP e eventos de auditoria.
+- `/api/audit/logs` permite filtrar eventos por `action`, `status`, `entity_type`, `store` e `limit`.
+- `/api/observability/status` expõe apenas dados operacionais seguros: ambiente, tipo do banco, provider de storage, tempo de início e métricas agregadas em memória.
 
 ## Novas Áreas Operacionais
 
@@ -414,7 +425,8 @@ Passos manuais:
 Backend:
 
 ```powershell
-python -m py_compile apps/api/app/main.py apps/api/app/config.py apps/api/app/database.py apps/api/app/routers/checklists.py apps/api/app/services/checklist_service.py apps/api/app/repositories/checklist_repository.py
+python -m compileall apps/api/app apps/api/tests tests meu_assistente.py dados_operacionais.py
+ruff check .
 pytest
 alembic current
 alembic upgrade head
@@ -426,8 +438,13 @@ Frontend:
 cd apps/web
 npm run lint
 npm run typecheck
+npm run test
 npm run build
+npx playwright install chromium
+npm run e2e
 ```
+
+O `pytest` roda com cobertura de `apps.api.app` via `pytest-cov`. O frontend usa Vitest para testes de componentes e Playwright para o fluxo crítico de login até o dashboard.
 
 ## Deploy no Render
 
@@ -517,11 +534,33 @@ Pontos importantes para produção:
 
 ## Status do Produto
 
-Este projeto está em evolução ativa. A base atual já permite demonstração e acompanhamento pelo cliente, mas para entrega final recomenda-se:
+**Status atual: piloto operacional em evolução ativa.**
 
-- Render pago ou infraestrutura sem cold start;
-- PostgreSQL;
-- domínio próprio;
-- rotina de backup;
-- revisão de segurança e permissões;
-- documentação operacional para a equipe das lojas.
+A Central LIA já está disponível como aplicação web para acompanhamento do cliente e possui uma base técnica mais próxima de produto: frontend React responsivo, API FastAPI, autenticação por cookie `HttpOnly`, RBAC inicial, vínculo de usuários a lojas, migrations Alembic e produção preparada para PostgreSQL e Supabase Storage.
+
+Entregue na versão atual:
+
+- login interno, área de liderança e rotas protegidas;
+- dashboard operacional, checklists persistentes e manuais técnicos;
+- assistente **Lia** com contexto dos manuais e histórico de interações;
+- painel administrativo para usuários, lojas, templates e manuais;
+- ocorrências operacionais, relatórios por período e auditoria de evidências;
+- upload protegido de fotos com storage local no desenvolvimento e Supabase Storage em produção;
+- auditoria de escritas da API e observabilidade básica com `X-Request-ID`;
+- deploy Docker no Render com migrations antes da inicialização da API.
+
+Em validação com a operação:
+
+- qualidade e completude dos manuais das três lojas;
+- regras de acesso por perfil e por loja no uso real;
+- fluxo de evidências, ocorrências, feedbacks e medidas da liderança;
+- experiência mobile em rotina de loja, balcão e cozinha;
+- perguntas frequentes da equipe para evoluir a base de conhecimento da Lia.
+
+Próximos passos recomendados para entrega madura:
+
+- usar infraestrutura sem cold start na apresentação final ao cliente;
+- configurar domínio próprio, backup e monitoramento de produção;
+- revisar permissões, usuários iniciais e política de senhas com a gestão;
+- consolidar documentação operacional para funcionários e liderança;
+- evoluir a IA com documentos validados pelo cliente e avaliação contínua das respostas.
