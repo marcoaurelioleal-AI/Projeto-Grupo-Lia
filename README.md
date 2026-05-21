@@ -420,14 +420,14 @@ Passos manuais:
    - `SUPABASE_SIGNED_URL_EXPIRES_SECONDS=300`
 3. Nao torne o bucket publico. O backend valida permissao antes de gerar URL assinada temporaria.
 
-## Validações
+## Validação local antes do push
 
 Backend:
 
 ```powershell
 python -m compileall apps/api/app apps/api/tests tests meu_assistente.py dados_operacionais.py
 ruff check .
-pytest
+pytest --cov=apps.api.app
 alembic current
 alembic upgrade head
 ```
@@ -444,7 +444,7 @@ npx playwright install chromium
 npm run e2e
 ```
 
-O `pytest` roda com cobertura de `apps.api.app` via `pytest-cov`. O frontend usa Vitest para testes de componentes e Playwright para o fluxo crítico de login até o dashboard.
+O `pytest --cov=apps.api.app` usa `pytest-cov` para medir a cobertura do backend. O frontend usa Vitest para testes de componentes e Playwright para o fluxo crítico de login até o dashboard.
 
 ## Deploy no Render
 

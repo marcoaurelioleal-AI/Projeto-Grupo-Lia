@@ -2,12 +2,13 @@ name: CI
 
 on:
   pull_request:
+    branches: [ main ]
   push:
     branches: [ main ]
   workflow_dispatch: {}
 
 jobs:
-  api:
+  backend:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -25,12 +26,20 @@ jobs:
           pip install -r requirements.txt -r requirements-dev.txt
 
       - name: Compile Python files
-        run: python -m py_compile meu_assistente.py dados_operacionais.py apps/api/app/main.py
+        run: python -m compileall apps/api/app apps/api/tests tests meu_assistente.py dados_operacionais.py
 
-      - name: Run tests
-        run: pytest
+      - name: Lint Python
+        run: ruff check .
 
-  web:
+      - name: Validate migrations
+        env:
+          DATABASE_URL: sqlite:///./ci_lia.db
+        run: alembic upgrade head
+
+      - name: Run tests with coverage
+        run: pytest --cov=apps.api.app
+
+  frontend:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -55,6 +64,18 @@ jobs:
         working-directory: apps/web
         run: npm run typecheck
 
+      - name: Unit tests
+        working-directory: apps/web
+        run: npm run test
+
       - name: Build
         working-directory: apps/web
         run: npm run build
+
+      - name: Install Playwright browsers
+        working-directory: apps/web
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E tests
+        working-directory: apps/web
+        run: npm run e2e
