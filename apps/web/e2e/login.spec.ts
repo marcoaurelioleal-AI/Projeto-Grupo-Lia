@@ -62,7 +62,12 @@ test('login flow reaches the daily dashboard', async ({ page }) => {
       }
     });
   });
-
+  await page.route('**/api/checklists**', async (route) => {
+  await route.fulfill({
+     status: 200,
+    json: []
+  });
+});
   await page.goto('/login');
   await expect(page.getByRole('heading', { name: /Entrar na Central LIA/i })).toBeVisible();
 
