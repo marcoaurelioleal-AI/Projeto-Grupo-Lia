@@ -1,28 +1,33 @@
-import { AlertTriangle, BarChart3, BookOpen, Bot, CheckSquare, Home, LogOut, Menu, Shield } from 'lucide-react';
+import { AlertTriangle, BarChart3, BookOpen, Bot, CheckSquare, FileSearch, Home, LogOut, Menu, Shield } from 'lucide-react';
 import { useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from '../contexts/useAuth';
+import type { Role } from '../types';
 
-const baseNavItems = [
+const baseNavItems: Array<{ to: string; label: string; icon: typeof Home; roles?: Role[] }> = [
   { to: '/', label: 'Dashboard', icon: Home },
-  { to: '/checklists', label: 'Tarefas', icon: CheckSquare },
-  { to: '/incidents', label: 'Ocorrencias', icon: AlertTriangle },
-  { to: '/reports', label: 'Relatorios', icon: BarChart3 },
+  { to: '/checklists', label: 'Tarefas', icon: CheckSquare, roles: ['admin', 'gerente', 'operacao'] },
+  { to: '/incidents', label: 'Ocorrências', icon: AlertTriangle, roles: ['admin', 'gerente', 'operacao'] },
+  { to: '/reports', label: 'Relatórios', icon: BarChart3, roles: ['admin', 'lideranca', 'gerente', 'auditor'] },
+  { to: '/audit', label: 'Auditoria', icon: FileSearch, roles: ['admin', 'lideranca', 'auditor'] },
   { to: '/manuals', label: 'Manuais', icon: BookOpen },
-  { to: '/assistant', label: 'Lia', icon: Bot }
+  { to: '/assistant', label: 'Lia', icon: Bot, roles: ['admin', 'gerente', 'operacao', 'auditor'] }
 ];
 
 export function AppShell() {
   const [open, setOpen] = useState(false);
   const { logout, user } = useAuth();
-  const navItems = user?.role === 'admin' ? [...baseNavItems, { to: '/admin', label: 'Admin', icon: Shield }] : baseNavItems;
+  const navItems = [
+    ...baseNavItems.filter((item) => !item.roles || (user?.role ? item.roles.includes(user.role) : false)),
+    ...(user?.role === 'admin' ? [{ to: '/admin', label: 'Admin', icon: Shield }] : [])
+  ];
 
   return (
-    <div className="min-h-screen pb-20 text-lia-ink md:pb-0">
+    <div className="min-h-screen pb-[calc(5rem+env(safe-area-inset-bottom))] text-lia-ink md:pb-0">
       <header className="sticky top-0 z-40 border-b border-lia-red/10 bg-lia-cream/90 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 md:px-6">
           <div className="flex items-center gap-3">
-            <img src="/logos/logo_burger.png" alt="Logo Lia Burguer" className="h-10 w-10 rounded-lg object-cover" />
+            <img src="/logos/logo_burger.png" alt="Logo Lia Burger" className="h-10 w-10 rounded-lg object-cover" />
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-lia-red">Grupo Lia</p>
               <h1 className="text-lg font-bold text-lia-burgundy">Operação diária</h1>
@@ -67,7 +72,7 @@ export function AppShell() {
         <Outlet />
       </main>
 
-      <nav className="fixed inset-x-0 bottom-0 z-40 flex gap-1 overflow-x-auto border-t border-lia-red/10 bg-lia-cream/95 px-2 py-2 backdrop-blur md:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-40 flex gap-1 overflow-x-auto border-t border-lia-red/10 bg-lia-cream/95 px-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pt-2 backdrop-blur md:hidden">
         {navItems.map((item) => (
           <MobileNavItem key={item.to} {...item} />
         ))}

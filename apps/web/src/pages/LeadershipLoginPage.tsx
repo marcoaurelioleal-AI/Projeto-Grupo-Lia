@@ -23,7 +23,7 @@ export function LeadershipLoginPage() {
       setLeadershipToken(response.access_token);
       navigate('/lideranca', { replace: true });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Nao foi possivel entrar.');
+      setError(err instanceof Error ? err.message : 'Não foi possível entrar.');
     } finally {
       setLoading(false);
     }
@@ -36,7 +36,7 @@ export function LeadershipLoginPage() {
           <img src="/logos/logo_burger.png" alt="Grupo Lia" className="h-12 w-12 rounded-lg object-cover" />
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-lia-beige">Central LIA</p>
-            <h1 className="text-2xl font-black">Area da lideranca</h1>
+            <h1 className="text-2xl font-black">Área da liderança</h1>
           </div>
         </div>
 
@@ -46,8 +46,8 @@ export function LeadershipLoginPage() {
             Registros internos de equipe em um lugar controlado.
           </h2>
           <p className="mt-4 text-base leading-7 text-lia-cream/85">
-            Cadastre funcionarios e registre feedbacks, advertencias, suspensoes e desligamentos com historico
-            organizado para acompanhamento da gestao.
+            Cadastre funcionários e registre feedbacks, advertências, suspensões e desligamentos com histórico
+            organizado para acompanhamento da gestão.
           </p>
         </div>
 
@@ -62,12 +62,12 @@ export function LeadershipLoginPage() {
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-lia-red text-white">
               <Lock />
             </div>
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-lia-red">Lideranca</p>
-            <h2 className="mt-1 text-2xl font-black text-lia-burgundy">Entrar na area reservada</h2>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-lia-red">Liderança</p>
+            <h2 className="mt-1 text-2xl font-black text-lia-burgundy">Entrar na área reservada</h2>
           </div>
 
           <label className="block text-sm font-semibold text-lia-burgundy">
-            Usuario
+            Usuário
             <input
               value={username}
               onChange={(event) => setUsername(event.target.value)}

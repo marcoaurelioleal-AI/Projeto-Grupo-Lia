@@ -112,7 +112,7 @@ async function requestLeadership<T>(path: string, options: RequestInit = {}): Pr
       clearLeadershipToken();
     }
     const detail = await response.json().catch(() => ({}));
-    throw new Error(detail.detail ?? 'Nao foi possivel completar a solicitacao.');
+    throw new Error(detail.detail ?? 'Não foi possível completar a solicitação.');
   }
 
   return response.json() as Promise<T>;
@@ -134,7 +134,7 @@ export async function fetchEvidenceBlob(path: string): Promise<Blob> {
     credentials: 'include'
   });
   if (!response.ok) {
-    throw new Error('Nao foi possivel carregar a evidencia.');
+    throw new Error('Não foi possível carregar a evidência.');
   }
   return response.blob();
 }
@@ -146,7 +146,7 @@ async function requestBlob(path: string, options: RequestInit = {}): Promise<Blo
   });
   if (!response.ok) {
     const detail = await response.json().catch(() => ({}));
-    throw new Error(detail.detail ?? 'Nao foi possivel completar a solicitacao.');
+    throw new Error(detail.detail ?? 'Não foi possível completar a solicitação.');
   }
   return response.blob();
 }

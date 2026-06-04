@@ -8,7 +8,7 @@ from fastapi.testclient import TestClient
 def test_manuals_and_checklists(client: TestClient, admin_headers: dict[str, str]) -> None:
     manuals = client.get("/api/manuals", headers=admin_headers)
     assert manuals.status_code == 200
-    assert {manual["unit"] for manual in manuals.json()} == {"Lia Burguer", "Lia Pizza", "Lia Salgados"}
+    assert {manual["unit"] for manual in manuals.json()} == {"Lia Burger", "Lia Pizza", "Lia Salgados"}
 
     checklists = client.get("/api/checklists", headers=admin_headers)
     assert checklists.status_code == 200

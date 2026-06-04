@@ -53,7 +53,7 @@ def upgrade() -> None:
             stores,
             [
                 {"name": "Grupo Lia", "active": True, "created_at": now},
-                {"name": "Lia Burguer", "active": True, "created_at": now},
+                {"name": "Lia Burger", "active": True, "created_at": now},
                 {"name": "Lia Pizza", "active": True, "created_at": now},
                 {"name": "Lia Salgados", "active": True, "created_at": now},
             ],

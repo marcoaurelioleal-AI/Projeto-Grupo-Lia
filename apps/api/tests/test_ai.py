@@ -31,7 +31,7 @@ def test_ai_offline_mode(client: TestClient, admin_headers: dict[str, str]) -> N
     assert payload["session_id"]
     assert payload["sources"]
     assert payload["sources"][0]["source_type"] == "manual"
-    assert payload["sources"][0]["unit"] in {"Lia Burguer", "Lia Pizza", "Lia Salgados"}
+    assert payload["sources"][0]["unit"] in {"Lia Burger", "Lia Pizza", "Lia Salgados"}
 
 
 def test_ai_logs_summarized_history(client: TestClient, admin_headers: dict[str, str]) -> None:
@@ -99,7 +99,7 @@ def test_ai_rejects_blank_question(client: TestClient, admin_headers: dict[str, 
         json={"messages": [{"role": "user", "content": "   "}]},
     )
     assert response.status_code == 400
-    assert response.json()["detail"] == "Pergunta da IA nao pode ser vazia"
+    assert response.json()["detail"] == "Pergunta da IA não pode ser vazia"
 
 
 def test_ai_requires_token(client: TestClient) -> None:

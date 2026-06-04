@@ -3,6 +3,7 @@ import { AppShell } from './components/AppShell';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { AdminPage } from './pages/AdminPage';
 import { AssistantPage } from './pages/AssistantPage';
+import { AuditPage } from './pages/AuditPage';
 import { ChecklistsPage } from './pages/ChecklistsPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { IncidentsPage } from './pages/IncidentsPage';
@@ -28,6 +29,7 @@ export const router = createBrowserRouter([
       { path: 'checklists', element: <ChecklistsPage /> },
       { path: 'incidents', element: <IncidentsPage /> },
       { path: 'reports', element: <ReportsPage /> },
+      { path: 'audit', element: <AuditPage /> },
       { path: 'manuals', element: <ManualsPage /> },
       { path: 'assistant', element: <AssistantPage /> },
       { path: 'admin', element: <AdminPage /> }

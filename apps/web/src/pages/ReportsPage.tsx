@@ -33,8 +33,8 @@ export function ReportsPage() {
     <>
       <PageHeader
         eyebrow="Gestao"
-        title="Relatorios operacionais"
-        description="Resumo semanal ou mensal para acompanhar checklists, pendencias, ocorrencias e evidencias enviadas."
+        title="Relatórios operacionais"
+        description="Resumo semanal ou mensal para acompanhar checklists, pendências, ocorrências e evidências enviadas."
       />
 
       <section className="surface mb-5 grid gap-3 rounded-lg p-4 lg:grid-cols-[auto_auto_1fr_auto] lg:items-end">
@@ -85,7 +85,7 @@ export function ReportsPage() {
           >
             <option value="">Todas</option>
             <option>Grupo Lia</option>
-            <option>Lia Burguer</option>
+            <option>Lia Burger</option>
             <option>Lia Pizza</option>
             <option>Lia Salgados</option>
           </select>
@@ -100,9 +100,9 @@ export function ReportsPage() {
           <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <ReportCard label="Conclusao geral" value={`${data.completion_percent}%`} icon={CheckCircle2} tone="green" />
             <ReportCard label="Tarefas pendentes" value={data.pending_tasks} icon={ClipboardList} tone="amber" />
-            <ReportCard label="Ocorrencias abertas" value={data.incidents_by_status.aberta ?? 0} icon={AlertTriangle} tone="red" />
+            <ReportCard label="Ocorrências abertas" value={data.incidents_by_status.aberta ?? 0} icon={AlertTriangle} tone="red" />
             <ReportCard
-              label="Ocorrencias criticas"
+              label="Ocorrências críticas"
               value={data.incidents_by_severity.critica ?? 0}
               icon={AlertTriangle}
               tone="burgundy"
@@ -122,7 +122,7 @@ export function ReportsPage() {
                 <h3 className="text-lg font-black text-lia-burgundy">Resumo do periodo</h3>
                 <p className="text-sm text-lia-muted">
                   {data.total_checklists} checklists, {data.completed_items} de {data.total_items} itens concluidos,
-                  {` ${data.total_incidents} ocorrencias e ${data.evidences_uploaded} evidencias enviadas.`}
+                  {` ${data.total_incidents} ocorrências e ${data.evidences_uploaded} evidências enviadas.`}
                 </p>
               </div>
             </div>

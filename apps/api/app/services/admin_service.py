@@ -35,10 +35,10 @@ class AdminService:
     def create_user(self, payload: UserCreate) -> User:
         username = payload.username.strip().lower()
         if self.repository.get_user_by_username(username):
-            raise HTTPException(status_code=409, detail="Usuario ja cadastrado")
+            raise HTTPException(status_code=409, detail="Usuário já cadastrado")
         store = self.repository.get_store(payload.store_id) if payload.store_id else None
         if payload.store_id and not store:
-            raise HTTPException(status_code=404, detail="Loja nao encontrada")
+            raise HTTPException(status_code=404, detail="Loja não encontrada")
         validate_user_store_assignment(payload.role, store)
 
         return self.repository.add_user(
@@ -55,7 +55,7 @@ class AdminService:
     def update_user(self, user_id: int, payload: UserUpdate, current_user: User) -> User:
         user = self.repository.get_user(user_id)
         if not user:
-            raise HTTPException(status_code=404, detail="Usuario nao encontrado")
+            raise HTTPException(status_code=404, detail="Usuário não encontrado")
 
         changes = payload.model_dump(exclude_unset=True)
         if "name" in changes and changes["name"] is not None:
@@ -68,13 +68,13 @@ class AdminService:
             else:
                 store = self.repository.get_store(changes["store_id"])
                 if not store:
-                    raise HTTPException(status_code=404, detail="Loja nao encontrada")
+                    raise HTTPException(status_code=404, detail="Loja não encontrada")
                 user.store_id = store.id
         store = self.repository.get_store(user.store_id) if user.store_id else None
         validate_user_store_assignment(user.role, store)
         if "active" in changes and changes["active"] is not None:
             if user.id == current_user.id and changes["active"] is False:
-                raise HTTPException(status_code=400, detail="Nao e possivel desativar o proprio usuario")
+                raise HTTPException(status_code=400, detail="Não é possível desativar o próprio usuário")
             user.active = changes["active"]
 
         self.repository.commit()
@@ -95,7 +95,7 @@ class AdminService:
     def update_store(self, store_id: int, payload: StoreUpdate) -> Store:
         store = self.repository.get_store(store_id)
         if not store:
-            raise HTTPException(status_code=404, detail="Loja nao encontrada")
+            raise HTTPException(status_code=404, detail="Loja não encontrada")
 
         changes = payload.model_dump(exclude_unset=True)
         if "name" in changes and changes["name"] is not None:
@@ -132,7 +132,7 @@ class AdminService:
     def update_checklist_template(self, template_id: int, payload: ChecklistTemplateUpdate) -> ChecklistTemplate:
         template = self.repository.get_checklist_template(template_id)
         if not template:
-            raise HTTPException(status_code=404, detail="Template de checklist nao encontrado")
+            raise HTTPException(status_code=404, detail="Template de checklist não encontrado")
 
         changes = payload.model_dump(exclude_unset=True)
         if "title" in changes and changes["title"] is not None:
@@ -151,7 +151,7 @@ class AdminService:
         self.repository.commit()
         refreshed = self.repository.get_checklist_template(template_id)
         if not refreshed:
-            raise HTTPException(status_code=404, detail="Template de checklist nao encontrado")
+            raise HTTPException(status_code=404, detail="Template de checklist não encontrado")
         return refreshed
 
     def deactivate_checklist_template(self, template_id: int) -> ChecklistTemplate:
@@ -162,7 +162,7 @@ class AdminService:
     ) -> ChecklistTemplate:
         template = self.repository.get_checklist_template(template_id)
         if not template:
-            raise HTTPException(status_code=404, detail="Template de checklist nao encontrado")
+            raise HTTPException(status_code=404, detail="Template de checklist não encontrado")
 
         template.items.append(
             ChecklistTemplateItem(
@@ -175,7 +175,7 @@ class AdminService:
         self.repository.commit()
         refreshed = self.repository.get_checklist_template(template_id)
         if not refreshed:
-            raise HTTPException(status_code=404, detail="Template de checklist nao encontrado")
+            raise HTTPException(status_code=404, detail="Template de checklist não encontrado")
         return refreshed
 
     def update_checklist_template_item(
@@ -183,7 +183,7 @@ class AdminService:
     ) -> ChecklistTemplate:
         item = self.repository.get_checklist_template_item(item_id)
         if not item:
-            raise HTTPException(status_code=404, detail="Item de template nao encontrado")
+            raise HTTPException(status_code=404, detail="Item de template não encontrado")
 
         changes = payload.model_dump(exclude_unset=True)
         if "section" in changes and changes["section"] is not None:
@@ -197,7 +197,7 @@ class AdminService:
         self.repository.commit()
         refreshed = self.repository.get_checklist_template(template_id)
         if not refreshed:
-            raise HTTPException(status_code=404, detail="Template de checklist nao encontrado")
+            raise HTTPException(status_code=404, detail="Template de checklist não encontrado")
         return refreshed
 
     def deactivate_checklist_template_item(self, item_id: int) -> ChecklistTemplate:
@@ -226,7 +226,7 @@ class AdminService:
     def update_manual(self, manual_id: int, payload: ManualUpdate) -> Manual:
         manual = self.repository.get_manual(manual_id)
         if not manual:
-            raise HTTPException(status_code=404, detail="Manual nao encontrado")
+            raise HTTPException(status_code=404, detail="Manual não encontrado")
 
         changes = payload.model_dump(exclude_unset=True)
         if "unit" in changes and changes["unit"] is not None:
@@ -251,7 +251,7 @@ class AdminService:
         self.repository.commit()
         refreshed = self.repository.get_manual(manual_id)
         if not refreshed:
-            raise HTTPException(status_code=404, detail="Manual nao encontrado")
+            raise HTTPException(status_code=404, detail="Manual não encontrado")
         return refreshed
 
     def deactivate_manual(self, manual_id: int) -> Manual:
@@ -260,7 +260,7 @@ class AdminService:
     def create_manual_section(self, manual_id: int, payload: ManualSectionCreate) -> Manual:
         manual = self.repository.get_manual(manual_id)
         if not manual:
-            raise HTTPException(status_code=404, detail="Manual nao encontrado")
+            raise HTTPException(status_code=404, detail="Manual não encontrado")
 
         manual.sections.append(
             ManualSection(
@@ -272,13 +272,13 @@ class AdminService:
         self.repository.commit()
         refreshed = self.repository.get_manual(manual_id)
         if not refreshed:
-            raise HTTPException(status_code=404, detail="Manual nao encontrado")
+            raise HTTPException(status_code=404, detail="Manual não encontrado")
         return refreshed
 
     def update_manual_section(self, section_id: int, payload: ManualSectionUpdate) -> Manual:
         section = self.repository.get_manual_section(section_id)
         if not section:
-            raise HTTPException(status_code=404, detail="Secao do manual nao encontrada")
+            raise HTTPException(status_code=404, detail="Seção do manual não encontrada")
 
         changes = payload.model_dump(exclude_unset=True)
         if "title" in changes and changes["title"] is not None:
@@ -290,7 +290,7 @@ class AdminService:
         self.repository.commit()
         refreshed = self.repository.get_manual(manual_id)
         if not refreshed:
-            raise HTTPException(status_code=404, detail="Manual nao encontrado")
+            raise HTTPException(status_code=404, detail="Manual não encontrado")
         return refreshed
 
     def deactivate_manual_section(self, section_id: int) -> Manual:
@@ -299,7 +299,7 @@ class AdminService:
     def create_manual_step(self, section_id: int, payload: ManualStepCreate) -> Manual:
         section = self.repository.get_manual_section(section_id)
         if not section:
-            raise HTTPException(status_code=404, detail="Secao do manual nao encontrada")
+            raise HTTPException(status_code=404, detail="Seção do manual não encontrada")
 
         section.steps.append(
             ManualStep(
@@ -312,13 +312,13 @@ class AdminService:
         self.repository.commit()
         refreshed = self.repository.get_manual(manual_id)
         if not refreshed:
-            raise HTTPException(status_code=404, detail="Manual nao encontrado")
+            raise HTTPException(status_code=404, detail="Manual não encontrado")
         return refreshed
 
     def update_manual_step(self, step_id: int, payload: ManualStepUpdate) -> Manual:
         step = self.repository.get_manual_step(step_id)
         if not step:
-            raise HTTPException(status_code=404, detail="Passo do manual nao encontrado")
+            raise HTTPException(status_code=404, detail="Passo do manual não encontrado")
 
         changes = payload.model_dump(exclude_unset=True)
         if "text" in changes and changes["text"] is not None:
@@ -330,7 +330,7 @@ class AdminService:
         self.repository.commit()
         refreshed = self.repository.get_manual(manual_id)
         if not refreshed:
-            raise HTTPException(status_code=404, detail="Manual nao encontrado")
+            raise HTTPException(status_code=404, detail="Manual não encontrado")
         return refreshed
 
     def deactivate_manual_step(self, step_id: int) -> Manual:

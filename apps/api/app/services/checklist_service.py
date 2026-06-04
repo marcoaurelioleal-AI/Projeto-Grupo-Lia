@@ -29,7 +29,7 @@ class ChecklistService:
         require_user_permission(user, "manage_checklists")
         item = self.repository.get_run_item(run_id, payload.item_id)
         if not item:
-            raise HTTPException(status_code=404, detail="Item de checklist nao encontrado")
+            raise HTTPException(status_code=404, detail="Item de checklist não encontrado")
         require_store_access(user, item.run.store if item.run else None)
 
         item.done = payload.done
@@ -39,14 +39,14 @@ class ChecklistService:
 
         run = self.repository.get_run(run_id)
         if not run:
-            raise HTTPException(status_code=404, detail="Checklist nao encontrado")
+            raise HTTPException(status_code=404, detail="Checklist não encontrado")
         return self.serialize_run(run)
 
     def update_closing_note(self, run_id: int, closing_note: str, user: User) -> ChecklistRunRead:
         require_user_permission(user, "manage_checklists")
         run = self.repository.get_run(run_id)
         if not run:
-            raise HTTPException(status_code=404, detail="Checklist nao encontrado")
+            raise HTTPException(status_code=404, detail="Checklist não encontrado")
         require_store_access(user, run.store)
 
         run.closing_note = closing_note
@@ -54,7 +54,7 @@ class ChecklistService:
 
         refreshed_run = self.repository.get_run(run_id)
         if not refreshed_run:
-            raise HTTPException(status_code=404, detail="Checklist nao encontrado")
+            raise HTTPException(status_code=404, detail="Checklist não encontrado")
         return self.serialize_run(refreshed_run)
 
     @staticmethod

@@ -4,7 +4,7 @@ import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/useAuth';
 
 const logos = [
-  { src: '/logos/logo_burger.png', label: 'Lia Burguer' },
+  { src: '/logos/logo_burger.png', label: 'Lia Burger' },
   { src: '/logos/logo_pizza.png', label: 'Lia Pizza' },
   { src: '/logos/logo_salgados.png', label: 'Lia Salgados' }
 ];
@@ -109,7 +109,7 @@ export function LoginPage() {
             to="/lideranca/login"
             className="mt-4 block text-center text-sm font-bold text-lia-burgundy underline underline-offset-4"
           >
-            Acesso exclusivo da lideranca
+            Acesso exclusivo da liderança
           </Link>
         </form>
       </section>

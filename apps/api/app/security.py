@@ -108,10 +108,10 @@ def get_current_leadership(
     try:
         payload = jwt.decode(token, settings.jwt_secret, algorithms=["HS256"])
     except Exception as exc:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token invÃ¡lido") from exc
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido") from exc
 
     if payload.get("scope") != "leadership" or payload.get("sub") != settings.leadership_username:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Acesso restrito a lideranca")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Acesso restrito à liderança")
     return settings.leadership_username
 
 

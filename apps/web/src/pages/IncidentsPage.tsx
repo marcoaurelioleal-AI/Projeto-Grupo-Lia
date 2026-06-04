@@ -57,8 +57,8 @@ export function IncidentsPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Operacao"
-        title="Ocorrencias operacionais"
+        eyebrow="Operação"
+        title="Ocorrências operacionais"
         description="Registre problemas do turno e acompanhe o que esta aberto, em andamento ou resolvido."
       />
 
@@ -77,7 +77,7 @@ export function IncidentsPage() {
                 onChange={(event) => setForm((current) => ({ ...current, store: event.target.value }))}
               >
                 <option>Grupo Lia</option>
-                <option>Lia Burguer</option>
+                <option>Lia Burger</option>
                 <option>Lia Pizza</option>
                 <option>Lia Salgados</option>
               </select>
@@ -190,7 +190,7 @@ export function IncidentsPage() {
                 <p className="mt-3 text-sm leading-6 text-lia-ink">{incident.description}</p>
                 <div className="mt-3 flex items-center gap-2 text-xs text-lia-muted">
                   <AlertTriangle size={14} />
-                  {new Date(incident.created_at).toLocaleString()} por {incident.created_by ?? 'usuario'}
+                  {new Date(incident.created_at).toLocaleString()} por {incident.created_by ?? 'usuário'}
                 </div>
               </article>
             ))}

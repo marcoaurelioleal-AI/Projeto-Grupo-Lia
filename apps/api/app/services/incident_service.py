@@ -45,7 +45,7 @@ class IncidentService:
         require_user_permission(user, "manage_incidents")
         incident = self.repository.get_incident(incident_id)
         if not incident:
-            raise HTTPException(status_code=404, detail="Ocorrencia nao encontrada")
+            raise HTTPException(status_code=404, detail="Ocorrência não encontrada")
         require_store_access(user, incident.store)
         return self.serialize_incident(incident)
 
@@ -55,7 +55,7 @@ class IncidentService:
         require_user_permission(user, "manage_incidents")
         incident = self.repository.get_incident(incident_id)
         if not incident:
-            raise HTTPException(status_code=404, detail="Ocorrencia nao encontrada")
+            raise HTTPException(status_code=404, detail="Ocorrência não encontrada")
         require_store_access(user, incident.store)
 
         changes = payload.model_dump(exclude_unset=True)
@@ -79,7 +79,7 @@ class IncidentService:
         self.repository.commit()
         refreshed = self.repository.get_incident(incident_id)
         if not refreshed:
-            raise HTTPException(status_code=404, detail="Ocorrencia nao encontrada")
+            raise HTTPException(status_code=404, detail="Ocorrência não encontrada")
         return self.serialize_incident(refreshed)
 
     @staticmethod

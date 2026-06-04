@@ -30,7 +30,7 @@ describe('LoginPage', () => {
 
     expect(screen.getByRole('heading', { name: /Entrar na Central LIA/i })).toBeTruthy();
     expect(screen.getByLabelText(/Senha/i)).toBeTruthy();
-    expect(screen.getByRole('link', { name: /lideranca/i })).toBeTruthy();
+    expect(screen.getByRole('link', { name: /liderança/i })).toBeTruthy();
   });
 
   it('submits credentials through the auth context', async () => {

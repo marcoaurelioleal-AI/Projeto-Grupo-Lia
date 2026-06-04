@@ -1,0 +1,31 @@
+{
+  "name": "Projeto LIA",
+  "short_name": "LIA",
+  "description": "Operação, checklists, auditoria e assistente do Grupo Lia.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#FBF6E9",
+  "theme_color": "#CC2936",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/logos/logo_burger.png",
+      "sizes": "320x320",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logos/logo_pizza.png",
+      "sizes": "320x320",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logos/logo_salgados.png",
+      "sizes": "320x320",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

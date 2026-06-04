@@ -86,10 +86,10 @@ export function AdminPage() {
         <PageHeader
           eyebrow="Admin"
           title="Acesso restrito"
-          description="Esta area sera usada pela gestao para acompanhar dados internos da Central LIA."
+          description="Esta area sera usada pela gestão para acompanhar dados internos da Central LIA."
         />
         <div className="surface rounded-lg p-4 text-sm font-semibold text-lia-burgundy">
-          Seu usuario ainda nao possui perfil administrativo.
+          Seu usuário ainda não possui perfil administrativo.
         </div>
       </>
     );
@@ -100,11 +100,11 @@ export function AdminPage() {
       <PageHeader
         eyebrow="Gestao"
         title="Painel administrativo"
-        description="Gerencie usuarios, lojas e acompanhe os principais dados internos da Central LIA."
+        description="Gerencie usuários, lojas e acompanhe os principais dados internos da Central LIA."
       />
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        <AdminCard title="Usuarios" value={users.data?.length ?? 0} icon={Users} loading={users.isLoading} />
+        <AdminCard title="Usuários" value={users.data?.length ?? 0} icon={Users} loading={users.isLoading} />
         <AdminCard title="Lojas" value={stores.data?.length ?? 0} icon={Store} loading={stores.isLoading} />
         <AdminCard
           title="Templates de checklist"
@@ -114,24 +114,24 @@ export function AdminPage() {
         />
         <AdminCard title="Manuais" value={manuals.data?.length ?? 0} icon={BookOpen} loading={manuals.isLoading} />
         <AdminCard
-          title="Historico IA"
+          title="Histórico IA"
           value={aiInteractions.data?.length ?? 0}
           icon={Bot}
           loading={aiInteractions.isLoading}
         />
         <AdminCard
-          title="Duvidas criticas"
+          title="Dúvidas críticas"
           value={aiKnowledgeGaps.data?.length ?? 0}
           icon={AlertTriangle}
           loading={aiKnowledgeGaps.isLoading}
         />
         <AdminCard
-          title="Ocorrencias"
+          title="Ocorrências"
           value={incidents.data?.length ?? 0}
           icon={AlertTriangle}
           loading={incidents.isLoading}
         />
-        <AdminCard title="Relatorios" value="Resumo ativo" icon={FileText} loading={false} />
+        <AdminCard title="Relatórios" value="Resumo ativo" icon={FileText} loading={false} />
       </section>
 
       <section className="mt-5 grid gap-4 xl:grid-cols-2">
@@ -153,8 +153,8 @@ export function AdminPage() {
         />
 
         <div className="surface rounded-lg p-4">
-          <h3 className="text-lg font-black text-lia-burgundy">Auditoria de evidencias</h3>
-          {evidences.isLoading ? <p className="mt-3 text-sm text-lia-muted">Carregando evidencias...</p> : null}
+          <h3 className="text-lg font-black text-lia-burgundy">Auditoria de evidências</h3>
+          {evidences.isLoading ? <p className="mt-3 text-sm text-lia-muted">Carregando evidências...</p> : null}
           {evidences.data?.length ? (
             <div className="mt-3 space-y-3">
               {evidences.data.slice(0, 8).map((evidence) => (
@@ -164,7 +164,7 @@ export function AdminPage() {
                     <p className="font-bold text-lia-burgundy">{evidence.store ?? 'Grupo Lia'}</p>
                     <p className="truncate text-lia-muted">{evidence.item_text ?? evidence.original_filename}</p>
                     <p className="mt-1 text-xs text-lia-muted">
-                      {new Date(evidence.created_at).toLocaleString()} por {evidence.uploaded_by ?? 'usuario'}
+                      {new Date(evidence.created_at).toLocaleString()} por {evidence.uploaded_by ?? 'usuário'}
                     </p>
                   </div>
                 </div>
@@ -192,8 +192,8 @@ export function AdminPage() {
         <div className="flex items-start gap-3">
           <Camera className="mt-1 text-lia-red" size={20} />
           <p className="text-sm leading-6 text-lia-muted">
-            Exclusoes de usuario e loja sao tratadas como desativacao para preservar historico de operacao,
-            ocorrencias, checklists e evidencias.
+            Exclusões de usuário e loja são tratadas como desativação para preservar histórico de operação,
+            ocorrências, checklists e evidências.
           </p>
         </div>
       </section>
@@ -212,7 +212,7 @@ function AiInteractionsAdminSection({
     <div className="surface rounded-lg p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h3 className="text-lg font-black text-lia-burgundy">Historico da IA</h3>
+          <h3 className="text-lg font-black text-lia-burgundy">Histórico da IA</h3>
           <p className="mt-1 text-sm text-lia-muted">Ultimas perguntas feitas para a Lia, com modo e fontes usadas.</p>
         </div>
         <span className="rounded-lg bg-lia-red/10 px-3 py-2 text-xs font-bold uppercase tracking-[0.16em] text-lia-red">
@@ -227,7 +227,7 @@ function AiInteractionsAdminSection({
           {interactions.slice(0, 8).map((interaction) => (
             <article key={interaction.id} className="rounded-lg bg-white p-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="text-sm font-black text-lia-burgundy">{interaction.user_name ?? `Usuario #${interaction.user_id}`}</p>
+                <p className="text-sm font-black text-lia-burgundy">{interaction.user_name ?? `Usuário #${interaction.user_id}`}</p>
                 <span className="rounded-lg bg-lia-cream px-2 py-1 text-xs font-bold text-lia-muted">
                   {interaction.response_mode} / {interaction.ai_mode}
                 </span>
@@ -239,7 +239,7 @@ function AiInteractionsAdminSection({
                 <span>{interaction.latency_ms} ms</span>
                 <span>{interaction.sources.length} fonte(s)</span>
                 {interaction.feedback_rating ? <span>feedback: {interaction.feedback_rating}</span> : null}
-                {interaction.needs_manager_confirmation ? <span>confirmar com gestao</span> : null}
+                {interaction.needs_manager_confirmation ? <span>confirmar com gestão</span> : null}
               </div>
               {interaction.error_message ? (
                 <p className="mt-2 rounded-lg bg-lia-red/10 px-2 py-1 text-xs font-bold text-lia-red">
@@ -261,7 +261,7 @@ function KnowledgeGapsAdminSection({ gaps, loading }: { gaps: AiKnowledgeGap[]; 
     <div className="surface rounded-lg p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h3 className="text-lg font-black text-lia-burgundy">Duvidas para melhorar manuais</h3>
+          <h3 className="text-lg font-black text-lia-burgundy">Dúvidas para melhorar manuais</h3>
           <p className="mt-1 text-sm text-lia-muted">
             Perguntas com feedback negativo ou contexto insuficiente para revisar a base operacional.
           </p>
@@ -271,7 +271,7 @@ function KnowledgeGapsAdminSection({ gaps, loading }: { gaps: AiKnowledgeGap[]; 
         </span>
       </div>
 
-      {loading ? <p className="mt-3 text-sm text-lia-muted">Carregando duvidas criticas...</p> : null}
+      {loading ? <p className="mt-3 text-sm text-lia-muted">Carregando dúvidas críticas...</p> : null}
 
       {gaps.length ? (
         <div className="mt-3 grid gap-3 xl:grid-cols-2">
@@ -296,7 +296,7 @@ function KnowledgeGapsAdminSection({ gaps, loading }: { gaps: AiKnowledgeGap[]; 
           ))}
         </div>
       ) : (
-        <p className="mt-3 text-sm text-lia-muted">Ainda nao ha duvidas criticas suficientes para revisao.</p>
+        <p className="mt-3 text-sm text-lia-muted">Ainda não há dúvidas críticas suficientes para revisão.</p>
       )}
     </div>
   );
@@ -343,12 +343,12 @@ function UsersAdminSection({
 
   return (
     <div className="surface rounded-lg p-4">
-      <h3 className="text-lg font-black text-lia-burgundy">Usuarios</h3>
+      <h3 className="text-lg font-black text-lia-burgundy">Usuários</h3>
       <form onSubmit={submit} className="mt-3 grid gap-3 rounded-lg bg-white p-3">
         <div className="grid gap-3 sm:grid-cols-2">
           <input
             className="focus-ring rounded-lg border border-lia-red/15 px-3 py-2 text-sm"
-            placeholder="usuario"
+            placeholder="usuário"
             value={form.username}
             onChange={(event) => setForm((current) => ({ ...current, username: event.target.value }))}
             required
@@ -399,12 +399,12 @@ function UsersAdminSection({
           className="focus-ring rounded-lg bg-lia-red px-3 py-2 text-sm font-bold text-white disabled:opacity-60"
           disabled={createUser.isPending}
         >
-          {createUser.isPending ? 'Criando...' : 'Criar usuario'}
+          {createUser.isPending ? 'Criando...' : 'Criar usuário'}
         </button>
       </form>
 
       <div className="mt-3 space-y-2">
-        {loading ? <p className="text-sm text-lia-muted">Carregando usuarios...</p> : null}
+        {loading ? <p className="text-sm text-lia-muted">Carregando usuários...</p> : null}
         {users.map((item) => (
           <div key={item.id} className="rounded-lg bg-white p-3">
             <div className="flex flex-wrap items-center justify-between gap-3">
@@ -735,7 +735,7 @@ function TemplateRow({
       <form onSubmit={submitItem} className="mt-3 grid gap-2 rounded-lg bg-lia-cream/60 p-2 sm:grid-cols-[0.35fr_1fr_auto]">
         <input
           className="focus-ring rounded-lg border border-lia-red/15 px-3 py-2 text-sm"
-          placeholder="Secao"
+          placeholder="Seção"
           value={itemForm.section}
           onChange={(event) => setItemForm((current) => ({ ...current, section: event.target.value }))}
           required

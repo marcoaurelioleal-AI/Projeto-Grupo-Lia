@@ -32,7 +32,7 @@ def get_leadership_service(db: Session = Depends(get_db)) -> LeadershipService:
 @router.post("/login", response_model=LeadershipTokenResponse)
 def leadership_login(payload: LoginRequest, response: Response) -> LeadershipTokenResponse:
     if not verify_leadership_credentials(payload.username, payload.password):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Usuario ou senha invalidos")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Usuário ou senha inválidos")
     token = create_leadership_access_token()
     set_session_cookie(response, token, leadership=True)
     return LeadershipTokenResponse(access_token=token)

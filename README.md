@@ -1,6 +1,6 @@
 # Projeto LIA
 
-Central operacional para o **Grupo Empresarial Lia**, reunindo processos internos da Lia Burguer, Lia Pizza e Lia Salgados em uma plataforma web com login, dashboard, checklists, manuais técnicos e a assistente operacional **Lia**.
+Central operacional para o **Grupo Empresarial Lia**, reunindo processos internos da Lia Burger, Lia Pizza e Lia Salgados em uma plataforma web com login, dashboard, checklists, manuais técnicos e a assistente operacional **Lia**.
 
 O projeto nasceu como uma aplicação Streamlit e hoje evolui sobre uma arquitetura web com **React + TypeScript** no frontend e **FastAPI** no backend. A versão Streamlit permanece apenas como referência legado enquanto a Central LIA atual concentra a evolução do produto.
 
@@ -267,8 +267,8 @@ Em produção, não dependa de `Base.metadata.create_all`. Use migrations com `A
 | `STORAGE_PROVIDER` | `local` no desenvolvimento ou `supabase` em producao. |
 | `SUPABASE_URL` | URL do projeto Supabase usada apenas no backend. |
 | `SUPABASE_SERVICE_ROLE_KEY` | Service role key do Supabase. Nunca enviar ao frontend. |
-| `SUPABASE_STORAGE_BUCKET` | Bucket privado de evidencias. |
-| `SUPABASE_SIGNED_URL_EXPIRES_SECONDS` | Duracao das URLs assinadas para visualizar evidencias. |
+| `SUPABASE_STORAGE_BUCKET` | Bucket privado de evidências. |
+| `SUPABASE_SIGNED_URL_EXPIRES_SECONDS` | Duração das URLs assinadas para visualizar evidências. |
 | `GEMINI_API_KEY` | Chave da API Gemini usada pela Lia. |
 | `MODELO_GEMINI` | Modelo Gemini. Padrão recomendado: `gemini-2.5-flash`. |
 | `UPLOAD_DIR` | Pasta local para evidências em desenvolvimento. |
@@ -391,8 +391,8 @@ As rotas de API ficam sob o prefixo `/api` para não conflitar com as páginas R
 
 ## Supabase em producao
 
-O Projeto LIA usa Supabase apenas pelo backend: PostgreSQL para dados e Storage privado para evidencias.
-Nao coloque `SUPABASE_SERVICE_ROLE_KEY` no frontend.
+O Projeto LIA usa Supabase apenas pelo backend: PostgreSQL para dados e Storage privado para evidências.
+Não coloque `SUPABASE_SERVICE_ROLE_KEY` no frontend.
 
 ### Supabase PostgreSQL
 
@@ -418,7 +418,7 @@ Passos manuais:
    - `SUPABASE_SERVICE_ROLE_KEY`
    - `SUPABASE_STORAGE_BUCKET=lia-evidences`
    - `SUPABASE_SIGNED_URL_EXPIRES_SECONDS=300`
-3. Nao torne o bucket publico. O backend valida permissao antes de gerar URL assinada temporaria.
+3. Não torne o bucket público. O backend valida permissão antes de gerar URL assinada temporária.
 
 ## Validação local antes do push
 
@@ -519,7 +519,7 @@ Boas práticas atuais:
 - Chaves Gemini ficam apenas no backend.
 - Senhas são armazenadas com hash.
 - Tokens JWT são assinados com `JWT_SECRET`.
-- Sessoes web usam cookie `HttpOnly`; o frontend nao armazena mais JWT em `localStorage`.
+- Sessões web usam cookie `HttpOnly`; o frontend não armazena mais JWT em `localStorage`.
 - Logout remove o cookie de sessao no backend.
 - Em `APP_ENV=production`, a API valida PostgreSQL, migrations e secrets fortes antes de subir.
 - `.env` não deve ser versionado.

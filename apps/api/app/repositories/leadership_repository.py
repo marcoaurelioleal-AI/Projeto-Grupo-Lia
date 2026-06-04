@@ -37,6 +37,13 @@ class LeadershipRepository:
         self.db.refresh(record)
         return record
 
+    def get_record(self, record_id: int) -> LeadershipRecord | None:
+        return self.db.scalar(
+            select(LeadershipRecord)
+            .where(LeadershipRecord.id == record_id)
+            .options(selectinload(LeadershipRecord.employee))
+        )
+
     def list_records(self, employee_id: int | None = None, limit: int = 80) -> list[LeadershipRecord]:
         query = (
             select(LeadershipRecord)

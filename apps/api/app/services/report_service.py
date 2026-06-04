@@ -88,7 +88,7 @@ class ReportService:
         if scoped_store:
             return [scoped_store]
         stores = self.repository.list_active_store_names()
-        return stores or ["Grupo Lia", "Lia Burguer", "Lia Pizza", "Lia Salgados"]
+        return stores or ["Grupo Lia", "Lia Burger", "Lia Pizza", "Lia Salgados"]
 
     def _store_pending_summary(self, store: str, target_date: date) -> StorePendingSummaryRead:
         ensure_runs_for_date(self.db, target_date, store)

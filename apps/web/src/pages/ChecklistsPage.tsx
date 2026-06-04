@@ -54,7 +54,7 @@ export function ChecklistsPage() {
             onChange={(e) => setStore(e.target.value)}
           >
             <option>Grupo Lia</option>
-            <option>Lia Burguer</option>
+            <option>Lia Burger</option>
             <option>Lia Pizza</option>
             <option>Lia Salgados</option>
           </select>

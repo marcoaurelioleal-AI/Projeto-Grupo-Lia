@@ -98,7 +98,7 @@ export function AssistantPage() {
         ...current,
         {
           role: 'assistant',
-          content: error instanceof Error ? error.message : 'Nao consegui responder agora.',
+          content: error instanceof Error ? error.message : 'Não consegui responder agora.',
           mode: 'error',
           needsManagerConfirmation: true
         }
@@ -185,8 +185,8 @@ export function AssistantPage() {
               </select>
             </label>
             <div className="rounded-lg bg-white px-3 py-3 text-sm leading-6 text-lia-muted">
-              A Lia responde com base nos manuais internos. Quando a base nao for suficiente, ela orienta confirmar com
-              a gestao.
+              A Lia responde com base nos manuais internos. Quando a base não for suficiente, ela orienta confirmar com
+              a gestão.
             </div>
           </div>
         </div>
@@ -220,7 +220,7 @@ export function AssistantPage() {
               <KeyRound size={13} /> Fingerprint
             </p>
             <p className="font-mono text-sm font-semibold text-lia-ink">
-              {statusQuery.data?.key_fingerprint ?? 'indisponivel'}
+              {statusQuery.data?.key_fingerprint ?? 'indisponível'}
             </p>
           </div>
         </section>
@@ -290,7 +290,7 @@ function ChatBubble({
         </div>
         {!isUser && message.needsManagerConfirmation ? (
           <p className="flex items-center gap-2 rounded-lg bg-lia-red/10 px-3 py-2 text-xs font-bold text-lia-red">
-            <AlertTriangle size={14} /> Confirme com a gestao antes de aplicar esta orientacao.
+            <AlertTriangle size={14} /> Confirme com a gestão antes de aplicar esta orientação.
           </p>
         ) : null}
         {!isUser && message.interactionId ? (
@@ -315,7 +315,7 @@ function ChatBubble({
                   onClick={() => onFeedback(message.interactionId!, 'nao_ajudou')}
                   className="focus-ring flex items-center gap-1 rounded-lg border border-lia-red/15 bg-white px-3 py-2 text-lia-burgundy disabled:opacity-60"
                 >
-                  <ThumbsDown size={14} /> Nao ajudou
+                  <ThumbsDown size={14} /> Não ajudou
                 </button>
               </>
             )}
@@ -366,7 +366,7 @@ function HistoryPanel({
     <aside className="surface rounded-lg p-4">
       <div className="mb-3 flex items-center gap-2">
         <Clock3 size={18} className="text-lia-red" />
-        <h3 className="font-black text-lia-burgundy">Historico recente</h3>
+        <h3 className="font-black text-lia-burgundy">Histórico recente</h3>
       </div>
       {history.length ? (
         <div className="space-y-2">

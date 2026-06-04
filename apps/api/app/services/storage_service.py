@@ -111,7 +111,7 @@ class SupabaseStorageService:
         else:
             url = getattr(response, "signed_url", None) or getattr(response, "signedURL", None)
         if not url:
-            raise HTTPException(status_code=404, detail="Nao foi possivel gerar URL assinada da evidencia")
+            raise HTTPException(status_code=404, detail="Não foi possível gerar URL assinada da evidência")
         return str(url)
 
 

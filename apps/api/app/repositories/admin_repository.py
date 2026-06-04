@@ -137,7 +137,7 @@ class AdminRepository:
         ):
             names.update(name for name in self.db.scalars(statement).all() if name)
         if not names:
-            names.update({"Grupo Lia", "Lia Burguer", "Lia Pizza", "Lia Salgados"})
+            names.update({"Grupo Lia", "Lia Burger", "Lia Pizza", "Lia Salgados"})
         return sorted(names)
 
     def commit(self) -> None:

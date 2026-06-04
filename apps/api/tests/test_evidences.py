@@ -81,6 +81,41 @@ def test_evidences_are_restricted_by_user_store(
     assert admin_file.status_code == 200
 
 
+def test_evidence_audit_filters_export_and_logs_actions(client: TestClient, admin_headers: dict[str, str]) -> None:
+    runs = client.get("/api/checklists?store=Lia Pizza", headers=admin_headers).json()
+    item_id = runs[0]["items"][0]["id"]
+    uploaded = client.post(
+        f"/api/checklists/items/{item_id}/evidences",
+        headers=admin_headers,
+        files={"file": ("forno.png", b"fake-image", "image/png")},
+    )
+    assert uploaded.status_code == 200
+
+    options = client.get("/api/evidences/filter-options", headers=admin_headers)
+    assert options.status_code == 200
+    assert "Lia Pizza" in options.json()["stores"]
+
+    filtered = client.get(
+        "/api/evidences?store=Lia Pizza&checklist_title=Limpeza&uploaded_by=Administrador",
+        headers=admin_headers,
+    )
+    assert filtered.status_code == 200
+    payload = filtered.json()
+    assert any(item["original_filename"] == "forno.png" for item in payload)
+
+    exported = client.get(
+        "/api/evidences/export?store=Lia Pizza&checklist_title=Limpeza&uploaded_by=Administrador",
+        headers=admin_headers,
+    )
+    assert exported.status_code == 200
+    assert "text/csv" in exported.headers["content-type"]
+    assert "forno.png" in exported.text
+
+    logs = client.get("/api/audit/logs?entity_type=evidences", headers=admin_headers)
+    assert logs.status_code == 200
+    assert any(item["action"] == "evidence_audit_export" for item in logs.json())
+
+
 def test_write_requests_are_recorded_in_audit_log(client: TestClient, admin_headers: dict[str, str]) -> None:
     created = client.post("/api/admin/stores", headers=admin_headers, json={"name": "Lia Auditavel"})
     assert created.status_code == 200

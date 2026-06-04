@@ -2,6 +2,9 @@
 senha_lider_lia.txt
 __pycache__/
 .pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
 pytest-cache-files-*/
 .venv/
 *.pyc
@@ -13,5 +16,7 @@ dist/
 apps/web/node_modules/
 apps/web/dist/
 apps/web/.vite/
+apps/web/playwright-report/
+apps/web/test-results/
 apps/web/*.tsbuildinfo
 data/uploads/

@@ -27,7 +27,7 @@ class EvidenceService:
         require_user_permission(user, "upload_evidences")
         item = self.repository.get_run_item(item_id)
         if not item:
-            raise HTTPException(status_code=404, detail="Item de checklist nao encontrado")
+            raise HTTPException(status_code=404, detail="Item de checklist não encontrado")
         self._require_item_store_access(user, item)
 
         storage_result = await self.storage.save_file(file)
@@ -50,7 +50,7 @@ class EvidenceService:
         require_user_permission(user, "view_evidences")
         item = self.repository.get_run_item(item_id)
         if not item:
-            raise HTTPException(status_code=404, detail="Item de checklist nao encontrado")
+            raise HTTPException(status_code=404, detail="Item de checklist não encontrado")
         self._require_item_store_access(user, item)
         return [self.serialize_evidence(evidence) for evidence in self.repository.list_for_item(item_id)]
 
@@ -58,7 +58,7 @@ class EvidenceService:
         require_user_permission(user, "view_evidences")
         run = self.repository.get_run(run_id)
         if not run:
-            raise HTTPException(status_code=404, detail="Checklist nao encontrado")
+            raise HTTPException(status_code=404, detail="Checklist não encontrado")
         require_store_access(user, run.store)
         return [self.serialize_evidence(evidence) for evidence in self.repository.list_for_run(run_id)]
 
@@ -130,7 +130,7 @@ class EvidenceService:
                 "loja",
                 "checklist",
                 "item",
-                "usuario",
+                "usuário",
                 "arquivo",
                 "tipo",
                 "tamanho_bytes",
@@ -169,10 +169,10 @@ class EvidenceService:
         require_user_permission(user, "view_evidences")
         evidence = self.repository.get_evidence(evidence_id)
         if not evidence:
-            raise HTTPException(status_code=404, detail="Evidencia nao encontrada")
+            raise HTTPException(status_code=404, detail="Evidência não encontrada")
         self._require_evidence_store_access(user, evidence)
         if evidence.storage_provider == "local" and not Path(evidence.file_path).exists():
-            raise HTTPException(status_code=404, detail="Arquivo da evidencia nao encontrado")
+            raise HTTPException(status_code=404, detail="Arquivo da evidência não encontrado")
         item = evidence.checklist_run_item
         run = item.run if item else None
         self._record_audit_action(
@@ -186,7 +186,7 @@ class EvidenceService:
 
     def signed_url_for(self, evidence: ChecklistEvidence) -> str:
         if not isinstance(self.storage, SupabaseStorageService):
-            raise HTTPException(status_code=400, detail="Storage atual nao suporta URL assinada")
+            raise HTTPException(status_code=400, detail="Storage atual não suporta URL assinada")
         return self.storage.create_signed_url(evidence.file_path)
 
     @staticmethod

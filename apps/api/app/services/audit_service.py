@@ -124,7 +124,7 @@ def record_request_audit(request: Request, *, status_code: int, duration_ms: int
                 details=details,
             )
     except Exception:
-        logger.exception("Nao foi possivel registrar evento de auditoria")
+        logger.exception("Não foi possível registrar evento de auditoria")
 
 
 def _extract_actor(request: Request) -> RequestActor:

@@ -19,6 +19,10 @@ body {
     linear-gradient(180deg, #fbf6e9 0%, #f4e7d2 42%, #ead3b7 100%);
 }
 
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
 button,
 input,
 textarea,

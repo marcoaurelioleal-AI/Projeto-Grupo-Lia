@@ -22,7 +22,7 @@ from .security import hash_password
 
 MANUALS_SEED = [
     {
-        "unit": "Lia Burguer",
+        "unit": "Lia Burger",
         "title": "Procedimento de Chapa e Montagem",
         "temperature": "200°C constante",
         "time_standard": "2:30 min por lado para ponto médio",
@@ -195,7 +195,7 @@ def seed_admin(db: Session) -> None:
 
 
 def seed_stores(db: Session) -> None:
-    for name in ("Grupo Lia", "Lia Burguer", "Lia Pizza", "Lia Salgados"):
+    for name in ("Grupo Lia", "Lia Burger", "Lia Pizza", "Lia Salgados"):
         if not db.scalar(select(Store.id).where(Store.name == name)):
             db.add(Store(name=name, active=True))
 

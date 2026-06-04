@@ -44,7 +44,7 @@ class AiService:
 
         if not sources:
             reply = (
-                "Nao encontrei essa informacao nos manuais disponiveis. Confirme com a gestao antes de executar "
+                "Não encontrei essa informação nos manuais disponíveis. Confirme com a gestão antes de executar "
                 "esse procedimento."
             )
             latency_ms = self._latency_ms(started_at)
@@ -193,7 +193,7 @@ class AiService:
     def feedback(self, interaction_id: int, payload: AiFeedbackCreate, user: User) -> AiInteractionRead:
         interaction = self.repository.get_interaction(interaction_id)
         if not interaction:
-            raise HTTPException(status_code=404, detail="Interacao da IA nao encontrada")
+            raise HTTPException(status_code=404, detail="Interação da IA não encontrada")
         if user.role != "admin" and interaction.user_id != user.id:
             raise HTTPException(status_code=403, detail="Feedback permitido apenas para a propria interacao")
 
@@ -283,12 +283,12 @@ class AiService:
             contents=prompt,
             config=types.GenerateContentConfig(
                 system_instruction=(
-                    "Voce e a Lia, assistente operacional interna do Grupo Lia. Use apenas a base operacional "
-                    "fornecida. Se faltar informacao, peca confirmacao da gestao. Nao prometa executar acoes."
+                    "Você é a Lia, assistente operacional interna do Grupo Lia. Use apenas a base operacional "
+                    "fornecida. Se faltar informação, peça confirmação da gestão. Não prometa executar ações."
                 )
             ),
         )
-        return response.text or "Nao consegui responder agora. Confirme com a gestao antes de seguir."
+        return response.text or "Não consegui responder agora. Confirme com a gestão antes de seguir."
 
     def _build_prompt(
         self,
@@ -300,8 +300,8 @@ class AiService:
     ) -> str:
         mode_instructions = {
             "rapido": "Responda em no maximo 5 linhas, de forma direta e operacional.",
-            "detalhado": "Explique em passo a passo, cite cuidados e indique quando chamar a gestao.",
-            "treinamento": "Use linguagem didatica para funcionario novo e explique o motivo da regra.",
+            "detalhado": "Explique em passo a passo, cite cuidados e indique quando chamar a gestão.",
+            "treinamento": "Use linguagem didática para funcionário novo e explique o motivo da regra.",
         }
         context = "\n\n".join(
             (
@@ -313,14 +313,14 @@ class AiService:
         )[:5000]
 
         return (
-            "Voce responde como Assistente Operacional do Grupo Lia para loja, cozinha, balcao e delivery.\n"
-            "Use apenas a base operacional recuperada. Nao invente regra interna.\n"
-            "Quando a informacao nao estiver clara nos manuais, diga para confirmar com a gestao.\n"
+            "Você responde como Assistente Operacional do Grupo Lia para loja, cozinha, balcão e delivery.\n"
+            "Use apenas a base operacional recuperada. Não invente regra interna.\n"
+            "Quando a informação não estiver clara nos manuais, diga para confirmar com a gestão.\n"
             "Priorize seguranca alimentar, temperatura, validade, higiene e padronizacao.\n"
             f"Modo de resposta: {response_mode}. {mode_instructions[response_mode]}\n"
             f"Loja: {store}\nUnidade filtrada: {unit or 'Todas'}\n\n"
             f"Base operacional recuperada:\n{context}\n\n"
-            f"Pergunta do funcionario:\n{question}"
+            f"Pergunta do funcionário:\n{question}"
         )
 
     def _offline_reply(self, retrieved_context: list[RetrievedContext]) -> str:
@@ -333,9 +333,9 @@ class AiService:
             for item in retrieved_context
         )
         return (
-            "Sou a Lia, mas estou em modo offline porque a chave Gemini ainda nao esta ativa no backend. "
-            "Nao consultei IA externa agora. Use os manuais internos abaixo como referencia principal e confirme "
-            f"com a gestao quando a duvida envolver decisao operacional.\n\n{context}"
+            "Sou a Lia, mas estou em modo offline porque a chave Gemini ainda não está ativa no backend. "
+            "Não consultei IA externa agora. Use os manuais internos abaixo como referência principal e confirme "
+            f"com a gestão quando a dúvida envolver decisão operacional.\n\n{context}"
         )
 
     def _record(
@@ -383,7 +383,7 @@ class AiService:
                 if not question:
                     break
                 return question[:2000]
-        raise HTTPException(status_code=400, detail="Pergunta da IA nao pode ser vazia")
+        raise HTTPException(status_code=400, detail="Pergunta da IA não pode ser vazia")
 
     @staticmethod
     def _latency_ms(started_at: float) -> int:
@@ -470,13 +470,13 @@ def describe_gemini_error(exc: Exception) -> str:
     if "API_KEY_INVALID" in normalized or "API KEY NOT VALID" in normalized or "INVALID_ARGUMENT" in normalized:
         return "A chave Gemini configurada no servidor e invalida. Gere uma nova chave e atualize GEMINI_API_KEY."
     if "API_KEY_SERVICE_BLOCKED" in normalized or "SERVICE_DISABLED" in normalized:
-        return "A chave Gemini existe, mas a API do Gemini/Generative Language nao esta habilitada para ela."
+        return "A chave Gemini existe, mas a API do Gemini/Generative Language não está habilitada para ela."
     if "API_KEY_HTTP_REFERRER_BLOCKED" in normalized or "API_KEY_IP_ADDRESS_BLOCKED" in normalized:
         return "A chave Gemini esta com restricao de uso. Para backend, ajuste as restricoes da chave."
     if "RESOURCE_EXHAUSTED" in normalized or "QUOTA" in normalized or "429" in normalized:
         return "A cota do Gemini foi atingida ou esta temporariamente limitada. Verifique a cota no Google AI Studio."
     if "MODEL_NOT_FOUND" in normalized or "NOT_FOUND" in normalized:
-        return f"O modelo {settings.gemini_model} nao esta disponivel para essa chave. Tente MODELO_GEMINI=gemini-1.5-flash."
+        return f"O modelo {settings.gemini_model} não está disponível para essa chave. Tente MODELO_GEMINI=gemini-1.5-flash."
     if "PERMISSION_DENIED" in normalized or "403" in normalized:
-        return "A chave Gemini nao tem permissao para essa chamada. Verifique restricoes, projeto Google e API habilitada."
-    return "Nao consegui consultar o Gemini agora. Veja os logs do servidor para o detalhe tecnico da falha."
+        return "A chave Gemini não tem permissão para essa chamada. Verifique restricoes, projeto Google e API habilitada."
+    return "Não consegui consultar o Gemini agora. Veja os logs do servidor para o detalhe técnico da falha."

@@ -15,7 +15,7 @@ test('login flow reaches the daily dashboard', async ({ page }) => {
         name: 'Operacao LIA',
         role: 'operacao',
         store_id: 1,
-        store_name: 'Lia Burguer',
+        store_name: 'Lia Burger',
         active: true
       }
     });
@@ -33,7 +33,7 @@ test('login flow reaches the daily dashboard', async ({ page }) => {
           name: 'Operacao LIA',
           role: 'operacao',
           store_id: 1,
-          store_name: 'Lia Burguer',
+          store_name: 'Lia Burger',
           active: true
         }
       }

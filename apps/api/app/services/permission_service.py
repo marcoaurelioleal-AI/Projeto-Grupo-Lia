@@ -67,9 +67,9 @@ def require_store_access(user: User, store_name: str | None) -> str | None:
 
     own_store = user_store_name(user)
     if not own_store:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Usuario sem loja vinculada")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Usuário sem loja vinculada")
     if store_name and store_name != own_store:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Acesso restrito a loja do usuario")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Acesso restrito à loja do usuário")
     return own_store
 
 

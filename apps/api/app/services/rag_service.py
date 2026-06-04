@@ -41,14 +41,15 @@ STOPWORDS = {
 TOKEN_ALIASES = {
     "armazenamento": {"estoque", "validade", "lote"},
     "balcao": {"atendimento", "loja", "limpeza"},
-    "carne": {"hamburguer", "chapa", "burguer"},
+    "carne": {"hambúrguer", "hamburger", "chapa", "burger"},
     "conferir": {"verificar", "checar", "validar"},
     "cozinha": {"preparo", "higiene", "producao"},
     "delivery": {"entrega", "pedido", "embalagem"},
     "fritadeira": {"fritura", "oleo", "salgados"},
     "fritar": {"fritura", "oleo", "salgados"},
     "fritura": {"fritar", "oleo", "salgados"},
-    "hamburguer": {"burguer", "carne", "chapa"},
+    "hamburger": {"hambúrguer", "burger", "carne", "chapa"},
+    "hambúrguer": {"hamburger", "burger", "carne", "chapa"},
     "higienizacao": {"limpeza", "utensilios", "contaminacao"},
     "higiene": {"limpeza", "utensilios", "contaminacao"},
     "insumo": {"estoque", "validade", "producao"},
@@ -227,7 +228,7 @@ class RagService:
 
             for section in manual.sections:
                 steps = " ".join(step.text for step in section.steps)
-                content = f"Secao: {section.title}. {steps}"
+                content = f"Seção: {section.title}. {steps}"
                 chunks.append(
                     ManualChunk(
                         id=f"manual:{manual.id}:section:{section.id}",

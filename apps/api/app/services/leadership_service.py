@@ -60,7 +60,7 @@ class LeadershipService:
         if not employee.active:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Funcionario inativo nao pode receber novo registro",
+                detail="Funcionário inativo não pode receber novo registro",
             )
         record = LeadershipRecord(
             employee_id=employee.id,
@@ -70,14 +70,15 @@ class LeadershipService:
             created_by=created_by,
         )
         self.repository.add_record(record)
+        record_id = record.id
         self.repository.commit()
-        record.employee = employee
-        return self._record_read(record)
+        saved_record = self.repository.get_record(record_id)
+        return self._record_read(saved_record or record)
 
     def _get_employee_or_404(self, employee_id: int) -> LeadershipEmployee:
         employee = self.repository.get_employee(employee_id)
         if not employee:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Funcionario nao encontrado")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Funcionário não encontrado")
         return employee
 
     @staticmethod

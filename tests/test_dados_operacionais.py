@@ -2,7 +2,7 @@ from dados_operacionais import CHECKLISTS, MANUAIS
 
 
 def test_manuais_cobrem_todas_as_unidades() -> None:
-    assert {"Lia Burguer", "Lia Pizza", "Lia Salgados"} <= set(MANUAIS)
+    assert {"Lia Burger", "Lia Pizza", "Lia Salgados"} <= set(MANUAIS)
 
 
 def test_manuais_tem_campos_essenciais() -> None:

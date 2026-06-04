@@ -1,5 +1,5 @@
 MANUAIS = {
-    "Lia Burguer": {
+    "Lia Burger": {
         "titulo": "🔥 Procedimento de Chapa e Montagem",
         "temperatura": "200°C constante",
         "tempo": "2:30 min por lado para ponto médio",
