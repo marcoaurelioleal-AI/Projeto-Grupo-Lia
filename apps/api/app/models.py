@@ -202,6 +202,20 @@ class OperationalIncident(Base):
     resolved_by: Mapped[User] = relationship(foreign_keys=[resolved_by_user_id])
 
 
+class InventoryItem(Base):
+    __tablename__ = "inventory_items"
+    __table_args__ = (UniqueConstraint("store", "product_name", name="uq_inventory_store_product"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    store: Mapped[str] = mapped_column(String(80), default="Grupo Lia", index=True)
+    product_name: Mapped[str] = mapped_column(String(160), index=True)
+    quantity: Mapped[int] = mapped_column(Integer, default=0)
+    created_by_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now, onupdate=utc_now)
+    created_by: Mapped[User] = relationship()
+
+
 class ChecklistEvidence(Base):
     __tablename__ = "checklist_evidences"
 

@@ -6,6 +6,12 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
+if os.getenv("APP_ENV", "").lower() == "production":
+    raise RuntimeError(
+        "A versao Streamlit e legado e nao deve subir em producao. "
+        "Use o Dockerfile/Render com FastAPI + React."
+    )
+
 import streamlit as st
 from dotenv import load_dotenv
 

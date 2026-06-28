@@ -10,7 +10,20 @@ from fastapi.staticfiles import StaticFiles
 
 from .config import settings, validate_production_settings
 from .database import Base, SessionLocal, engine
-from .routers import admin, ai, audit, auth, checklists, evidences, incidents, leadership, manuals, observability, reports
+from .routers import (
+    admin,
+    ai,
+    audit,
+    auth,
+    checklists,
+    evidences,
+    incidents,
+    inventory,
+    leadership,
+    manuals,
+    observability,
+    reports,
+)
 from .schemas import HealthResponse
 from .seed import seed_database
 from .services.observability_service import request_observability_middleware
@@ -49,6 +62,7 @@ app.include_router(checklists.router, prefix="/api")
 app.include_router(ai.router, prefix="/api")
 app.include_router(admin.router, prefix="/api")
 app.include_router(incidents.router, prefix="/api")
+app.include_router(inventory.router, prefix="/api")
 app.include_router(leadership.router, prefix="/api")
 app.include_router(evidences.router, prefix="/api")
 app.include_router(reports.router, prefix="/api")

@@ -16,6 +16,9 @@ import type {
   EvidenceAuditFilterOptions,
   ExecutiveDashboard,
   IncidentStatus,
+  InventoryItem,
+  InventoryItemCreate,
+  InventoryItemUpdate,
   LeadershipEmployee,
   LeadershipEmployeeCreate,
   LeadershipEmployeeUpdate,
@@ -343,6 +346,22 @@ export const api = {
     }),
   updateIncident: (incidentId: number, payload: Partial<OperationalIncidentCreate> & { status?: IncidentStatus }) =>
     request<OperationalIncident>(`/incidents/${incidentId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload)
+    }),
+  inventory: (options: { store?: string } = {}) =>
+    request<InventoryItem[]>(
+      withParams('/inventory', {
+        store: options.store
+      })
+    ),
+  createInventoryItem: (payload: InventoryItemCreate) =>
+    request<InventoryItem>('/inventory', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    }),
+  updateInventoryItem: (itemId: number, payload: InventoryItemUpdate) =>
+    request<InventoryItem>(`/inventory/${itemId}`, {
       method: 'PATCH',
       body: JSON.stringify(payload)
     }),

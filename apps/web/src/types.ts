@@ -206,6 +206,28 @@ export interface OperationalIncidentCreate {
   description: string;
 }
 
+export interface InventoryItem {
+  id: number;
+  store: string;
+  product_name: string;
+  quantity: number;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface InventoryItemCreate {
+  store: string;
+  product_name: string;
+  quantity: number;
+}
+
+export interface InventoryItemUpdate {
+  store?: string;
+  product_name?: string;
+  quantity?: number;
+}
+
 export interface ChecklistEvidence {
   id: number;
   checklist_run_item_id: number;

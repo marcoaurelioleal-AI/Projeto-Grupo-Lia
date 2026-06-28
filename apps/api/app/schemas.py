@@ -242,6 +242,28 @@ class OperationalIncidentRead(BaseModel):
     resolved_by: str | None = None
 
 
+class InventoryItemCreate(BaseModel):
+    store: str = Field(default="Grupo Lia", min_length=1, max_length=80)
+    product_name: str = Field(min_length=1, max_length=160)
+    quantity: int = Field(ge=0, le=1_000_000)
+
+
+class InventoryItemUpdate(BaseModel):
+    store: str | None = Field(default=None, min_length=1, max_length=80)
+    product_name: str | None = Field(default=None, min_length=1, max_length=160)
+    quantity: int | None = Field(default=None, ge=0, le=1_000_000)
+
+
+class InventoryItemRead(BaseModel):
+    id: int
+    store: str
+    product_name: str
+    quantity: int
+    created_by: str | None = None
+    created_at: datetime
+    updated_at: datetime
+
+
 class ChecklistEvidenceRead(BaseModel):
     id: int
     checklist_run_item_id: int

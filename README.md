@@ -90,6 +90,15 @@ O frontend fica em `apps/web` e usa:
 
 `meu_assistente.py` mantém a versão Streamlit original como referência temporária. A evolução principal do produto deve acontecer em `apps/web` e `apps/api`.
 
+A versão Streamlit não faz parte das dependências de produção. Para abrir o legado localmente, instale as dependências específicas:
+
+```powershell
+pip install -r requirements-legacy.txt
+streamlit run meu_assistente.py
+```
+
+Em produção, `APP_ENV=production` bloqueia a inicialização do legado Streamlit para evitar que o Render publique a experiência antiga por engano.
+
 ## Requisitos
 
 - Python 3.11+ recomendado para produção.
@@ -461,6 +470,21 @@ Comando final do container:
 ```sh
 alembic upgrade head && uvicorn apps.api.app.main:app --host 0.0.0.0 --port ${PORT:-8000}
 ```
+
+### Se o site abrir a versão Streamlit
+
+Isso indica que o Render está usando o serviço antigo ou um runtime Python/Streamlit criado no início do projeto. A Central LIA atual deve subir pelo `Dockerfile` da raiz.
+
+Checklist de correção no Render:
+
+1. Abra o serviço correto, normalmente `projeto-lia-v2`.
+2. Em `Settings`, confirme que o runtime/deploy está como Docker e usando o `Dockerfile` da raiz.
+3. Se o serviço ainda estiver como Python/Streamlit, crie um novo Web Service a partir do repositório usando Docker, ou altere o serviço atual para Docker se o painel permitir.
+4. Garanta que `APP_ENV=production` e `AUTO_CREATE_TABLES=false` estejam configurados.
+5. Faça `Manual Deploy` com `Clear build cache`.
+6. Acesse a URL do serviço Docker, não a URL antiga do Streamlit.
+
+O arquivo `Procfile` também aponta para FastAPI para reduzir risco em ambientes que tentem iniciar o projeto como Python web service, mas o deploy recomendado continua sendo Docker.
 
 Variáveis recomendadas no Render:
 

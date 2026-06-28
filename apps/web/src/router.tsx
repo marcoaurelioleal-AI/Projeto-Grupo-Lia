@@ -7,6 +7,7 @@ import { AuditPage } from './pages/AuditPage';
 import { ChecklistsPage } from './pages/ChecklistsPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { IncidentsPage } from './pages/IncidentsPage';
+import { InventoryPage } from './pages/InventoryPage';
 import { LeadershipLoginPage } from './pages/LeadershipLoginPage';
 import { LeadershipPage } from './pages/LeadershipPage';
 import { LoginPage } from './pages/LoginPage';
@@ -27,6 +28,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <DashboardPage /> },
       { path: 'checklists', element: <ChecklistsPage /> },
+      { path: 'inventory', element: <InventoryPage /> },
       { path: 'incidents', element: <IncidentsPage /> },
       { path: 'reports', element: <ReportsPage /> },
       { path: 'audit', element: <AuditPage /> },

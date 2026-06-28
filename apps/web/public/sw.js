@@ -1,5 +1,5 @@
-const CACHE_NAME = 'projeto-lia-pwa-v1';
-const APP_SHELL = ['/', '/manifest.webmanifest', '/logos/logo_burger.png'];
+const CACHE_NAME = 'projeto-lia-pwa-v2';
+const APP_SHELL = ['/manifest.webmanifest', '/logos/logo_burger.png'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -27,9 +27,17 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  if (request.mode === 'navigate') {
+    event.respondWith(fetch(request).catch(() => caches.match('/')));
+    return;
+  }
+
   event.respondWith(
     fetch(request)
       .then((response) => {
+        if (!response.ok) {
+          return response;
+        }
         const copy = response.clone();
         caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
         return response;

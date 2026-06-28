@@ -13,6 +13,7 @@ ROLE_PERMISSIONS: dict[str, set[Permission]] = {
         "manage_manuals",
         "manage_checklists",
         "manage_incidents",
+        "manage_inventory",
         "view_reports",
         "view_audit",
         "manage_leadership_records",
@@ -24,12 +25,20 @@ ROLE_PERMISSIONS: dict[str, set[Permission]] = {
     "gerente": {
         "manage_checklists",
         "manage_incidents",
+        "manage_inventory",
         "view_reports",
         "use_ai",
         "upload_evidences",
         "view_evidences",
     },
-    "operacao": {"manage_checklists", "manage_incidents", "use_ai", "upload_evidences", "view_evidences"},
+    "operacao": {
+        "manage_checklists",
+        "manage_incidents",
+        "manage_inventory",
+        "use_ai",
+        "upload_evidences",
+        "view_evidences",
+    },
     "auditor": {"view_reports", "view_audit", "view_evidences", "use_ai"},
 }
 
