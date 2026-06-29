@@ -173,39 +173,6 @@ export interface ChecklistTemplateItemCreate {
   text: string;
 }
 
-export type IncidentCategory =
-  | 'estoque'
-  | 'limpeza'
-  | 'equipamento'
-  | 'atendimento'
-  | 'delivery'
-  | 'caixa'
-  | 'validade'
-  | 'outro';
-
-export type IncidentSeverity = 'baixa' | 'media' | 'alta' | 'critica';
-export type IncidentStatus = 'aberta' | 'em_andamento' | 'resolvida' | 'cancelada';
-
-export interface OperationalIncident {
-  id: number;
-  store: string;
-  category: IncidentCategory;
-  severity: IncidentSeverity;
-  description: string;
-  status: IncidentStatus;
-  created_by: string | null;
-  created_at: string;
-  resolved_at: string | null;
-  resolved_by: string | null;
-}
-
-export interface OperationalIncidentCreate {
-  store: string;
-  category: IncidentCategory;
-  severity: IncidentSeverity;
-  description: string;
-}
-
 export interface InventoryItem {
   id: number;
   store: string;
@@ -259,10 +226,6 @@ export interface ReportSummary {
   completed_items: number;
   completion_percent: number;
   pending_tasks: number;
-  total_incidents: number;
-  incidents_by_status: Record<string, number>;
-  incidents_by_severity: Record<string, number>;
-  incidents_by_category: Record<string, number>;
   evidences_uploaded: number;
 }
 
@@ -281,7 +244,6 @@ export interface ExecutiveDashboard {
   summary_7d: ReportSummary;
   summary_30d: ReportSummary;
   store_rankings: StorePendingSummary[];
-  critical_incidents: OperationalIncident[];
   recent_evidences: ChecklistEvidence[];
 }
 

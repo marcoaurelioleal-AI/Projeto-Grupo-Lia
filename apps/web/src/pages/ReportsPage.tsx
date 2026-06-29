@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { AlertTriangle, BarChart3, CheckCircle2, ClipboardList } from 'lucide-react';
+import { BarChart3, Camera, CheckCircle2, ClipboardList } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useState } from 'react';
 import { api } from '../api/client';
@@ -34,7 +34,7 @@ export function ReportsPage() {
       <PageHeader
         eyebrow="Gestao"
         title="Relatórios operacionais"
-        description="Resumo semanal ou mensal para acompanhar checklists, pendências, ocorrências e evidências enviadas."
+        description="Resumo semanal ou mensal para acompanhar checklists, pendências e evidências enviadas."
       />
 
       <section className="surface mb-5 grid gap-3 rounded-lg p-4 lg:grid-cols-[auto_auto_1fr_auto] lg:items-end">
@@ -97,22 +97,10 @@ export function ReportsPage() {
 
       {data ? (
         <>
-          <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <ReportCard label="Conclusao geral" value={`${data.completion_percent}%`} icon={CheckCircle2} tone="green" />
             <ReportCard label="Tarefas pendentes" value={data.pending_tasks} icon={ClipboardList} tone="amber" />
-            <ReportCard label="Ocorrências abertas" value={data.incidents_by_status.aberta ?? 0} icon={AlertTriangle} tone="red" />
-            <ReportCard
-              label="Ocorrências críticas"
-              value={data.incidents_by_severity.critica ?? 0}
-              icon={AlertTriangle}
-              tone="burgundy"
-            />
-          </section>
-
-          <section className="mt-5 grid gap-4 lg:grid-cols-3">
-            <Breakdown title="Por status" data={data.incidents_by_status} />
-            <Breakdown title="Por severidade" data={data.incidents_by_severity} />
-            <Breakdown title="Por categoria" data={data.incidents_by_category} />
+            <ReportCard label="Evidências enviadas" value={data.evidences_uploaded} icon={Camera} tone="burgundy" />
           </section>
 
           <section className="mt-5 surface rounded-lg p-4">
@@ -122,7 +110,7 @@ export function ReportsPage() {
                 <h3 className="text-lg font-black text-lia-burgundy">Resumo do periodo</h3>
                 <p className="text-sm text-lia-muted">
                   {data.total_checklists} checklists, {data.completed_items} de {data.total_items} itens concluidos,
-                  {` ${data.total_incidents} ocorrências e ${data.evidences_uploaded} evidências enviadas.`}
+                  {` ${data.evidences_uploaded} evidências enviadas.`}
                 </p>
               </div>
             </div>
@@ -157,27 +145,6 @@ function ReportCard({
       </div>
       <p className="text-sm font-semibold text-lia-muted">{label}</p>
       <strong className="mt-1 block text-3xl font-black text-lia-burgundy">{value}</strong>
-    </article>
-  );
-}
-
-function Breakdown({ title, data }: { title: string; data: Record<string, number> }) {
-  const entries = Object.entries(data);
-  return (
-    <article className="surface rounded-lg p-4">
-      <h3 className="text-lg font-black text-lia-burgundy">{title}</h3>
-      <div className="mt-3 space-y-2">
-        {entries.length ? (
-          entries.map(([label, value]) => (
-            <div key={label} className="flex items-center justify-between rounded-lg bg-white px-3 py-2 text-sm">
-              <span className="font-semibold text-lia-burgundy">{label}</span>
-              <strong className="text-lia-red">{value}</strong>
-            </div>
-          ))
-        ) : (
-          <p className="rounded-lg bg-white px-3 py-2 text-sm text-lia-muted">Sem registros no periodo.</p>
-        )}
-      </div>
     </article>
   );
 }

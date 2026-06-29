@@ -51,7 +51,7 @@ function ExecutiveDashboardView({
       <PageHeader
         eyebrow="Visao executiva"
         title="Operação em poucos segundos"
-        description="Pendências por loja, ocorrências críticas, evidências recentes e comparativo de 7/30 dias para gestão."
+        description="Pendências por loja, evidências recentes e comparativo de 7/30 dias para gestão."
       />
 
       {loading ? <p className="text-sm text-lia-muted">Carregando dashboard executivo...</p> : null}
@@ -59,7 +59,7 @@ function ExecutiveDashboardView({
 
       {data ? (
         <>
-          <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             <ExecutiveMetric
               label="Conclusao 7 dias"
               value={`${summary7?.completion_percent ?? 0}%`}
@@ -71,12 +71,6 @@ function ExecutiveDashboardView({
               value={summary30?.pending_tasks ?? 0}
               icon={ClipboardList}
               tone="amber"
-            />
-            <ExecutiveMetric
-              label="Criticas abertas"
-              value={data.critical_incidents.length}
-              icon={AlertTriangle}
-              tone="red"
             />
             <ExecutiveMetric label="Evidências recentes" value={data.recent_evidences.length} icon={Camera} tone="burgundy" />
           </section>
@@ -116,31 +110,7 @@ function ExecutiveDashboardView({
             </div>
           </section>
 
-          <section className="mt-5 grid gap-4 xl:grid-cols-2">
-            <div className="surface rounded-lg p-4">
-              <div className="mb-4 flex items-center gap-2">
-                <AlertTriangle className="text-lia-red" size={20} />
-                <h3 className="text-lg font-black text-lia-burgundy">Ocorrências críticas abertas</h3>
-              </div>
-              <div className="space-y-3">
-                {data.critical_incidents.map((incident) => (
-                  <article key={incident.id} className="rounded-lg border border-lia-red/20 bg-white p-3">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <p className="font-black text-lia-burgundy">{incident.store}</p>
-                      <span className="rounded-lg bg-lia-burgundy px-2 py-1 text-xs font-bold text-white">{incident.status}</span>
-                    </div>
-                    <p className="mt-2 line-clamp-2 text-sm leading-6 text-lia-ink">{incident.description}</p>
-                    <p className="mt-2 text-xs font-semibold text-lia-muted">
-                      {incident.category} / {new Date(incident.created_at).toLocaleString('pt-BR')}
-                    </p>
-                  </article>
-                ))}
-                {!data.critical_incidents.length ? (
-                  <p className="rounded-lg bg-white p-3 text-sm text-lia-muted">Nenhuma ocorrencia critica aberta.</p>
-                ) : null}
-              </div>
-            </div>
-
+          <section className="mt-5">
             <div className="surface rounded-lg p-4">
               <div className="mb-4 flex items-center gap-2">
                 <Camera className="text-lia-red" size={20} />
@@ -282,7 +252,6 @@ function SummaryPanel({ title, summary }: { title: string; summary: ReportSummar
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
         <SummaryItem label="Conclusao" value={`${summary?.completion_percent ?? 0}%`} />
         <SummaryItem label="Pendencias" value={summary?.pending_tasks ?? 0} />
-        <SummaryItem label="Ocorrências" value={summary?.total_incidents ?? 0} />
         <SummaryItem label="Evidências" value={summary?.evidences_uploaded ?? 0} />
       </div>
     </article>

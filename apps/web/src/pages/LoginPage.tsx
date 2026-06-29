@@ -37,7 +37,7 @@ export function LoginPage() {
     <main className="grid min-h-screen bg-lia-beige md:grid-cols-[1.05fr_0.95fr]">
       <section className="flex min-h-[42vh] flex-col justify-between bg-lia-burgundy px-6 py-8 text-white md:min-h-screen md:px-10">
         <div className="flex items-center gap-3">
-          <img src="/logos/logo_burger.png" alt="Grupo Lia" className="h-12 w-12 rounded-lg object-cover" />
+          <img src="/logos/logo_burger.png" alt="Grupo Lia" className="h-12 w-12 rounded-full bg-white object-contain p-1" />
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-lia-beige">Central LIA</p>
             <h1 className="text-2xl font-black">Grupo Empresarial Lia</h1>
@@ -55,11 +55,13 @@ export function LoginPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
+        <div className="flex flex-wrap items-center justify-center gap-4 sm:justify-start">
           {logos.map((logo) => (
-            <div key={logo.label} className="rounded-lg border border-white/15 bg-white/10 p-3">
-              <img src={logo.src} alt={logo.label} className="h-16 w-full rounded-lg object-cover" />
-              <p className="mt-2 text-center text-xs font-semibold">{logo.label}</p>
+            <div key={logo.label} className="flex flex-col items-center gap-2">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full border border-white/20 bg-white p-1.5 shadow-sm">
+                <img src={logo.src} alt={logo.label} className="h-full w-full rounded-full object-contain" />
+              </div>
+              <p className="text-center text-xs font-semibold">{logo.label}</p>
             </div>
           ))}
         </div>

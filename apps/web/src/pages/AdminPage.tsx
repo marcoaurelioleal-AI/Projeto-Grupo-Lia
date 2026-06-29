@@ -71,7 +71,6 @@ export function AdminPage() {
     enabled: isAdmin
   });
   const manuals = useQuery({ queryKey: ['admin-manuals'], queryFn: api.adminManuals, enabled: isAdmin });
-  const incidents = useQuery({ queryKey: ['admin-incidents'], queryFn: () => api.incidents(), enabled: isAdmin });
   const evidences = useQuery({ queryKey: ['admin-evidences'], queryFn: () => api.evidenceAudit(), enabled: isAdmin });
   const aiInteractions = useQuery({ queryKey: ['admin-ai-interactions'], queryFn: api.aiInteractions, enabled: isAdmin });
   const aiKnowledgeGaps = useQuery({
@@ -124,12 +123,6 @@ export function AdminPage() {
           value={aiKnowledgeGaps.data?.length ?? 0}
           icon={AlertTriangle}
           loading={aiKnowledgeGaps.isLoading}
-        />
-        <AdminCard
-          title="Ocorrências"
-          value={incidents.data?.length ?? 0}
-          icon={AlertTriangle}
-          loading={incidents.isLoading}
         />
         <AdminCard title="Relatórios" value="Resumo ativo" icon={FileText} loading={false} />
       </section>
@@ -193,7 +186,7 @@ export function AdminPage() {
           <Camera className="mt-1 text-lia-red" size={20} />
           <p className="text-sm leading-6 text-lia-muted">
             Exclusões de usuário e loja são tratadas como desativação para preservar histórico de operação,
-            ocorrências, checklists e evidências.
+            checklists e evidências.
           </p>
         </div>
       </section>

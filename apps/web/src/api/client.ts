@@ -15,7 +15,6 @@ import type {
   ChecklistTemplateItemCreate,
   EvidenceAuditFilterOptions,
   ExecutiveDashboard,
-  IncidentStatus,
   InventoryItem,
   InventoryItemCreate,
   InventoryItemUpdate,
@@ -32,8 +31,6 @@ import type {
   ManualSectionCreate,
   ManualStep,
   ManualStepCreate,
-  OperationalIncident,
-  OperationalIncidentCreate,
   ReportSummary,
   StoreOption,
   User,
@@ -331,23 +328,6 @@ export const api = {
   deactivateManualStep: (stepId: number) =>
     request<Manual>(`/admin/manual-steps/${stepId}`, {
       method: 'DELETE'
-    }),
-  incidents: (options: { status?: IncidentStatus | 'todas'; store?: string } = {}) =>
-    request<OperationalIncident[]>(
-      withParams('/incidents', {
-        status: options.status === 'todas' ? undefined : options.status,
-        store: options.store
-      })
-    ),
-  createIncident: (payload: OperationalIncidentCreate) =>
-    request<OperationalIncident>('/incidents', {
-      method: 'POST',
-      body: JSON.stringify(payload)
-    }),
-  updateIncident: (incidentId: number, payload: Partial<OperationalIncidentCreate> & { status?: IncidentStatus }) =>
-    request<OperationalIncident>(`/incidents/${incidentId}`, {
-      method: 'PATCH',
-      body: JSON.stringify(payload)
     }),
   inventory: (options: { store?: string } = {}) =>
     request<InventoryItem[]>(

@@ -1,5 +1,4 @@
 import {
-  AlertTriangle,
   BarChart3,
   BookOpen,
   Bot,
@@ -20,7 +19,6 @@ const baseNavItems: Array<{ to: string; label: string; icon: typeof Home; roles?
   { to: '/', label: 'Dashboard', icon: Home },
   { to: '/checklists', label: 'Tarefas', icon: CheckSquare, roles: ['admin', 'gerente', 'operacao'] },
   { to: '/inventory', label: 'Estoque', icon: Package, roles: ['admin', 'gerente', 'operacao'] },
-  { to: '/incidents', label: 'Ocorrências', icon: AlertTriangle, roles: ['admin', 'gerente', 'operacao'] },
   { to: '/reports', label: 'Relatórios', icon: BarChart3, roles: ['admin', 'lideranca', 'gerente', 'auditor'] },
   { to: '/audit', label: 'Auditoria', icon: FileSearch, roles: ['admin', 'lideranca', 'auditor'] },
   { to: '/manuals', label: 'Manuais', icon: BookOpen },

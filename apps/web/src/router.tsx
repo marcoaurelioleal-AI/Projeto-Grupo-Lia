@@ -6,7 +6,6 @@ import { AssistantPage } from './pages/AssistantPage';
 import { AuditPage } from './pages/AuditPage';
 import { ChecklistsPage } from './pages/ChecklistsPage';
 import { DashboardPage } from './pages/DashboardPage';
-import { IncidentsPage } from './pages/IncidentsPage';
 import { InventoryPage } from './pages/InventoryPage';
 import { LeadershipLoginPage } from './pages/LeadershipLoginPage';
 import { LeadershipPage } from './pages/LeadershipPage';
@@ -29,7 +28,6 @@ export const router = createBrowserRouter([
       { index: true, element: <DashboardPage /> },
       { path: 'checklists', element: <ChecklistsPage /> },
       { path: 'inventory', element: <InventoryPage /> },
-      { path: 'incidents', element: <IncidentsPage /> },
       { path: 'reports', element: <ReportsPage /> },
       { path: 'audit', element: <AuditPage /> },
       { path: 'manuals', element: <ManualsPage /> },
