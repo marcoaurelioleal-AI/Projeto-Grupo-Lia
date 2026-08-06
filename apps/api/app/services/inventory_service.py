@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from ..models import InventoryItem, User
 from ..repositories.inventory_repository import InventoryRepository
 from ..schemas import InventoryItemCreate, InventoryItemRead, InventoryItemUpdate
+from ..store_catalog import DEFAULT_OPERATIONAL_STORE
 from .permission_service import require_store_access, require_user_permission
 
 
@@ -23,7 +24,7 @@ class InventoryService:
         product_name = payload.product_name.strip()
         if not product_name:
             raise HTTPException(status_code=400, detail="Nome do produto é obrigatório")
-        store = require_store_access(user, payload.store.strip() or "Grupo Lia")
+        store = require_store_access(user, payload.store.strip() or DEFAULT_OPERATIONAL_STORE)
 
         existing = self.repository.get_by_store_and_product(store, product_name)
         if existing:
@@ -50,7 +51,7 @@ class InventoryService:
 
         changes = payload.model_dump(exclude_unset=True)
         if "store" in changes and changes["store"] is not None:
-            item.store = require_store_access(user, changes["store"].strip() or "Grupo Lia")
+            item.store = require_store_access(user, changes["store"].strip() or DEFAULT_OPERATIONAL_STORE)
         if "product_name" in changes and changes["product_name"] is not None:
             product_name = changes["product_name"].strip()
             if not product_name:

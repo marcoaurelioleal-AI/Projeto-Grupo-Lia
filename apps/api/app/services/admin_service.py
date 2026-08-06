@@ -22,6 +22,7 @@ from ..schemas import (
     UserUpdate,
 )
 from ..security import hash_password
+from ..store_catalog import DEFAULT_OPERATIONAL_STORE, GROUP_BRAND_NAME, is_group_brand
 from .permission_service import validate_user_store_assignment
 
 
@@ -88,6 +89,8 @@ class AdminService:
 
     def create_store(self, payload: StoreCreate) -> Store:
         name = payload.name.strip()
+        if is_group_brand(name):
+            raise HTTPException(status_code=400, detail=f"{GROUP_BRAND_NAME} e a marca do grupo, nao uma loja")
         if self.repository.get_store_by_name(name):
             raise HTTPException(status_code=409, detail="Loja ja cadastrada")
         return self.repository.add_store(Store(name=name, active=True))
@@ -100,6 +103,8 @@ class AdminService:
         changes = payload.model_dump(exclude_unset=True)
         if "name" in changes and changes["name"] is not None:
             name = changes["name"].strip()
+            if is_group_brand(name):
+                raise HTTPException(status_code=400, detail=f"{GROUP_BRAND_NAME} e a marca do grupo, nao uma loja")
             existing = self.repository.get_store_by_name(name)
             if existing and existing.id != store.id:
                 raise HTTPException(status_code=409, detail="Loja ja cadastrada")
@@ -124,7 +129,7 @@ class AdminService:
             ChecklistTemplate(
                 title=title,
                 category=payload.category.strip(),
-                store=payload.store.strip() or "Grupo Lia",
+                store=payload.store.strip() or DEFAULT_OPERATIONAL_STORE,
                 active=True,
             )
         )
@@ -144,7 +149,7 @@ class AdminService:
         if "category" in changes and changes["category"] is not None:
             template.category = changes["category"].strip()
         if "store" in changes and changes["store"] is not None:
-            template.store = changes["store"].strip() or "Grupo Lia"
+            template.store = changes["store"].strip() or DEFAULT_OPERATIONAL_STORE
         if "active" in changes and changes["active"] is not None:
             template.active = changes["active"]
 

@@ -11,6 +11,7 @@ from ..repositories.report_repository import ReportRepository
 from ..schemas import ExecutiveDashboardRead, ReportSummaryRead, StorePendingSummaryRead
 from ..models import User
 from ..seed import ensure_runs_for_date
+from ..store_catalog import OPERATIONAL_STORE_NAMES
 from .evidence_service import EvidenceService
 from .incident_service import IncidentService
 from .permission_service import require_store_access, require_user_permission
@@ -88,7 +89,7 @@ class ReportService:
         if scoped_store:
             return [scoped_store]
         stores = self.repository.list_active_store_names()
-        return stores or ["Grupo Lia", "Lia Burger", "Lia Pizza", "Lia Salgados"]
+        return stores or list(OPERATIONAL_STORE_NAMES)
 
     def _store_pending_summary(self, store: str, target_date: date) -> StorePendingSummaryRead:
         ensure_runs_for_date(self.db, target_date, store)

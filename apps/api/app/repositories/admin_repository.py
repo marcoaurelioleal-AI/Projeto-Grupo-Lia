@@ -14,6 +14,7 @@ from ..models import (
     Store,
     User,
 )
+from ..store_catalog import DEFAULT_OPERATIONAL_STORE, GROUP_BRAND_NAME
 
 
 class AdminRepository:
@@ -40,7 +41,11 @@ class AdminRepository:
         return user
 
     def list_stores(self) -> list[Store]:
-        return list(self.db.scalars(select(Store).order_by(Store.active.desc(), Store.name)).all())
+        return list(
+            self.db.scalars(
+                select(Store).where(Store.name != GROUP_BRAND_NAME).order_by(Store.active.desc(), Store.name)
+            ).all()
+        )
 
     def get_store(self, store_id: int) -> Store | None:
         return self.db.get(Store, store_id)
@@ -135,9 +140,9 @@ class AdminRepository:
             select(ChecklistRun.store).distinct(),
             select(OperationalIncident.store).distinct(),
         ):
-            names.update(name for name in self.db.scalars(statement).all() if name)
+            names.update(name for name in self.db.scalars(statement).all() if name and name != GROUP_BRAND_NAME)
         if not names:
-            names.update({"Grupo Lia", "Lia Burger", "Lia Pizza", "Lia Salgados"})
+            names.add(DEFAULT_OPERATIONAL_STORE)
         return sorted(names)
 
     def commit(self) -> None:

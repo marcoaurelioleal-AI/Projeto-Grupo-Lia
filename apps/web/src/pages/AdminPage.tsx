@@ -5,6 +5,7 @@ import { api } from '../api/client';
 import { EvidenceThumbnail } from '../components/EvidenceUpload';
 import { PageHeader } from '../components/PageHeader';
 import { useAuth } from '../contexts/useAuth';
+import { DEFAULT_OPERATIONAL_STORE, resolveOperationalStore } from '../constants/stores';
 import type {
   AiInteraction,
   AiKnowledgeGap,
@@ -34,7 +35,7 @@ const emptyUser: UserCreate = {
 const emptyTemplate: ChecklistTemplateCreate = {
   title: '',
   category: '',
-  store: 'Grupo Lia'
+  store: DEFAULT_OPERATIONAL_STORE
 };
 
 const emptyTemplateItem: ChecklistTemplateItemCreate = {
@@ -154,7 +155,7 @@ export function AdminPage() {
                 <div key={evidence.id} className="flex gap-3 rounded-lg bg-white p-3">
                   <EvidenceThumbnail evidence={evidence} />
                   <div className="min-w-0 text-sm">
-                    <p className="font-bold text-lia-burgundy">{evidence.store ?? 'Grupo Lia'}</p>
+                    <p className="font-bold text-lia-burgundy">{evidence.store ?? 'Loja não informada'}</p>
                     <p className="truncate text-lia-muted">{evidence.item_text ?? evidence.original_filename}</p>
                     <p className="mt-1 text-xs text-lia-muted">
                       {new Date(evidence.created_at).toLocaleString()} por {evidence.uploaded_by ?? 'usuário'}
@@ -624,9 +625,8 @@ function TemplatesAdminSection({
             value={form.store}
             onChange={(event) => setForm((current) => ({ ...current, store: event.target.value }))}
           >
-            <option>Grupo Lia</option>
             {stores
-              .filter((store) => store.active && store.name !== 'Grupo Lia')
+              .filter((store) => store.active)
               .map((store) => (
                 <option key={store.id}>{store.name}</option>
               ))}
@@ -673,7 +673,7 @@ function TemplateRow({
 }) {
   const [title, setTitle] = useState(template.title);
   const [category, setCategory] = useState(template.category);
-  const [store, setStore] = useState(template.store);
+  const [store, setStore] = useState(resolveOperationalStore(template.store));
   const [itemForm, setItemForm] = useState<ChecklistTemplateItemCreate>(emptyTemplateItem);
 
   function submitItem(event: FormEvent<HTMLFormElement>) {
@@ -700,9 +700,8 @@ function TemplateRow({
           value={store}
           onChange={(event) => setStore(event.target.value)}
         >
-          <option>Grupo Lia</option>
           {stores
-            .filter((storeOption) => storeOption.active && storeOption.name !== 'Grupo Lia')
+            .filter((storeOption) => storeOption.active)
             .map((storeOption) => (
               <option key={storeOption.id}>{storeOption.name}</option>
             ))}
@@ -884,7 +883,7 @@ function ManualsAdminSection({
           >
             <option value="">Unidade</option>
             {stores
-              .filter((store) => store.active && store.name !== 'Grupo Lia')
+              .filter((store) => store.active)
               .map((store) => (
                 <option key={store.id}>{store.name}</option>
               ))}
@@ -993,7 +992,7 @@ function ManualRow({
           onChange={(event) => setUnit(event.target.value)}
         >
           {stores
-            .filter((store) => store.active && store.name !== 'Grupo Lia')
+            .filter((store) => store.active)
             .map((store) => (
               <option key={store.id}>{store.name}</option>
             ))}

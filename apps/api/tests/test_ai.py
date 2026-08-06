@@ -31,7 +31,7 @@ def test_ai_offline_mode(client: TestClient, admin_headers: dict[str, str]) -> N
     assert payload["session_id"]
     assert payload["sources"]
     assert payload["sources"][0]["source_type"] == "manual"
-    assert payload["sources"][0]["unit"] in {"Lia Burger", "Lia Pizza", "Lia Salgados"}
+    assert payload["sources"][0]["unit"] in {"Lia Burger", "Lia Pizzas", "Lia Salgados"}
 
 
 def test_ai_logs_summarized_history(client: TestClient, admin_headers: dict[str, str]) -> None:
@@ -40,8 +40,8 @@ def test_ai_logs_summarized_history(client: TestClient, admin_headers: dict[str,
         headers=admin_headers,
         json={
             "messages": [{"role": "user", "content": "Como conferir validade dos insumos?"}],
-            "store": "Grupo Lia",
-            "unit": "Lia Pizza",
+            "store": "Lia Pizzas",
+            "unit": "Lia Pizzas",
         },
     )
     assert response.status_code == 200
@@ -51,7 +51,7 @@ def test_ai_logs_summarized_history(client: TestClient, admin_headers: dict[str,
     items = history.json()
     assert items
     assert items[0]["session_id"] == response.json()["session_id"]
-    assert items[0]["unit"] == "Lia Pizza"
+    assert items[0]["unit"] == "Lia Pizzas"
     assert "validade" in items[0]["question"].lower()
 
 

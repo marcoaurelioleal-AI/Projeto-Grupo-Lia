@@ -4,6 +4,7 @@ from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, JSON, Strin
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .database import Base
+from .store_catalog import DEFAULT_OPERATIONAL_STORE
 
 
 def utc_now() -> datetime:
@@ -33,7 +34,7 @@ class LeadershipEmployee(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(120), index=True)
-    store: Mapped[str] = mapped_column(String(80), default="Grupo Lia", index=True)
+    store: Mapped[str] = mapped_column(String(80), default=DEFAULT_OPERATIONAL_STORE, index=True)
     position: Mapped[str] = mapped_column(String(120), nullable=True)
     active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now)
@@ -131,7 +132,7 @@ class ChecklistTemplate(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     title: Mapped[str] = mapped_column(String(160), unique=True)
     category: Mapped[str] = mapped_column(String(80))
-    store: Mapped[str] = mapped_column(String(80), default="Grupo Lia")
+    store: Mapped[str] = mapped_column(String(80), default=DEFAULT_OPERATIONAL_STORE)
     active: Mapped[bool] = mapped_column(Boolean, default=True)
     items: Mapped[list["ChecklistTemplateItem"]] = relationship(
         back_populates="template", cascade="all, delete-orphan", order_by="ChecklistTemplateItem.position"
@@ -157,7 +158,7 @@ class ChecklistRun(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     template_id: Mapped[int] = mapped_column(ForeignKey("checklist_templates.id"))
     run_date: Mapped[date] = mapped_column(Date, index=True)
-    store: Mapped[str] = mapped_column(String(80), default="Grupo Lia")
+    store: Mapped[str] = mapped_column(String(80), default=DEFAULT_OPERATIONAL_STORE)
     assigned_to_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=True)
     closing_note: Mapped[str] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now)
@@ -189,7 +190,7 @@ class OperationalIncident(Base):
     __tablename__ = "operational_incidents"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    store: Mapped[str] = mapped_column(String(80), default="Grupo Lia", index=True)
+    store: Mapped[str] = mapped_column(String(80), default=DEFAULT_OPERATIONAL_STORE, index=True)
     category: Mapped[str] = mapped_column(String(30), index=True)
     severity: Mapped[str] = mapped_column(String(30), index=True)
     description: Mapped[str] = mapped_column(Text)
@@ -207,7 +208,7 @@ class InventoryItem(Base):
     __table_args__ = (UniqueConstraint("store", "product_name", name="uq_inventory_store_product"),)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    store: Mapped[str] = mapped_column(String(80), default="Grupo Lia", index=True)
+    store: Mapped[str] = mapped_column(String(80), default=DEFAULT_OPERATIONAL_STORE, index=True)
     product_name: Mapped[str] = mapped_column(String(160), index=True)
     quantity: Mapped[int] = mapped_column(Integer, default=0)
     created_by_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
@@ -238,7 +239,7 @@ class AiChatSession(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
-    store: Mapped[str] = mapped_column(String(80), default="Grupo Lia")
+    store: Mapped[str] = mapped_column(String(80), default=DEFAULT_OPERATIONAL_STORE)
     unit: Mapped[str] = mapped_column(String(80), nullable=True)
     title: Mapped[str] = mapped_column(String(160))
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now)

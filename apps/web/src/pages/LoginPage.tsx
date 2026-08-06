@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/useAuth';
 
 const logos = [
   { src: '/logos/logo_burger.png', label: 'Lia Burger' },
-  { src: '/logos/logo_pizza.png', label: 'Lia Pizza' },
+  { src: '/logos/logo_pizza.png', label: 'Lia Pizzas' },
   { src: '/logos/logo_salgados.png', label: 'Lia Salgados' }
 ];
 

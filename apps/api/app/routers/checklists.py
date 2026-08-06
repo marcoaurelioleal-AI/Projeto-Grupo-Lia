@@ -21,7 +21,7 @@ def get_checklist_service(db: Session = Depends(get_db)) -> ChecklistService:
 @router.get("", response_model=list[ChecklistRunRead])
 def list_checklists(
     run_date: date | None = None,
-    store: str = "Grupo Lia",
+    store: str | None = None,
     user: User = Depends(get_current_user),
     service: ChecklistService = Depends(get_checklist_service),
 ) -> list[ChecklistRunRead]:

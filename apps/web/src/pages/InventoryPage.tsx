@@ -4,14 +4,13 @@ import { FormEvent, useMemo, useState } from 'react';
 import { api } from '../api/client';
 import { PageHeader } from '../components/PageHeader';
 import { useAuth } from '../contexts/useAuth';
+import { OPERATIONAL_STORES, resolveOperationalStore } from '../constants/stores';
 import type { InventoryItem, InventoryItemCreate } from '../types';
-
-const stores = ['Grupo Lia', 'Lia Burger', 'Lia Pizza', 'Lia Salgados'];
 
 export function InventoryPage() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const defaultStore = user?.store_name ?? 'Grupo Lia';
+  const defaultStore = resolveOperationalStore(user?.store_name);
   const [storeFilter, setStoreFilter] = useState(defaultStore);
   const [form, setForm] = useState<InventoryItemCreate>({
     store: defaultStore,
@@ -97,7 +96,7 @@ export function InventoryPage() {
                 value={form.store}
                 onChange={(event) => setForm((current) => ({ ...current, store: event.target.value }))}
               >
-                {stores.map((store) => (
+                {OPERATIONAL_STORES.map((store) => (
                   <option key={store}>{store}</option>
                 ))}
               </select>
@@ -154,7 +153,7 @@ export function InventoryPage() {
               onChange={(event) => setStoreFilter(event.target.value)}
             >
               <option>Todas</option>
-              {stores.map((store) => (
+              {OPERATIONAL_STORES.map((store) => (
                 <option key={store}>{store}</option>
               ))}
             </select>

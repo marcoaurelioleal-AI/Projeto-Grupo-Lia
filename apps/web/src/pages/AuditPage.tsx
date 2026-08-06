@@ -241,7 +241,7 @@ function EvidenceAuditRow({ evidence }: { evidence: ChecklistEvidence }) {
       <div className="flex gap-3">
         <EvidenceThumbnail evidence={evidence} />
         <div className="min-w-0 text-sm">
-          <p className="font-black text-lia-burgundy">{evidence.store ?? 'Grupo Lia'}</p>
+          <p className="font-black text-lia-burgundy">{evidence.store ?? 'Loja não informada'}</p>
           <p className="truncate font-semibold text-lia-ink">{evidence.checklist_title ?? 'Checklist'}</p>
           <p className="line-clamp-2 text-xs leading-5 text-lia-muted">{evidence.item_text ?? evidence.original_filename}</p>
         </div>

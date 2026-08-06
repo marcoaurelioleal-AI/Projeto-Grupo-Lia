@@ -3,6 +3,18 @@ from __future__ import annotations
 from fastapi.testclient import TestClient
 
 
+def test_admin_store_list_excludes_group_brand(client: TestClient, admin_headers: dict[str, str]) -> None:
+    response = client.get("/api/admin/stores", headers=admin_headers)
+
+    assert response.status_code == 200
+    store_names = {store["name"] for store in response.json()}
+    assert "Grupo Lia" not in store_names
+    assert {"Lia Burger", "Lia Pizzas", "Lia Salgados"}.issubset(store_names)
+
+    rejected = client.post("/api/admin/stores", headers=admin_headers, json={"name": "Grupo Lia"})
+    assert rejected.status_code == 400
+
+
 def test_admin_can_manage_users_and_stores(client: TestClient, admin_headers: dict[str, str]) -> None:
     created_store = client.post("/api/admin/stores", headers=admin_headers, json={"name": "Lia Teste"})
     assert created_store.status_code == 200
@@ -44,7 +56,7 @@ def test_admin_can_manage_checklist_templates(client: TestClient, admin_headers:
     created = client.post(
         "/api/admin/checklist-templates",
         headers=admin_headers,
-        json={"title": "Checklist Teste", "category": "teste", "store": "Grupo Lia"},
+        json={"title": "Checklist Teste", "category": "teste", "store": "Lia Burger"},
     )
     assert created.status_code == 200
     template_id = created.json()["id"]

@@ -8,12 +8,13 @@ from fastapi.testclient import TestClient
 def test_manuals_and_checklists(client: TestClient, admin_headers: dict[str, str]) -> None:
     manuals = client.get("/api/manuals", headers=admin_headers)
     assert manuals.status_code == 200
-    assert {manual["unit"] for manual in manuals.json()} == {"Lia Burger", "Lia Pizza", "Lia Salgados"}
+    assert {manual["unit"] for manual in manuals.json()} == {"Lia Burger", "Lia Pizzas", "Lia Salgados"}
 
     checklists = client.get("/api/checklists", headers=admin_headers)
     assert checklists.status_code == 200
     runs = checklists.json()
     assert len(runs) == 3
+    assert {run["store"] for run in runs} == {"Lia Burger"}
     first_item = runs[0]["items"][0]
     updated = client.patch(
         f"/api/checklists/{runs[0]['id']}/items",
@@ -51,5 +52,5 @@ def test_rbac_and_store_scope_for_operational_user(
     own_store = client.get(f"/api/checklists?store={store['name']}", headers=operator)
     assert own_store.status_code == 200
 
-    other_store = client.get("/api/checklists?store=Lia Pizza", headers=operator)
+    other_store = client.get("/api/checklists?store=Lia Pizzas", headers=operator)
     assert other_store.status_code == 403

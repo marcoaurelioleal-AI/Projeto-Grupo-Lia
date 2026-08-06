@@ -122,7 +122,7 @@ function ExecutiveDashboardView({
                     <div className="flex gap-3">
                       <EvidenceThumbnail evidence={evidence} />
                       <div className="min-w-0 text-sm">
-                        <p className="truncate font-black text-lia-burgundy">{evidence.store ?? 'Grupo Lia'}</p>
+                        <p className="truncate font-black text-lia-burgundy">{evidence.store ?? 'Loja não informada'}</p>
                         <p className="truncate font-semibold text-lia-ink">{evidence.checklist_title ?? 'Checklist'}</p>
                         <p className="mt-1 text-xs text-lia-muted">
                           {new Date(evidence.created_at).toLocaleString('pt-BR')} por {evidence.uploaded_by ?? 'usuário'}

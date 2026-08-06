@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from ..models import OperationalIncident, User
 from ..repositories.incident_repository import IncidentRepository
 from ..schemas import OperationalIncidentCreate, OperationalIncidentRead, OperationalIncidentUpdate
+from ..store_catalog import DEFAULT_OPERATIONAL_STORE
 from .permission_service import require_store_access, require_user_permission
 
 
@@ -28,7 +29,7 @@ class IncidentService:
         description = payload.description.strip()
         if not description:
             raise HTTPException(status_code=400, detail="Descricao da ocorrencia e obrigatoria")
-        store = require_store_access(user, payload.store.strip() or "Grupo Lia")
+        store = require_store_access(user, payload.store.strip() or DEFAULT_OPERATIONAL_STORE)
 
         incident = OperationalIncident(
             store=store,
@@ -60,7 +61,7 @@ class IncidentService:
 
         changes = payload.model_dump(exclude_unset=True)
         if "store" in changes and changes["store"] is not None:
-            incident.store = require_store_access(user, changes["store"].strip() or "Grupo Lia")
+            incident.store = require_store_access(user, changes["store"].strip() or DEFAULT_OPERATIONAL_STORE)
         if "category" in changes and changes["category"] is not None:
             incident.category = changes["category"]
         if "severity" in changes and changes["severity"] is not None:

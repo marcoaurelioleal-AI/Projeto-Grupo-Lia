@@ -82,7 +82,7 @@ def test_evidences_are_restricted_by_user_store(
 
 
 def test_evidence_audit_filters_export_and_logs_actions(client: TestClient, admin_headers: dict[str, str]) -> None:
-    runs = client.get("/api/checklists?store=Lia Pizza", headers=admin_headers).json()
+    runs = client.get("/api/checklists?store=Lia Pizzas", headers=admin_headers).json()
     item_id = runs[0]["items"][0]["id"]
     uploaded = client.post(
         f"/api/checklists/items/{item_id}/evidences",
@@ -93,10 +93,10 @@ def test_evidence_audit_filters_export_and_logs_actions(client: TestClient, admi
 
     options = client.get("/api/evidences/filter-options", headers=admin_headers)
     assert options.status_code == 200
-    assert "Lia Pizza" in options.json()["stores"]
+    assert "Lia Pizzas" in options.json()["stores"]
 
     filtered = client.get(
-        "/api/evidences?store=Lia Pizza&checklist_title=Limpeza&uploaded_by=Administrador",
+        "/api/evidences?store=Lia Pizzas&checklist_title=Limpeza&uploaded_by=Administrador",
         headers=admin_headers,
     )
     assert filtered.status_code == 200
@@ -104,7 +104,7 @@ def test_evidence_audit_filters_export_and_logs_actions(client: TestClient, admi
     assert any(item["original_filename"] == "forno.png" for item in payload)
 
     exported = client.get(
-        "/api/evidences/export?store=Lia Pizza&checklist_title=Limpeza&uploaded_by=Administrador",
+        "/api/evidences/export?store=Lia Pizzas&checklist_title=Limpeza&uploaded_by=Administrador",
         headers=admin_headers,
     )
     assert exported.status_code == 200

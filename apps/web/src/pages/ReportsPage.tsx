@@ -4,6 +4,7 @@ import type { LucideIcon } from 'lucide-react';
 import { useState } from 'react';
 import { api } from '../api/client';
 import { PageHeader } from '../components/PageHeader';
+import { OPERATIONAL_STORES } from '../constants/stores';
 
 function toDateInput(date: Date) {
   return date.toISOString().slice(0, 10);
@@ -83,11 +84,10 @@ export function ReportsPage() {
             value={store}
             onChange={(event) => setStore(event.target.value)}
           >
-            <option value="">Todas</option>
-            <option>Grupo Lia</option>
-            <option>Lia Burger</option>
-            <option>Lia Pizza</option>
-            <option>Lia Salgados</option>
+            <option value="">Todas as lojas</option>
+            {OPERATIONAL_STORES.map((storeName) => (
+              <option key={storeName}>{storeName}</option>
+            ))}
           </select>
         </label>
       </section>

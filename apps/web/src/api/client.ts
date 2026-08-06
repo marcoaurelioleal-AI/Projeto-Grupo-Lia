@@ -36,6 +36,7 @@ import type {
   User,
   UserCreate
 } from '../types';
+import { DEFAULT_OPERATIONAL_STORE } from '../constants/stores';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? '';
 const API_ROOT = `${API_BASE_URL.replace(/\/$/, '')}/api`;
@@ -186,7 +187,7 @@ export const api = {
     }),
   me: () => request<User>('/auth/me'),
   manuals: () => request<Manual[]>('/manuals'),
-  checklists: (runDate: string, store = 'Grupo Lia') =>
+  checklists: (runDate: string, store: string = DEFAULT_OPERATIONAL_STORE) =>
     request<ChecklistRun[]>(`/checklists?run_date=${runDate}&store=${encodeURIComponent(store)}`),
   updateChecklistItem: (runId: number, itemId: number, done: boolean) =>
     request<ChecklistRun>(`/checklists/${runId}/items`, {

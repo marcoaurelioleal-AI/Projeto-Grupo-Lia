@@ -18,6 +18,7 @@ from .models import (
     User,
 )
 from .security import hash_password
+from .store_catalog import GROUP_BRAND_NAME, OPERATIONAL_STORE_NAMES
 
 
 MANUALS_SEED = [
@@ -48,7 +49,7 @@ MANUALS_SEED = [
         },
     },
     {
-        "unit": "Lia Pizza",
+        "unit": "Lia Pizzas",
         "title": "Procedimento de Forno, Montagem e Finalização",
         "temperature": "280°C a 320°C, conforme forno",
         "time_standard": "6 a 9 min, ajustando por massa e recheio",
@@ -195,7 +196,11 @@ def seed_admin(db: Session) -> None:
 
 
 def seed_stores(db: Session) -> None:
-    for name in ("Grupo Lia", "Lia Burger", "Lia Pizza", "Lia Salgados"):
+    group_store = db.scalar(select(Store).where(Store.name == GROUP_BRAND_NAME))
+    if group_store:
+        group_store.active = False
+
+    for name in OPERATIONAL_STORE_NAMES:
         if not db.scalar(select(Store.id).where(Store.name == name)):
             db.add(Store(name=name, active=True))
 

@@ -5,12 +5,15 @@ import { api } from '../api/client';
 import { EvidenceUpload } from '../components/EvidenceUpload';
 import { PageHeader } from '../components/PageHeader';
 import { ProgressBar } from '../components/ProgressBar';
+import { OPERATIONAL_STORES, resolveOperationalStore } from '../constants/stores';
+import { useAuth } from '../contexts/useAuth';
 
 const today = new Date().toISOString().slice(0, 10);
 
 export function ChecklistsPage() {
+  const { user } = useAuth();
   const [date, setDate] = useState(today);
-  const [store, setStore] = useState('Grupo Lia');
+  const [store, setStore] = useState<string>(() => resolveOperationalStore(user?.store_name));
   const [notes, setNotes] = useState<Record<number, string>>({});
   const queryClient = useQueryClient();
 
@@ -53,10 +56,9 @@ export function ChecklistsPage() {
             value={store}
             onChange={(e) => setStore(e.target.value)}
           >
-            <option>Grupo Lia</option>
-            <option>Lia Burger</option>
-            <option>Lia Pizza</option>
-            <option>Lia Salgados</option>
+            {OPERATIONAL_STORES.map((storeName) => (
+              <option key={storeName}>{storeName}</option>
+            ))}
           </select>
         </label>
       </section>

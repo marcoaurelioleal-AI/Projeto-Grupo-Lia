@@ -4,6 +4,7 @@ import { FormEvent, useMemo, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { api, clearLeadershipToken } from '../api/client';
 import { PageHeader } from '../components/PageHeader';
+import { DEFAULT_OPERATIONAL_STORE, OPERATIONAL_STORES } from '../constants/stores';
 import type {
   LeadershipEmployee,
   LeadershipEmployeeCreate,
@@ -15,7 +16,7 @@ import type {
 
 const emptyEmployee: LeadershipEmployeeCreate = {
   name: '',
-  store: 'Grupo Lia',
+  store: DEFAULT_OPERATIONAL_STORE,
   position: ''
 };
 
@@ -195,10 +196,9 @@ export function LeadershipPage() {
                 value={employeeForm.store}
                 onChange={(event) => setEmployeeForm((current) => ({ ...current, store: event.target.value }))}
               >
-                <option>Grupo Lia</option>
-                <option>Lia Burger</option>
-                <option>Lia Pizza</option>
-                <option>Lia Salgados</option>
+                {OPERATIONAL_STORES.map((storeName) => (
+                  <option key={storeName}>{storeName}</option>
+                ))}
               </select>
               <input
                 className="focus-ring rounded-lg border border-lia-red/15 bg-white px-3 py-3 text-sm"

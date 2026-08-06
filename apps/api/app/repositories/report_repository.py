@@ -6,6 +6,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session, selectinload
 
 from ..models import ChecklistEvidence, ChecklistRun, ChecklistRunItem, OperationalIncident, Store
+from ..store_catalog import GROUP_BRAND_NAME
 
 
 class ReportRepository:
@@ -23,7 +24,11 @@ class ReportRepository:
         return list(self.db.scalars(query).all())
 
     def list_active_store_names(self) -> list[str]:
-        names = self.db.scalars(select(Store.name).where(Store.active.is_(True)).order_by(Store.name)).all()
+        names = self.db.scalars(
+            select(Store.name)
+            .where(Store.active.is_(True), Store.name != GROUP_BRAND_NAME)
+            .order_by(Store.name)
+        ).all()
         return list(names)
 
     def list_incidents(

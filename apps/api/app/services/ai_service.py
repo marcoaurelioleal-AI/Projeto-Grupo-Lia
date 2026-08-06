@@ -24,6 +24,8 @@ from ..schemas import (
     ChatSource,
 )
 from .rag_service import RagService, RetrievedContext
+from .permission_service import require_store_access
+from ..store_catalog import DEFAULT_OPERATIONAL_STORE
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +38,7 @@ class AiService:
     def chat(self, payload: ChatRequest, user: User) -> ChatResponse:
         started_at = perf_counter()
         question = self._last_user_question(payload)
-        store = payload.store or "Grupo Lia"
+        store = require_store_access(user, payload.store) or DEFAULT_OPERATIONAL_STORE
         response_mode = payload.response_mode
         retrieved_context = self.rag.retrieve_context(question=question, unit=payload.unit, limit=5)
         sources = [item.to_source() for item in retrieved_context]

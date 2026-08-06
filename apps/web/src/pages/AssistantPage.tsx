@@ -15,6 +15,7 @@ import { FormEvent, useMemo, useState } from 'react';
 import { api } from '../api/client';
 import { PageHeader } from '../components/PageHeader';
 import { useAuth } from '../contexts/useAuth';
+import { resolveOperationalStore } from '../constants/stores';
 import type { AiFeedbackRating, AiResponseMode, ChatMessage, ChatSource } from '../types';
 
 type UiMessage = ChatMessage & {
@@ -24,8 +25,6 @@ type UiMessage = ChatMessage & {
   needsManagerConfirmation?: boolean;
   feedbackRating?: AiFeedbackRating | null;
 };
-
-const STORE = 'Grupo Lia';
 
 export function AssistantPage() {
   const queryClient = useQueryClient();
@@ -73,7 +72,7 @@ export function AssistantPage() {
   const mutation = useMutation({
     mutationFn: (historyMessages: ChatMessage[]) =>
       api.chat(historyMessages, {
-        store: STORE,
+        store: resolveOperationalStore(user?.store_name),
         unit,
         sessionId,
         responseMode

@@ -9,6 +9,7 @@ from ..models import ChecklistRun, User
 from ..repositories.checklist_repository import ChecklistRepository
 from ..schemas import ChecklistItemRead, ChecklistItemUpdate, ChecklistRunRead
 from ..seed import ensure_runs_for_date
+from ..store_catalog import DEFAULT_OPERATIONAL_STORE
 from .permission_service import require_store_access, require_user_permission
 
 
@@ -17,9 +18,9 @@ class ChecklistService:
         self.db = db
         self.repository = ChecklistRepository(db)
 
-    def list_checklists(self, run_date: date | None, store: str, user: User) -> list[ChecklistRunRead]:
+    def list_checklists(self, run_date: date | None, store: str | None, user: User) -> list[ChecklistRunRead]:
         require_user_permission(user, "manage_checklists")
-        store = require_store_access(user, store) or "Grupo Lia"
+        store = require_store_access(user, store) or DEFAULT_OPERATIONAL_STORE
         target_date = run_date or date.today()
         ensure_runs_for_date(self.db, target_date, store)
         runs = self.repository.list_runs_for_date(target_date, store)

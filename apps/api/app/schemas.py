@@ -5,6 +5,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
+from .store_catalog import DEFAULT_OPERATIONAL_STORE
+
 Role = Literal["admin", "lideranca", "gerente", "operacao", "auditor"]
 
 
@@ -57,7 +59,7 @@ LeadershipRecordType = Literal["feedback", "advertencia", "suspensao", "demissao
 
 class LeadershipEmployeeCreate(BaseModel):
     name: str = Field(min_length=2, max_length=120)
-    store: str = Field(default="Grupo Lia", min_length=1, max_length=80)
+    store: str = Field(default=DEFAULT_OPERATIONAL_STORE, min_length=1, max_length=80)
     position: str | None = Field(default=None, max_length=120)
 
 
@@ -215,7 +217,7 @@ AiFeedbackRating = Literal["ajudou", "nao_ajudou"]
 
 
 class OperationalIncidentCreate(BaseModel):
-    store: str = Field(default="Grupo Lia", min_length=1, max_length=80)
+    store: str = Field(default=DEFAULT_OPERATIONAL_STORE, min_length=1, max_length=80)
     category: IncidentCategory
     severity: IncidentSeverity
     description: str = Field(min_length=1, max_length=3000)
@@ -243,7 +245,7 @@ class OperationalIncidentRead(BaseModel):
 
 
 class InventoryItemCreate(BaseModel):
-    store: str = Field(default="Grupo Lia", min_length=1, max_length=80)
+    store: str = Field(default=DEFAULT_OPERATIONAL_STORE, min_length=1, max_length=80)
     product_name: str = Field(min_length=1, max_length=160)
     quantity: int = Field(ge=0, le=1_000_000)
 
@@ -377,7 +379,7 @@ class ChecklistTemplateRead(BaseModel):
 class ChecklistTemplateCreate(BaseModel):
     title: str = Field(min_length=2, max_length=160)
     category: str = Field(min_length=2, max_length=80)
-    store: str = Field(default="Grupo Lia", min_length=1, max_length=80)
+    store: str = Field(default=DEFAULT_OPERATIONAL_STORE, min_length=1, max_length=80)
 
 
 class ChecklistTemplateUpdate(BaseModel):
