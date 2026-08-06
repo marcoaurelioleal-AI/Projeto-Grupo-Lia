@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from datetime import UTC, datetime
-
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
@@ -68,17 +66,6 @@ class InventoryService:
             raise HTTPException(status_code=404, detail="Produto de estoque não encontrado")
         return self.serialize_item(refreshed)
 
-    def delete_item(self, item_id: int, user: User) -> InventoryItemRead:
-        require_user_permission(user, "manage_inventory")
-        item = self.repository.get_item(item_id)
-        if not item:
-            raise HTTPException(status_code=404, detail="Produto de estoque não encontrado")
-        require_store_access(user, item.store)
-
-        deleted_item = self.serialize_item(item)
-        self.repository.delete(item)
-        return deleted_item
-
     @staticmethod
     def serialize_item(item: InventoryItem) -> InventoryItemRead:
         return InventoryItemRead(
@@ -87,12 +74,6 @@ class InventoryService:
             product_name=item.product_name,
             quantity=item.quantity,
             created_by=item.created_by.name if item.created_by else None,
-            created_at=InventoryService.as_utc(item.created_at),
-            updated_at=InventoryService.as_utc(item.updated_at),
+            created_at=item.created_at,
+            updated_at=item.updated_at,
         )
-
-    @staticmethod
-    def as_utc(value: datetime) -> datetime:
-        if value.tzinfo is None:
-            return value.replace(tzinfo=UTC)
-        return value.astimezone(UTC)

@@ -42,12 +42,3 @@ def update_inventory_item(
     service: InventoryService = Depends(get_inventory_service),
 ) -> InventoryItemRead:
     return service.update_item(item_id, payload, user)
-
-
-@router.delete("/{item_id}", response_model=InventoryItemRead)
-def delete_inventory_item(
-    item_id: int,
-    user: User = Depends(get_current_user),
-    service: InventoryService = Depends(get_inventory_service),
-) -> InventoryItemRead:
-    return service.delete_item(item_id, user)

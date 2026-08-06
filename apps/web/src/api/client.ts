@@ -346,10 +346,6 @@ export const api = {
       method: 'PATCH',
       body: JSON.stringify(payload)
     }),
-  deleteInventoryItem: (itemId: number) =>
-    request<InventoryItem>(`/inventory/${itemId}`, {
-      method: 'DELETE'
-    }),
   reportSummary: (options: { startDate: string; endDate: string; store?: string }) =>
     request<ReportSummary>(
       withParams('/reports/summary', {
