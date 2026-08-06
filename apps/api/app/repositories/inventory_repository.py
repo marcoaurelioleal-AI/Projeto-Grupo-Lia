@@ -43,3 +43,7 @@ class InventoryRepository:
 
     def commit(self) -> None:
         self.db.commit()
+
+    def delete(self, item: InventoryItem) -> None:
+        self.db.delete(item)
+        self.db.commit()

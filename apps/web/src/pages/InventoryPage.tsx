@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Boxes, PackagePlus, Save } from 'lucide-react';
+import { Boxes, PackagePlus, Save, Trash2 } from 'lucide-react';
 import { FormEvent, useMemo, useState } from 'react';
 import { api } from '../api/client';
 import { PageHeader } from '../components/PageHeader';
@@ -18,6 +18,7 @@ export function InventoryPage() {
     quantity: 0
   });
   const [editingItemId, setEditingItemId] = useState<number | null>(null);
+  const [deletingItemId, setDeletingItemId] = useState<number | null>(null);
   const [quantityDraft, setQuantityDraft] = useState('');
 
   const inventory = useQuery({
@@ -43,6 +44,14 @@ export function InventoryPage() {
     }
   });
 
+  const deleteItem = useMutation({
+    mutationFn: api.deleteInventoryItem,
+    onSuccess: () => {
+      setDeletingItemId(null);
+      queryClient.invalidateQueries({ queryKey: ['inventory'] });
+    }
+  });
+
   const totalProducts = inventory.data?.length ?? 0;
   const totalQuantity = useMemo(
     () => (inventory.data ?? []).reduce((total, item) => total + item.quantity, 0),
@@ -59,8 +68,15 @@ export function InventoryPage() {
   }
 
   function startEdit(item: InventoryItem) {
+    setDeletingItemId(null);
     setEditingItemId(item.id);
     setQuantityDraft(String(item.quantity));
+  }
+
+  function requestDelete(item: InventoryItem) {
+    deleteItem.reset();
+    setEditingItemId(null);
+    setDeletingItemId(item.id);
   }
 
   function submitQuantity(event: FormEvent<HTMLFormElement>, item: InventoryItem) {
@@ -174,12 +190,23 @@ export function InventoryPage() {
                     <p className="text-xs font-bold uppercase tracking-[0.14em] text-lia-muted">{item.store}</p>
                     <h4 className="mt-1 text-base font-black text-lia-burgundy">{item.product_name}</h4>
                     <p className="mt-1 text-xs text-lia-muted">
-                      Atualizado em {new Date(item.updated_at).toLocaleString('pt-BR')}
+                      Atualizado em {formatInventoryTimestamp(item.updated_at)}
                     </p>
                   </div>
-                  <strong className="rounded-lg bg-lia-red/10 px-3 py-2 text-lg text-lia-red">
-                    {item.quantity}
-                  </strong>
+                  <div className="flex items-center gap-2">
+                    <strong className="rounded-lg bg-lia-red/10 px-3 py-2 text-lg text-lia-red">
+                      {item.quantity}
+                    </strong>
+                    <button
+                      type="button"
+                      aria-label={`Excluir ${item.product_name}`}
+                      title="Excluir produto"
+                      onClick={() => requestDelete(item)}
+                      className="focus-ring inline-flex size-10 items-center justify-center rounded-lg border border-lia-red/20 text-lia-red transition hover:bg-lia-red/10"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
                 </div>
 
                 {editingItemId === item.id ? (
@@ -213,6 +240,36 @@ export function InventoryPage() {
                     Ajustar quantidade
                   </button>
                 )}
+
+                {deletingItemId === item.id ? (
+                  <div className="mt-3 rounded-lg border border-lia-red/20 bg-lia-red/5 p-3">
+                    <p className="text-sm font-semibold text-lia-burgundy">
+                      Excluir {item.product_name} permanentemente?
+                    </p>
+                    {deleteItem.error ? (
+                      <p className="mt-2 text-xs font-semibold text-lia-red">{deleteItem.error.message}</p>
+                    ) : null}
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        disabled={deleteItem.isPending}
+                        onClick={() => deleteItem.mutate(item.id)}
+                        className="focus-ring inline-flex items-center gap-2 rounded-lg bg-lia-red px-3 py-2 text-xs font-bold text-white disabled:opacity-70"
+                      >
+                        <Trash2 size={15} />
+                        {deleteItem.isPending ? 'Excluindo...' : 'Confirmar exclusão'}
+                      </button>
+                      <button
+                        type="button"
+                        disabled={deleteItem.isPending}
+                        onClick={() => setDeletingItemId(null)}
+                        className="focus-ring rounded-lg border border-lia-red/20 px-3 py-2 text-xs font-bold text-lia-burgundy disabled:opacity-70"
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
               </article>
             ))}
 
@@ -224,6 +281,17 @@ export function InventoryPage() {
       </section>
     </>
   );
+}
+
+function formatInventoryTimestamp(value: string) {
+  const hasTimeZone = /(?:Z|[+-]\d{2}:\d{2})$/i.test(value);
+  const utcValue = hasTimeZone ? value : `${value}Z`;
+
+  return new Intl.DateTimeFormat('pt-BR', {
+    dateStyle: 'short',
+    timeStyle: 'medium',
+    timeZone: 'America/Sao_Paulo'
+  }).format(new Date(utcValue));
 }
 
 function SummaryCard({ label, value }: { label: string; value: number }) {
