@@ -3,8 +3,8 @@ import { describe, expect, it } from 'vitest';
 import { DEFAULT_OPERATIONAL_STORE, OPERATIONAL_STORES, resolveOperationalStore } from './stores';
 
 describe('operational stores', () => {
-  it('contains only the three physical Grupo Lia stores', () => {
-    expect(OPERATIONAL_STORES).toEqual(['Lia Burger', 'Lia Pizzas', 'Lia Salgados']);
+  it('contains the three stores and the factory as operational units', () => {
+    expect(OPERATIONAL_STORES).toEqual(['Lia Burger', 'Lia Pizzas', 'Lia Salgados', 'Fábrica Lia']);
     expect(OPERATIONAL_STORES).not.toContain('Grupo Lia');
   });
 

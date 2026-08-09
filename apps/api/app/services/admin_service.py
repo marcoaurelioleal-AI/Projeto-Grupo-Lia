@@ -93,7 +93,7 @@ class AdminService:
             raise HTTPException(status_code=400, detail=f"{GROUP_BRAND_NAME} e a marca do grupo, nao uma loja")
         if self.repository.get_store_by_name(name):
             raise HTTPException(status_code=409, detail="Loja ja cadastrada")
-        return self.repository.add_store(Store(name=name, active=True))
+        return self.repository.add_store(Store(name=name, unit_type=payload.unit_type, active=True))
 
     def update_store(self, store_id: int, payload: StoreUpdate) -> Store:
         store = self.repository.get_store(store_id)
@@ -109,6 +109,8 @@ class AdminService:
             if existing and existing.id != store.id:
                 raise HTTPException(status_code=409, detail="Loja ja cadastrada")
             store.name = name
+        if "unit_type" in changes and changes["unit_type"] is not None:
+            store.unit_type = changes["unit_type"]
         if "active" in changes and changes["active"] is not None:
             store.active = changes["active"]
 

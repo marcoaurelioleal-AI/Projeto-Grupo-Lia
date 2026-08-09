@@ -1,6 +1,19 @@
 from datetime import UTC, date, datetime
+from decimal import Decimal
 
-from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, JSON, String, Text, UniqueConstraint
+from sqlalchemy import (
+    Boolean,
+    CheckConstraint,
+    Date,
+    DateTime,
+    ForeignKey,
+    Integer,
+    JSON,
+    Numeric,
+    String,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .database import Base
@@ -61,6 +74,7 @@ class Store(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(80), unique=True, index=True)
+    unit_type: Mapped[str] = mapped_column(String(20), default="loja", index=True)
     active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now)
 
@@ -205,15 +219,122 @@ class OperationalIncident(Base):
 
 class InventoryItem(Base):
     __tablename__ = "inventory_items"
-    __table_args__ = (UniqueConstraint("store", "product_name", name="uq_inventory_store_product"),)
+    __table_args__ = (
+        UniqueConstraint("store", "product_name", name="uq_inventory_store_product"),
+        UniqueConstraint("store_id", "product_id", name="uq_inventory_unit_product"),
+        CheckConstraint("quantity >= 0", name="ck_inventory_items_quantity_nonnegative"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     store: Mapped[str] = mapped_column(String(80), default=DEFAULT_OPERATIONAL_STORE, index=True)
     product_name: Mapped[str] = mapped_column(String(160), index=True)
-    quantity: Mapped[int] = mapped_column(Integer, default=0)
+    store_id: Mapped[int] = mapped_column(ForeignKey("stores.id"), nullable=True, index=True)
+    product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), nullable=True, index=True)
+    quantity: Mapped[Decimal] = mapped_column(Numeric(12, 3), default=Decimal("0"))
+    unit_cost: Mapped[Decimal] = mapped_column(Numeric(12, 4), default=Decimal("0"))
+    active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_by_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now, onupdate=utc_now)
+    created_by: Mapped[User] = relationship()
+    store_unit: Mapped[Store] = relationship()
+    product: Mapped["Product"] = relationship(back_populates="balances")
+    movements: Mapped[list["InventoryMovement"]] = relationship(back_populates="inventory_item")
+
+
+class Product(Base):
+    __tablename__ = "products"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String(160), unique=True, index=True)
+    unit: Mapped[str] = mapped_column(String(30), default="unidade")
+    active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now, onupdate=utc_now)
+    balances: Mapped[list[InventoryItem]] = relationship(back_populates="product")
+
+
+class InventoryMovement(Base):
+    __tablename__ = "inventory_movements"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    inventory_item_id: Mapped[int] = mapped_column(ForeignKey("inventory_items.id"), index=True)
+    movement_type: Mapped[str] = mapped_column(String(40), index=True)
+    quantity_delta: Mapped[Decimal] = mapped_column(Numeric(12, 3))
+    quantity_before: Mapped[Decimal] = mapped_column(Numeric(12, 3))
+    quantity_after: Mapped[Decimal] = mapped_column(Numeric(12, 3))
+    unit_cost_snapshot: Mapped[Decimal] = mapped_column(Numeric(12, 4), default=Decimal("0"))
+    reason: Mapped[str] = mapped_column(String(240))
+    notes: Mapped[str] = mapped_column(Text, nullable=True)
+    transfer_id: Mapped[int] = mapped_column(ForeignKey("inventory_transfers.id"), nullable=True, index=True)
+    created_by_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now, index=True)
+    inventory_item: Mapped[InventoryItem] = relationship(back_populates="movements")
+    created_by: Mapped[User] = relationship()
+
+
+class InventoryTransfer(Base):
+    __tablename__ = "inventory_transfers"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    source_store_id: Mapped[int] = mapped_column(ForeignKey("stores.id"), index=True)
+    destination_store_id: Mapped[int] = mapped_column(ForeignKey("stores.id"), index=True)
+    status: Mapped[str] = mapped_column(String(30), default="enviada", index=True)
+    notes: Mapped[str] = mapped_column(Text, nullable=True)
+    discrepancy_note: Mapped[str] = mapped_column(Text, nullable=True)
+    sent_by_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    received_by_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=True, index=True)
+    sent_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now, index=True)
+    received_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    source_store: Mapped[Store] = relationship(foreign_keys=[source_store_id])
+    destination_store: Mapped[Store] = relationship(foreign_keys=[destination_store_id])
+    sent_by: Mapped[User] = relationship(foreign_keys=[sent_by_user_id])
+    received_by: Mapped[User] = relationship(foreign_keys=[received_by_user_id])
+    items: Mapped[list["InventoryTransferItem"]] = relationship(
+        back_populates="transfer", cascade="all, delete-orphan", order_by="InventoryTransferItem.id"
+    )
+
+
+class InventoryTransferItem(Base):
+    __tablename__ = "inventory_transfer_items"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    transfer_id: Mapped[int] = mapped_column(ForeignKey("inventory_transfers.id"), index=True)
+    product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), index=True)
+    source_inventory_item_id: Mapped[int] = mapped_column(ForeignKey("inventory_items.id"), index=True)
+    destination_inventory_item_id: Mapped[int] = mapped_column(
+        ForeignKey("inventory_items.id"), nullable=True, index=True
+    )
+    quantity_sent: Mapped[Decimal] = mapped_column(Numeric(12, 3))
+    quantity_received: Mapped[Decimal] = mapped_column(Numeric(12, 3), nullable=True)
+    unit_cost_snapshot: Mapped[Decimal] = mapped_column(Numeric(12, 4), default=Decimal("0"))
+    transfer: Mapped[InventoryTransfer] = relationship(back_populates="items")
+    product: Mapped[Product] = relationship()
+    source_inventory_item: Mapped[InventoryItem] = relationship(foreign_keys=[source_inventory_item_id])
+    destination_inventory_item: Mapped[InventoryItem] = relationship(foreign_keys=[destination_inventory_item_id])
+
+
+class WasteRecord(Base):
+    __tablename__ = "waste_records"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    inventory_item_id: Mapped[int] = mapped_column(ForeignKey("inventory_items.id"), index=True)
+    inventory_movement_id: Mapped[int] = mapped_column(
+        ForeignKey("inventory_movements.id"), unique=True, index=True
+    )
+    store_id: Mapped[int] = mapped_column(ForeignKey("stores.id"), index=True)
+    product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), index=True)
+    quantity: Mapped[Decimal] = mapped_column(Numeric(12, 3))
+    reason: Mapped[str] = mapped_column(String(40), index=True)
+    notes: Mapped[str] = mapped_column(Text, nullable=True)
+    unit_cost_snapshot: Mapped[Decimal] = mapped_column(Numeric(12, 4), default=Decimal("0"))
+    total_cost: Mapped[Decimal] = mapped_column(Numeric(14, 2), default=Decimal("0"))
+    created_by_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now, index=True)
+    inventory_item: Mapped[InventoryItem] = relationship()
+    movement: Mapped[InventoryMovement] = relationship()
+    store_unit: Mapped[Store] = relationship()
+    product: Mapped[Product] = relationship()
     created_by: Mapped[User] = relationship()
 
 

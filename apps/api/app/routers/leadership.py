@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
 from ..database import get_db
+from ..models import User
 from ..schemas import (
     LeadershipEmployeeCreate,
     LeadershipEmployeeRead,
@@ -16,7 +17,7 @@ from ..schemas import (
 from ..security import (
     clear_session_cookie,
     create_leadership_access_token,
-    get_current_leadership,
+    get_current_leadership_actor,
     set_session_cookie,
     verify_leadership_credentials,
 )
@@ -45,13 +46,14 @@ def leadership_logout(response: Response) -> dict[str, str]:
 
 
 @router.get("/me")
-def leadership_me(username: str = Depends(get_current_leadership)) -> dict[str, str]:
-    return {"username": username, "area": "leadership"}
+def leadership_me(actor: User | str = Depends(get_current_leadership_actor)) -> dict[str, str]:
+    username = actor.username if isinstance(actor, User) else actor
+    return {"username": username, "role": "lideranca", "area": "leadership"}
 
 
 @router.get("/employees", response_model=list[LeadershipEmployeeRead])
 def list_employees(
-    _: str = Depends(get_current_leadership),
+    _: User | str = Depends(get_current_leadership_actor),
     service: LeadershipService = Depends(get_leadership_service),
 ) -> list[LeadershipEmployeeRead]:
     return service.list_employees()
@@ -60,7 +62,7 @@ def list_employees(
 @router.post("/employees", response_model=LeadershipEmployeeRead)
 def create_employee(
     payload: LeadershipEmployeeCreate,
-    _: str = Depends(get_current_leadership),
+    _: User | str = Depends(get_current_leadership_actor),
     service: LeadershipService = Depends(get_leadership_service),
 ) -> LeadershipEmployeeRead:
     return service.create_employee(payload)
@@ -70,7 +72,7 @@ def create_employee(
 def update_employee(
     employee_id: int,
     payload: LeadershipEmployeeUpdate,
-    _: str = Depends(get_current_leadership),
+    _: User | str = Depends(get_current_leadership_actor),
     service: LeadershipService = Depends(get_leadership_service),
 ) -> LeadershipEmployeeRead:
     return service.update_employee(employee_id, payload)
@@ -78,7 +80,7 @@ def update_employee(
 
 @router.get("/records", response_model=list[LeadershipRecordRead])
 def list_records(
-    _: str = Depends(get_current_leadership),
+    _: User | str = Depends(get_current_leadership_actor),
     service: LeadershipService = Depends(get_leadership_service),
 ) -> list[LeadershipRecordRead]:
     return service.list_records()
@@ -87,7 +89,7 @@ def list_records(
 @router.get("/employees/{employee_id}/records", response_model=list[LeadershipRecordRead])
 def list_employee_records(
     employee_id: int,
-    _: str = Depends(get_current_leadership),
+    _: User | str = Depends(get_current_leadership_actor),
     service: LeadershipService = Depends(get_leadership_service),
 ) -> list[LeadershipRecordRead]:
     return service.list_records(employee_id=employee_id)
@@ -97,7 +99,8 @@ def list_employee_records(
 def create_employee_record(
     employee_id: int,
     payload: LeadershipRecordCreate,
-    username: str = Depends(get_current_leadership),
+    actor: User | str = Depends(get_current_leadership_actor),
     service: LeadershipService = Depends(get_leadership_service),
 ) -> LeadershipRecordRead:
-    return service.create_record(employee_id, payload, created_by=username)
+    created_by = actor.username if isinstance(actor, User) else actor
+    return service.create_record(employee_id, payload, created_by=created_by)

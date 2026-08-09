@@ -18,7 +18,7 @@ from .models import (
     User,
 )
 from .security import hash_password
-from .store_catalog import GROUP_BRAND_NAME, OPERATIONAL_STORE_NAMES
+from .store_catalog import FACTORY_UNIT_NAME, GROUP_BRAND_NAME, OPERATIONAL_STORE_NAMES
 
 
 MANUALS_SEED = [
@@ -175,6 +175,7 @@ CHECKLISTS_SEED = [
 
 def seed_database(db: Session) -> None:
     seed_admin(db)
+    seed_leadership_bridge_user(db)
     seed_stores(db)
     seed_manuals(db)
     seed_checklist_templates(db)
@@ -195,6 +196,22 @@ def seed_admin(db: Session) -> None:
     )
 
 
+def seed_leadership_bridge_user(db: Session) -> None:
+    if not settings.leadership_password:
+        return
+    exists = db.scalar(select(User).where(User.username == settings.leadership_username))
+    if exists:
+        return
+    db.add(
+        User(
+            username=settings.leadership_username,
+            name="Liderança LIA",
+            role="lideranca",
+            password_hash=hash_password(settings.leadership_password),
+        )
+    )
+
+
 def seed_stores(db: Session) -> None:
     group_store = db.scalar(select(Store).where(Store.name == GROUP_BRAND_NAME))
     if group_store:
@@ -202,7 +219,13 @@ def seed_stores(db: Session) -> None:
 
     for name in OPERATIONAL_STORE_NAMES:
         if not db.scalar(select(Store.id).where(Store.name == name)):
-            db.add(Store(name=name, active=True))
+            db.add(Store(name=name, unit_type="loja", active=True))
+    factory = db.scalar(select(Store).where(Store.name == FACTORY_UNIT_NAME))
+    if factory:
+        factory.unit_type = "fabrica"
+        factory.active = True
+    else:
+        db.add(Store(name=FACTORY_UNIT_NAME, unit_type="fabrica", active=True))
 
 
 def seed_manuals(db: Session) -> None:

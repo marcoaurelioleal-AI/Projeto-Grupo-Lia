@@ -84,7 +84,7 @@ export function AdminPage() {
     return (
       <>
         <PageHeader
-          eyebrow="Admin"
+          eyebrow="Configurações"
           title="Acesso restrito"
           description="Esta area sera usada pela gestão para acompanhar dados internos da Central LIA."
         />
@@ -98,14 +98,14 @@ export function AdminPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Gestao"
-        title="Painel administrativo"
-        description="Gerencie usuários, lojas e acompanhe os principais dados internos da Central LIA."
+        eyebrow="Acesso restrito"
+        title="Configurações do Sistema"
+        description="Gerencie usuários, unidades, perfis, catálogo e estruturas internas da Central LIA."
       />
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <AdminCard title="Usuários" value={users.data?.length ?? 0} icon={Users} loading={users.isLoading} />
-        <AdminCard title="Lojas" value={stores.data?.length ?? 0} icon={Store} loading={stores.isLoading} />
+        <AdminCard title="Unidades" value={stores.data?.length ?? 0} icon={Store} loading={stores.isLoading} />
         <AdminCard
           title="Templates de checklist"
           value={templates.data?.length ?? 0}
@@ -456,38 +456,39 @@ function UsersAdminSection({
 
 function StoresAdminSection({ stores, loading }: { stores: StoreOption[]; loading: boolean }) {
   const queryClient = useQueryClient();
-  const [storeName, setStoreName] = useState('');
+  const [storeForm, setStoreForm] = useState<{ name: string; unitType: StoreOption['unit_type'] }>({ name: '', unitType: 'loja' });
 
   const createStore = useMutation({
-    mutationFn: api.createAdminStore,
+    mutationFn: ({ name, unitType }: { name: string; unitType: StoreOption['unit_type'] }) => api.createAdminStore(name, unitType),
     onSuccess: () => {
-      setStoreName('');
+      setStoreForm({ name: '', unitType: 'loja' });
       queryClient.invalidateQueries({ queryKey: ['admin-stores'] });
     }
   });
 
   const updateStore = useMutation({
-    mutationFn: ({ storeId, payload }: { storeId: number; payload: Partial<Pick<StoreOption, 'name' | 'active'>> }) =>
+    mutationFn: ({ storeId, payload }: { storeId: number; payload: Partial<Pick<StoreOption, 'name' | 'unit_type' | 'active'>> }) =>
       api.updateAdminStore(storeId, payload),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-stores'] })
   });
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    createStore.mutate(storeName);
+    createStore.mutate(storeForm);
   }
 
   return (
     <div className="surface rounded-lg p-4">
-      <h3 className="text-lg font-black text-lia-burgundy">Lojas</h3>
-      <form onSubmit={submit} className="mt-3 flex gap-2 rounded-lg bg-white p-3">
+      <h3 className="text-lg font-black text-lia-burgundy">Unidades operacionais</h3>
+      <form onSubmit={submit} className="mt-3 grid gap-2 rounded-lg bg-white p-3 sm:grid-cols-[1fr_0.45fr_auto]">
         <input
           className="focus-ring min-w-0 flex-1 rounded-lg border border-lia-red/15 px-3 py-2 text-sm"
-          placeholder="Nome da loja"
-          value={storeName}
-          onChange={(event) => setStoreName(event.target.value)}
+          placeholder="Nome da unidade"
+          value={storeForm.name}
+          onChange={(event) => setStoreForm((current) => ({ ...current, name: event.target.value }))}
           required
         />
+        <select value={storeForm.unitType} onChange={(event) => setStoreForm((current) => ({ ...current, unitType: event.target.value as StoreOption['unit_type'] }))} className="focus-ring rounded-lg border border-lia-red/15 px-3 py-2 text-sm"><option value="loja">Loja</option><option value="fabrica">Fábrica</option></select>
         <button
           className="focus-ring rounded-lg bg-lia-red px-3 py-2 text-sm font-bold text-white disabled:opacity-60"
           disabled={createStore.isPending}
@@ -498,7 +499,7 @@ function StoresAdminSection({ stores, loading }: { stores: StoreOption[]; loadin
       {createStore.error ? <p className="mt-2 text-sm font-semibold text-lia-red">{createStore.error.message}</p> : null}
 
       <div className="mt-3 space-y-2">
-        {loading ? <p className="text-sm text-lia-muted">Carregando lojas...</p> : null}
+        {loading ? <p className="text-sm text-lia-muted">Carregando unidades...</p> : null}
         {stores.map((store) => (
           <StoreRow key={store.id} store={store} onSave={(payload) => updateStore.mutate({ storeId: store.id, payload })} />
         ))}
@@ -512,9 +513,10 @@ function StoreRow({
   onSave
 }: {
   store: StoreOption;
-  onSave: (payload: Partial<Pick<StoreOption, 'name' | 'active'>>) => void;
+  onSave: (payload: Partial<Pick<StoreOption, 'name' | 'unit_type' | 'active'>>) => void;
 }) {
   const [name, setName] = useState(store.name);
+  const [unitType, setUnitType] = useState(store.unit_type);
 
   return (
     <div className="rounded-lg bg-white p-3">
@@ -524,14 +526,15 @@ function StoreRow({
           value={name}
           onChange={(event) => setName(event.target.value)}
         />
+        <select value={unitType} onChange={(event) => setUnitType(event.target.value as StoreOption['unit_type'])} className="focus-ring rounded-lg border border-lia-red/15 px-3 py-2 text-sm"><option value="loja">Loja</option><option value="fabrica">Fábrica</option></select>
         <StatusPill active={store.active} />
       </div>
       <div className="mt-3 flex flex-wrap gap-2">
         <button
           className="focus-ring rounded-lg border border-lia-red/20 px-3 py-2 text-xs font-bold text-lia-burgundy"
-          onClick={() => onSave({ name })}
+          onClick={() => onSave({ name, unit_type: unitType })}
         >
-          Salvar nome
+          Salvar unidade
         </button>
         <button
           className="focus-ring rounded-lg border border-lia-red/20 px-3 py-2 text-xs font-bold text-lia-burgundy"

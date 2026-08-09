@@ -13,7 +13,12 @@ ROLE_PERMISSIONS: dict[str, set[Permission]] = {
         "manage_manuals",
         "manage_checklists",
         "manage_incidents",
-        "manage_inventory",
+        "view_inventory",
+        "move_inventory",
+        "adjust_inventory",
+        "manage_inventory_catalog",
+        "view_inventory_costs",
+        "view_inventory_audit",
         "view_reports",
         "view_audit",
         "manage_leadership_records",
@@ -21,11 +26,27 @@ ROLE_PERMISSIONS: dict[str, set[Permission]] = {
         "upload_evidences",
         "view_evidences",
     },
-    "lideranca": {"manage_leadership_records", "view_reports", "view_audit", "view_evidences"},
+    "lideranca": {
+        "manage_leadership_records",
+        "view_reports",
+        "view_audit",
+        "view_evidences",
+        "view_inventory",
+        "move_inventory",
+        "adjust_inventory",
+        "manage_inventory_catalog",
+        "view_inventory_costs",
+        "view_inventory_audit",
+    },
     "gerente": {
         "manage_checklists",
         "manage_incidents",
-        "manage_inventory",
+        "view_inventory",
+        "move_inventory",
+        "adjust_inventory",
+        "manage_inventory_catalog",
+        "view_inventory_costs",
+        "view_inventory_audit",
         "view_reports",
         "use_ai",
         "upload_evidences",
@@ -34,15 +55,16 @@ ROLE_PERMISSIONS: dict[str, set[Permission]] = {
     "operacao": {
         "manage_checklists",
         "manage_incidents",
-        "manage_inventory",
+        "view_inventory",
+        "move_inventory",
         "use_ai",
         "upload_evidences",
         "view_evidences",
     },
-    "auditor": {"view_reports", "view_audit", "view_evidences", "use_ai"},
+    "auditor": {"view_reports", "view_audit", "view_evidences", "use_ai", "view_inventory", "view_inventory_audit"},
 }
 
-GLOBAL_STORE_ROLES = {"admin", "auditor"}
+GLOBAL_STORE_ROLES = {"admin", "lideranca", "auditor"}
 
 
 def user_has_permission(user: User, permission: Permission) -> bool:

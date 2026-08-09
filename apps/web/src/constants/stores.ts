@@ -1,4 +1,4 @@
-export const OPERATIONAL_STORES = ['Lia Burger', 'Lia Pizzas', 'Lia Salgados'] as const;
+export const OPERATIONAL_STORES = ['Lia Burger', 'Lia Pizzas', 'Lia Salgados', 'Fábrica Lia'] as const;
 export const DEFAULT_OPERATIONAL_STORE = OPERATIONAL_STORES[0];
 
 const LEGACY_GROUP_STORE = 'Grupo Lia';
