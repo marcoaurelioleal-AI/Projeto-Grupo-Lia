@@ -110,7 +110,7 @@ test('Fábrica produz, envia, Burger recebe e perde, liderança consulta o valor
   await page.getByLabel('Produto transferido').selectOption('1');
   await page.getByLabel('Quantidade enviada').fill('6');
   await page.getByRole('button', { name: /^Enviar/ }).click();
-  await expect(page.getByText('Pendente')).toBeVisible();
+  await expect(page.getByText('Pendente', { exact: true })).toBeVisible();
 
   currentUser = burger;
   await page.goto('/transfers');
