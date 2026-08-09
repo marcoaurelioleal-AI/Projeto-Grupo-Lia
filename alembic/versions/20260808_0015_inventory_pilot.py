@@ -38,8 +38,11 @@ def upgrade() -> None:
     bind.execute(
         sa.text(
             "insert into stores (name, unit_type, active, created_at) "
-            "select :name, :unit_type, :active, CURRENT_TIMESTAMP "
-            "where not exists (select 1 from stores where name = :name)"
+            "select cast(:name as varchar(160)), cast(:unit_type as varchar(20)), "
+            "cast(:active as boolean), CURRENT_TIMESTAMP "
+            "where not exists ("
+            "select 1 from stores where name = cast(:name as varchar(160))"
+            ")"
         ),
         {"name": "Fábrica Lia", "unit_type": "fabrica", "active": True},
     )

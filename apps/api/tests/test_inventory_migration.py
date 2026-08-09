@@ -8,6 +8,7 @@ import sys
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
+INVENTORY_MIGRATION = PROJECT_ROOT / "alembic" / "versions" / "20260808_0015_inventory_pilot.py"
 
 
 def _run_alembic(database_url: str, revision: str) -> None:
@@ -81,3 +82,11 @@ def test_sqlite_migration_preserves_balance_and_creates_initial_movement(tmp_pat
             pass
         else:
             raise AssertionError("A restrição do banco permitiu saldo negativo")
+
+
+def test_factory_seed_casts_reused_parameters_for_postgresql() -> None:
+    migration_source = INVENTORY_MIGRATION.read_text(encoding="utf-8")
+
+    assert migration_source.count("cast(:name as varchar(160))") == 2
+    assert "cast(:unit_type as varchar(20))" in migration_source
+    assert "cast(:active as boolean)" in migration_source
