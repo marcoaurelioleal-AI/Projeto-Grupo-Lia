@@ -1,41 +1,24 @@
 from __future__ import annotations
 
-from collections.abc import Callable
-
 from fastapi.testclient import TestClient
 
 
-def test_leadership_area_uses_individual_main_login_and_records_employee_feedback(
+def test_leadership_area_requires_dedicated_login_and_records_employee_feedback(
     client: TestClient,
-    admin_headers: dict[str, str],
-    login_headers: Callable[[str, str], dict[str, str]],
 ) -> None:
-    client.post("/api/auth/logout")
     no_token = client.get("/api/leadership/employees")
     assert no_token.status_code == 401
 
-    created = client.post(
-        "/api/admin/users",
-        headers=admin_headers,
-        json={
-            "username": "lider_individual",
-            "name": "Líder Individual",
-            "role": "lideranca",
-            "store_id": None,
-            "password": "senha123",
-        },
-    )
-    assert created.status_code == 200
-    leadership_headers = login_headers("lider_individual", "senha123")
+    invalid_login = client.post("/api/leadership/login", json={"username": "admin", "password": "admin123"})
+    assert invalid_login.status_code == 401
+
+    login = client.post("/api/leadership/login", json={"username": "lideranca", "password": "lider123"})
+    assert login.status_code == 200
+    leadership_headers = {"Authorization": f"Bearer {login.json()['access_token']}"}
 
     me = client.get("/api/leadership/me", headers=leadership_headers)
     assert me.status_code == 200
-    assert me.json()["role"] == "lideranca"
-    assert me.json()["username"] == "lider_individual"
-
-    executive = client.get("/api/reports/executive", headers=leadership_headers)
-    assert executive.status_code == 200
-    assert set(executive.json()["visible_stores"]) >= {"Lia Burger", "Lia Pizzas", "Lia Salgados", "Fábrica Lia"}
+    assert me.json()["area"] == "leadership"
 
     employee = client.post(
         "/api/leadership/employees",
@@ -85,21 +68,3 @@ def test_leadership_area_uses_individual_main_login_and_records_employee_feedbac
     saved_employee = next(item for item in employees_after_record.json() if item["id"] == employee_payload["id"])
     assert saved_employee["record_count"] == 1
     assert saved_employee["position"] == "Operador de caixa"
-
-    burger_store = next(
-        store for store in client.get("/api/admin/stores", headers=admin_headers).json() if store["name"] == "Lia Burger"
-    )
-    operation_user = client.post(
-        "/api/admin/users",
-        headers=admin_headers,
-        json={
-            "username": "operacao_sem_lideranca",
-            "name": "Operação sem liderança",
-            "role": "operacao",
-            "store_id": burger_store["id"],
-            "password": "senha123",
-        },
-    )
-    assert operation_user.status_code == 200
-    operation_headers = login_headers("operacao_sem_lideranca", "senha123")
-    assert client.get("/api/leadership/employees", headers=operation_headers).status_code == 403

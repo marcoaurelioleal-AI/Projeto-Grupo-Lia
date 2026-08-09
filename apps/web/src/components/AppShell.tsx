@@ -1,6 +1,5 @@
 import {
   BarChart3,
-  ArrowRightLeft,
   BookOpen,
   Bot,
   CheckSquare,
@@ -9,9 +8,7 @@ import {
   LogOut,
   Menu,
   Package,
-  Shield,
-  Trash2,
-  UsersRound
+  Shield
 } from 'lucide-react';
 import { useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
@@ -21,10 +18,7 @@ import type { Role } from '../types';
 const baseNavItems: Array<{ to: string; label: string; icon: typeof Home; roles?: Role[] }> = [
   { to: '/', label: 'Dashboard', icon: Home },
   { to: '/checklists', label: 'Tarefas', icon: CheckSquare, roles: ['admin', 'gerente', 'operacao'] },
-  { to: '/inventory', label: 'Estoque', icon: Package, roles: ['admin', 'lideranca', 'gerente', 'operacao', 'auditor'] },
-  { to: '/waste', label: 'Perdas', icon: Trash2, roles: ['admin', 'lideranca', 'gerente', 'operacao', 'auditor'] },
-  { to: '/transfers', label: 'Transferências', icon: ArrowRightLeft, roles: ['admin', 'lideranca', 'gerente', 'operacao', 'auditor'] },
-  { to: '/lideranca', label: 'Liderança', icon: UsersRound, roles: ['admin', 'lideranca'] },
+  { to: '/inventory', label: 'Estoque', icon: Package, roles: ['admin', 'gerente', 'operacao'] },
   { to: '/reports', label: 'Relatórios', icon: BarChart3, roles: ['admin', 'lideranca', 'gerente', 'auditor'] },
   { to: '/audit', label: 'Auditoria', icon: FileSearch, roles: ['admin', 'lideranca', 'auditor'] },
   { to: '/manuals', label: 'Manuais', icon: BookOpen },
@@ -36,7 +30,7 @@ export function AppShell() {
   const { logout, user } = useAuth();
   const navItems = [
     ...baseNavItems.filter((item) => !item.roles || (user?.role ? item.roles.includes(user.role) : false)),
-    ...(user?.role === 'admin' ? [{ to: '/admin', label: 'Configurações', icon: Shield }] : [])
+    ...(user?.role === 'admin' ? [{ to: '/admin', label: 'Admin', icon: Shield }] : [])
   ];
 
   return (

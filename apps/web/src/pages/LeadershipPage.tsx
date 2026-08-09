@@ -1,10 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { AlertTriangle, Check, FileText, Pencil, UserRoundPlus, UsersRound, X } from 'lucide-react';
+import { AlertTriangle, Check, FileText, LogOut, Pencil, UserRoundPlus, UsersRound, X } from 'lucide-react';
 import { FormEvent, useMemo, useState } from 'react';
-import { api } from '../api/client';
+import { Navigate, useNavigate } from 'react-router-dom';
+import { api, clearLeadershipToken } from '../api/client';
 import { PageHeader } from '../components/PageHeader';
 import { DEFAULT_OPERATIONAL_STORE, OPERATIONAL_STORES } from '../constants/stores';
-import { useAuth } from '../contexts/useAuth';
 import type {
   LeadershipEmployee,
   LeadershipEmployeeCreate,
@@ -35,8 +35,7 @@ const recordStyles: Record<LeadershipRecordType, string> = {
 };
 
 export function LeadershipPage() {
-  const { user } = useAuth();
-  const hasAccess = user?.role === 'admin' || user?.role === 'lideranca';
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [employeeForm, setEmployeeForm] = useState<LeadershipEmployeeCreate>(emptyEmployee);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState('');
@@ -47,16 +46,22 @@ export function LeadershipPage() {
   });
   const [recordSuccess, setRecordSuccess] = useState('');
 
+  const session = useQuery({
+    queryKey: ['leadership-me'],
+    queryFn: api.leadershipMe,
+    retry: false
+  });
+
   const employees = useQuery({
     queryKey: ['leadership-employees'],
     queryFn: api.leadershipEmployees,
-    enabled: hasAccess
+    enabled: session.isSuccess
   });
 
   const records = useQuery({
     queryKey: ['leadership-records'],
     queryFn: api.leadershipRecords,
-    enabled: hasAccess
+    enabled: session.isSuccess
   });
 
   const activeEmployees = useMemo(
@@ -115,14 +120,15 @@ export function LeadershipPage() {
     }
   });
 
-  if (!hasAccess) {
-    return (
-      <PageHeader
-        eyebrow="Liderança"
-        title="Acesso restrito"
-        description="Esta área exige um perfil individual de liderança ou administração."
-      />
-    );
+  if (session.isError) {
+    clearLeadershipToken();
+    return <Navigate to="/lideranca/login" replace />;
+  }
+
+  function logout() {
+    void api.leadershipLogout();
+    clearLeadershipToken();
+    navigate('/lideranca/login', { replace: true });
   }
 
   function submitEmployee(event: FormEvent<HTMLFormElement>) {
@@ -138,7 +144,26 @@ export function LeadershipPage() {
   }
 
   return (
-    <>
+    <main className="min-h-screen bg-lia-beige text-lia-ink">
+      <header className="sticky top-0 z-40 border-b border-lia-red/10 bg-lia-cream/90 backdrop-blur">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 md:px-6">
+          <div className="flex items-center gap-3">
+            <img src="/logos/logo_burger.png" alt="Grupo Lia" className="h-10 w-10 rounded-lg object-cover" />
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-lia-red">Grupo Lia</p>
+              <h1 className="text-lg font-black text-lia-burgundy">Liderança</h1>
+            </div>
+          </div>
+          <button
+            onClick={logout}
+            className="focus-ring flex items-center gap-2 rounded-lg border border-lia-red/20 px-3 py-2 text-sm font-bold text-lia-burgundy"
+          >
+            <LogOut size={17} /> Sair
+          </button>
+        </div>
+      </header>
+
+      <div className="mx-auto max-w-7xl px-4 py-5 md:px-6 md:py-8">
         <PageHeader
           eyebrow="Área reservada"
           title="Gestão de feedbacks e medidas disciplinares"
@@ -279,7 +304,8 @@ export function LeadershipPage() {
           />
           <RecordsPanel records={records.data ?? []} loading={records.isLoading} />
         </section>
-    </>
+      </div>
+    </main>
   );
 }
 

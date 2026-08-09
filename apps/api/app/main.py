@@ -23,8 +23,6 @@ from .routers import (
     manuals,
     observability,
     reports,
-    transfers,
-    waste,
 )
 from .schemas import HealthResponse
 from .seed import seed_database
@@ -65,8 +63,6 @@ app.include_router(ai.router, prefix="/api")
 app.include_router(admin.router, prefix="/api")
 app.include_router(incidents.router, prefix="/api")
 app.include_router(inventory.router, prefix="/api")
-app.include_router(transfers.router, prefix="/api")
-app.include_router(waste.router, prefix="/api")
 app.include_router(leadership.router, prefix="/api")
 app.include_router(evidences.router, prefix="/api")
 app.include_router(reports.router, prefix="/api")

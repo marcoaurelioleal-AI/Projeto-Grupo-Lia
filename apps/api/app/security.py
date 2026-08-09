@@ -115,35 +115,6 @@ def get_current_leadership(
     return settings.leadership_username
 
 
-def get_current_leadership_actor(
-    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
-    auth_cookie_token: str | None = Cookie(default=None, alias=AUTH_COOKIE_NAME),
-    leadership_cookie_token: str | None = Cookie(default=None, alias=LEADERSHIP_COOKIE_NAME),
-    db: Session = Depends(get_db),
-) -> User | str:
-    token = _token_from_credentials(credentials, auth_cookie_token or leadership_cookie_token)
-    if token is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token ausente")
-    try:
-        payload = jwt.decode(token, settings.jwt_secret, algorithms=["HS256"])
-    except Exception as exc:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido") from exc
-
-    if payload.get("scope") == "leadership" and payload.get("sub") == settings.leadership_username:
-        return settings.leadership_username
-
-    try:
-        user_id = int(payload["sub"])
-    except (KeyError, TypeError, ValueError) as exc:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido") from exc
-    user = db.scalar(
-        select(User).options(joinedload(User.store)).where(User.id == user_id, User.active.is_(True))
-    )
-    if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Usuário inativo ou inexistente")
-    return require_user_permission(user, "manage_leadership_records")
-
-
 def get_current_user(
     credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
     cookie_token: str | None = Cookie(default=None, alias=AUTH_COOKIE_NAME),

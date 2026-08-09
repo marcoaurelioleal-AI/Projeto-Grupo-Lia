@@ -15,12 +15,9 @@ import type {
   ChecklistTemplateItemCreate,
   EvidenceAuditFilterOptions,
   ExecutiveDashboard,
-  InventoryAdjustmentCreate,
-  InventoryBalanceCreate,
   InventoryItem,
-  InventoryMovement,
-  InventoryMovementCreate,
-  InventoryTransfer,
+  InventoryItemCreate,
+  InventoryItemUpdate,
   LeadershipEmployee,
   LeadershipEmployeeCreate,
   LeadershipEmployeeUpdate,
@@ -34,14 +31,10 @@ import type {
   ManualSectionCreate,
   ManualStep,
   ManualStepCreate,
-  Product,
   ReportSummary,
   StoreOption,
   User,
-  UserCreate,
-  WasteReason,
-  WasteRecord,
-  WasteSummary
+  UserCreate
 } from '../types';
 import { DEFAULT_OPERATIONAL_STORE } from '../constants/stores';
 
@@ -172,23 +165,23 @@ export const api = {
     }),
   logout: () => request<{ status: string }>('/auth/logout', { method: 'POST' }),
   leadershipLogout: () => requestLeadership<{ status: string }>('/leadership/logout', { method: 'POST' }),
-  leadershipMe: () => request<{ username: string; role: 'lideranca'; area: 'leadership' }>('/leadership/me'),
-  leadershipEmployees: () => request<LeadershipEmployee[]>('/leadership/employees'),
+  leadershipMe: () => requestLeadership<{ username: string; area: 'leadership' }>('/leadership/me'),
+  leadershipEmployees: () => requestLeadership<LeadershipEmployee[]>('/leadership/employees'),
   createLeadershipEmployee: (payload: LeadershipEmployeeCreate) =>
-    request<LeadershipEmployee>('/leadership/employees', {
+    requestLeadership<LeadershipEmployee>('/leadership/employees', {
       method: 'POST',
       body: JSON.stringify(payload)
     }),
   updateLeadershipEmployee: (employeeId: number, payload: LeadershipEmployeeUpdate) =>
-    request<LeadershipEmployee>(`/leadership/employees/${employeeId}`, {
+    requestLeadership<LeadershipEmployee>(`/leadership/employees/${employeeId}`, {
       method: 'PATCH',
       body: JSON.stringify(payload)
     }),
-  leadershipRecords: () => request<LeadershipRecord[]>('/leadership/records'),
+  leadershipRecords: () => requestLeadership<LeadershipRecord[]>('/leadership/records'),
   employeeLeadershipRecords: (employeeId: number) =>
-    request<LeadershipRecord[]>(`/leadership/employees/${employeeId}/records`),
+    requestLeadership<LeadershipRecord[]>(`/leadership/employees/${employeeId}/records`),
   createLeadershipRecord: (employeeId: number, payload: LeadershipRecordCreate) =>
-    request<LeadershipRecord>(`/leadership/employees/${employeeId}/records`, {
+    requestLeadership<LeadershipRecord>(`/leadership/employees/${employeeId}/records`, {
       method: 'POST',
       body: JSON.stringify(payload)
     }),
@@ -245,12 +238,12 @@ export const api = {
       method: 'DELETE'
     }),
   adminStores: () => request<StoreOption[]>('/admin/stores'),
-  createAdminStore: (name: string, unitType: StoreOption['unit_type'] = 'loja') =>
+  createAdminStore: (name: string) =>
     request<StoreOption>('/admin/stores', {
       method: 'POST',
-      body: JSON.stringify({ name, unit_type: unitType })
+      body: JSON.stringify({ name })
     }),
-  updateAdminStore: (storeId: number, payload: Partial<Pick<StoreOption, 'name' | 'unit_type' | 'active'>>) =>
+  updateAdminStore: (storeId: number, payload: Partial<Pick<StoreOption, 'name' | 'active'>>) =>
     request<StoreOption>(`/admin/stores/${storeId}`, {
       method: 'PATCH',
       body: JSON.stringify(payload)
@@ -337,78 +330,20 @@ export const api = {
     request<Manual>(`/admin/manual-steps/${stepId}`, {
       method: 'DELETE'
     }),
-  products: () => request<Product[]>('/inventory/products'),
-  inventoryUnits: () => request<StoreOption[]>('/inventory/units'),
-  createProduct: (payload: Pick<Product, 'name' | 'unit'>) =>
-    request<Product>('/inventory/products', {
-      method: 'POST',
-      body: JSON.stringify(payload)
-    }),
-  updateProduct: (productId: number, payload: Partial<Pick<Product, 'name' | 'unit' | 'active'>>) =>
-    request<Product>(`/inventory/products/${productId}`, {
-      method: 'PATCH',
-      body: JSON.stringify(payload)
-    }),
-  inventory: (options: { storeId?: number } = {}) =>
+  inventory: (options: { store?: string } = {}) =>
     request<InventoryItem[]>(
       withParams('/inventory', {
-        store_id: options.storeId
+        store: options.store
       })
     ),
-  createInventoryBalance: (payload: InventoryBalanceCreate) =>
-    request<InventoryItem>('/inventory/balances', {
+  createInventoryItem: (payload: InventoryItemCreate) =>
+    request<InventoryItem>('/inventory', {
       method: 'POST',
       body: JSON.stringify(payload)
     }),
-  createInventoryMovement: (itemId: number, payload: InventoryMovementCreate) =>
-    request<InventoryMovement>(`/inventory/${itemId}/movements`, {
-      method: 'POST',
-      body: JSON.stringify(payload)
-    }),
-  adjustInventory: (itemId: number, payload: InventoryAdjustmentCreate) =>
-    request<InventoryMovement>(`/inventory/${itemId}/adjustments`, {
-      method: 'POST',
-      body: JSON.stringify(payload)
-    }),
-  updateInventoryCost: (itemId: number, unitCost: number, reason: string) =>
-    request<InventoryMovement>(`/inventory/${itemId}/cost`, {
-      method: 'POST',
-      body: JSON.stringify({ unit_cost: unitCost, reason })
-    }),
-  inventoryMovements: (itemId: number) =>
-    request<InventoryMovement[]>(`/inventory/${itemId}/movements`),
-  waste: () => request<WasteRecord[]>('/waste'),
-  wasteSummary: () => request<WasteSummary>('/waste/summary'),
-  createWaste: (payload: {
-    inventory_item_id: number;
-    quantity: number;
-    reason: WasteReason;
-    notes?: string;
-  }) =>
-    request<WasteRecord>('/waste', {
-      method: 'POST',
-      body: JSON.stringify(payload)
-    }),
-  transfers: () => request<InventoryTransfer[]>('/transfers'),
-  createTransfer: (payload: {
-    source_store_id?: number;
-    destination_store_id: number;
-    items: Array<{ product_id: number; quantity: number }>;
-    notes?: string;
-  }) =>
-    request<InventoryTransfer>('/transfers', {
-      method: 'POST',
-      body: JSON.stringify(payload)
-    }),
-  receiveTransfer: (
-    transferId: number,
-    payload: {
-      items: Array<{ transfer_item_id: number; quantity_received: number }>;
-      discrepancy_note?: string;
-    }
-  ) =>
-    request<InventoryTransfer>(`/transfers/${transferId}/receive`, {
-      method: 'POST',
+  updateInventoryItem: (itemId: number, payload: InventoryItemUpdate) =>
+    request<InventoryItem>(`/inventory/${itemId}`, {
+      method: 'PATCH',
       body: JSON.stringify(payload)
     }),
   reportSummary: (options: { startDate: string; endDate: string; store?: string }) =>

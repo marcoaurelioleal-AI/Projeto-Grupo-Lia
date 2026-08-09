@@ -1,6 +1,6 @@
 import { Lock, LogIn } from 'lucide-react';
 import { FormEvent, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/useAuth';
 
 const logos = [
@@ -107,6 +107,12 @@ export function LoginPage() {
             <LogIn size={18} />
             {loading ? 'Entrando...' : 'Entrar'}
           </button>
+          <Link
+            to="/lideranca/login"
+            className="mt-4 block text-center text-sm font-bold text-lia-burgundy underline underline-offset-4"
+          >
+            Acesso exclusivo da liderança
+          </Link>
         </form>
       </section>
     </main>

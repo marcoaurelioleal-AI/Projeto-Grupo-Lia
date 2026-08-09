@@ -1,18 +1,13 @@
 from __future__ import annotations
 
 from datetime import date, datetime
-from decimal import Decimal
-from typing import Annotated, Any, Literal
+from typing import Any, Literal
 
-from pydantic import BaseModel, Field, PlainSerializer
+from pydantic import BaseModel, Field
 
 from .store_catalog import DEFAULT_OPERATIONAL_STORE
 
 Role = Literal["admin", "lideranca", "gerente", "operacao", "auditor"]
-JsonDecimal = Annotated[
-    Decimal,
-    PlainSerializer(lambda value: float(value), return_type=float, when_used="json"),
-]
 
 
 class LoginRequest(BaseModel):
@@ -249,188 +244,26 @@ class OperationalIncidentRead(BaseModel):
     resolved_by: str | None = None
 
 
-class ProductCreate(BaseModel):
-    name: str = Field(min_length=1, max_length=160)
-    unit: str = Field(default="unidade", min_length=1, max_length=30)
-
-
-class ProductUpdate(BaseModel):
-    name: str | None = Field(default=None, min_length=1, max_length=160)
-    unit: str | None = Field(default=None, min_length=1, max_length=30)
-    active: bool | None = None
-
-
-class ProductRead(BaseModel):
-    id: int
-    name: str
-    unit: str
-    active: bool
-
-
-class InventoryBalanceCreate(BaseModel):
-    store_id: int
-    product_id: int
-    quantity: Decimal = Field(default=Decimal("0"), ge=0, le=1_000_000)
-    unit_cost: Decimal = Field(default=Decimal("0"), ge=0, le=1_000_000)
+class InventoryItemCreate(BaseModel):
+    store: str = Field(default=DEFAULT_OPERATIONAL_STORE, min_length=1, max_length=80)
+    product_name: str = Field(min_length=1, max_length=160)
+    quantity: int = Field(ge=0, le=1_000_000)
 
 
 class InventoryItemUpdate(BaseModel):
+    store: str | None = Field(default=None, min_length=1, max_length=80)
     product_name: str | None = Field(default=None, min_length=1, max_length=160)
-    quantity: Decimal | None = Field(default=None, ge=0, le=1_000_000)
-    unit_cost: Decimal | None = Field(default=None, ge=0, le=1_000_000)
-    active: bool | None = None
+    quantity: int | None = Field(default=None, ge=0, le=1_000_000)
 
 
 class InventoryItemRead(BaseModel):
     id: int
-    store_id: int
     store: str
-    product_id: int
     product_name: str
-    unit: str
-    quantity: JsonDecimal
-    unit_cost: JsonDecimal | None = None
-    active: bool
+    quantity: int
     created_by: str | None = None
     created_at: datetime
     updated_at: datetime
-
-
-InventoryMovementType = Literal[
-    "saldo_inicial",
-    "entrada",
-    "producao",
-    "saida",
-    "ajuste",
-    "perda",
-    "transferencia_saida",
-    "transferencia_entrada",
-    "custo_atualizado",
-]
-
-
-class InventoryMovementCreate(BaseModel):
-    movement_type: Literal["entrada", "producao", "saida"]
-    quantity: Decimal = Field(gt=0, le=1_000_000)
-    reason: str = Field(min_length=2, max_length=240)
-    notes: str | None = Field(default=None, max_length=2000)
-
-
-class InventoryAdjustmentCreate(BaseModel):
-    counted_quantity: Decimal = Field(ge=0, le=1_000_000)
-    reason: str = Field(min_length=2, max_length=240)
-    notes: str | None = Field(default=None, max_length=2000)
-
-
-class InventoryCostUpdate(BaseModel):
-    unit_cost: Decimal = Field(ge=0, le=1_000_000)
-    reason: str = Field(min_length=2, max_length=240)
-
-
-class InventoryMovementRead(BaseModel):
-    id: int
-    inventory_item_id: int
-    movement_type: str
-    quantity_delta: JsonDecimal
-    quantity_before: JsonDecimal
-    quantity_after: JsonDecimal
-    unit_cost_snapshot: JsonDecimal | None = None
-    reason: str
-    notes: str | None = None
-    created_by: str | None = None
-    created_at: datetime
-
-
-class TransferItemCreate(BaseModel):
-    product_id: int
-    quantity: Decimal = Field(gt=0, le=1_000_000)
-
-
-class TransferCreate(BaseModel):
-    source_store_id: int | None = None
-    destination_store_id: int
-    items: list[TransferItemCreate] = Field(min_length=1, max_length=100)
-    notes: str | None = Field(default=None, max_length=2000)
-
-
-class TransferReceiptItem(BaseModel):
-    transfer_item_id: int
-    quantity_received: Decimal = Field(ge=0, le=1_000_000)
-
-
-class TransferReceive(BaseModel):
-    items: list[TransferReceiptItem] = Field(min_length=1, max_length=100)
-    discrepancy_note: str | None = Field(default=None, max_length=2000)
-
-
-class TransferItemRead(BaseModel):
-    id: int
-    product_id: int
-    product_name: str
-    unit: str
-    quantity_sent: JsonDecimal
-    quantity_received: JsonDecimal | None = None
-    unit_cost_snapshot: JsonDecimal | None = None
-
-
-class TransferRead(BaseModel):
-    id: int
-    source_store_id: int
-    source_store: str
-    destination_store_id: int
-    destination_store: str
-    status: str
-    notes: str | None = None
-    discrepancy_note: str | None = None
-    sent_by: str | None = None
-    received_by: str | None = None
-    sent_at: datetime
-    received_at: datetime | None = None
-    items: list[TransferItemRead]
-
-
-WasteReason = Literal[
-    "validade",
-    "erro_preparo",
-    "queda",
-    "produto_danificado",
-    "sobra",
-    "cancelamento",
-    "falha_armazenamento",
-    "fornecedor",
-    "outro",
-]
-
-
-class WasteCreate(BaseModel):
-    inventory_item_id: int
-    quantity: Decimal = Field(gt=0, le=1_000_000)
-    reason: WasteReason
-    notes: str | None = Field(default=None, max_length=2000)
-
-
-class WasteRead(BaseModel):
-    id: int
-    inventory_item_id: int
-    store_id: int
-    store: str
-    product_id: int
-    product_name: str
-    unit: str
-    quantity: JsonDecimal
-    reason: str
-    notes: str | None = None
-    unit_cost_snapshot: JsonDecimal | None = None
-    total_cost: JsonDecimal | None = None
-    created_by: str | None = None
-    created_at: datetime
-
-
-class WasteSummaryRead(BaseModel):
-    total_quantity: JsonDecimal
-    total_cost: JsonDecimal | None = None
-    record_count: int
-    by_reason: dict[str, JsonDecimal]
 
 
 class ChecklistEvidenceRead(BaseModel):
@@ -457,19 +290,16 @@ class EvidenceAuditFilterOptionsRead(BaseModel):
 
 class StoreCreate(BaseModel):
     name: str = Field(min_length=2, max_length=80)
-    unit_type: Literal["loja", "fabrica"] = "loja"
 
 
 class StoreUpdate(BaseModel):
     name: str | None = Field(default=None, min_length=2, max_length=80)
-    unit_type: Literal["loja", "fabrica"] | None = None
     active: bool | None = None
 
 
 class StoreRead(BaseModel):
     id: int
     name: str
-    unit_type: str
     active: bool
 
     model_config = {"from_attributes": True}

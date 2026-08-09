@@ -142,7 +142,6 @@ export interface ChecklistRun {
 export interface StoreOption {
   id: number;
   name: string;
-  unit_type: 'loja' | 'fabrica';
   active: boolean;
 }
 
@@ -176,118 +175,24 @@ export interface ChecklistTemplateItemCreate {
 
 export interface InventoryItem {
   id: number;
-  store_id: number;
   store: string;
-  product_id: number;
   product_name: string;
-  unit: string;
   quantity: number;
-  unit_cost?: number;
   created_by: string | null;
   created_at: string;
   updated_at: string;
 }
 
-export interface Product {
-  id: number;
-  name: string;
-  unit: string;
-  active: boolean;
-}
-
-export interface InventoryBalanceCreate {
-  store_id: number;
-  product_id: number;
-  quantity: number;
-  unit_cost: number;
-}
-
-export interface InventoryMovement {
-  id: number;
-  inventory_item_id: number;
-  movement_type: string;
-  quantity_delta: number;
-  quantity_before: number;
-  quantity_after: number;
-  unit_cost_snapshot?: number;
-  reason: string;
-  notes: string | null;
-  created_by: string | null;
-  created_at: string;
-}
-
-export interface InventoryMovementCreate {
-  movement_type: 'entrada' | 'producao' | 'saida';
-  quantity: number;
-  reason: string;
-  notes?: string;
-}
-
-export interface InventoryAdjustmentCreate {
-  counted_quantity: number;
-  reason: string;
-  notes?: string;
-}
-
-export type WasteReason =
-  | 'validade'
-  | 'erro_preparo'
-  | 'queda'
-  | 'produto_danificado'
-  | 'sobra'
-  | 'cancelamento'
-  | 'falha_armazenamento'
-  | 'fornecedor'
-  | 'outro';
-
-export interface WasteRecord {
-  id: number;
-  inventory_item_id: number;
-  store_id: number;
+export interface InventoryItemCreate {
   store: string;
-  product_id: number;
   product_name: string;
-  unit: string;
   quantity: number;
-  reason: WasteReason;
-  notes: string | null;
-  unit_cost_snapshot?: number;
-  total_cost?: number;
-  created_by: string | null;
-  created_at: string;
 }
 
-export interface WasteSummary {
-  total_quantity: number;
-  total_cost?: number;
-  record_count: number;
-  by_reason: Record<string, number>;
-}
-
-export interface TransferItem {
-  id: number;
-  product_id: number;
-  product_name: string;
-  unit: string;
-  quantity_sent: number;
-  quantity_received: number | null;
-  unit_cost_snapshot?: number;
-}
-
-export interface InventoryTransfer {
-  id: number;
-  source_store_id: number;
-  source_store: string;
-  destination_store_id: number;
-  destination_store: string;
-  status: 'enviada' | 'recebida' | 'divergente';
-  notes: string | null;
-  discrepancy_note: string | null;
-  sent_by: string | null;
-  received_by: string | null;
-  sent_at: string;
-  received_at: string | null;
-  items: TransferItem[];
+export interface InventoryItemUpdate {
+  store?: string;
+  product_name?: string;
+  quantity?: number;
 }
 
 export interface ChecklistEvidence {

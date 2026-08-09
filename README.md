@@ -1,6 +1,6 @@
 # Projeto LIA
 
-Central operacional para o **Grupo Empresarial Lia**, reunindo processos internos da Lia Burger, Lia Pizzas, Lia Salgados e Fábrica Lia em uma plataforma web com login, dashboard, checklists, manuais técnicos e a assistente operacional **Lia**.
+Central operacional para o **Grupo Empresarial Lia**, reunindo processos internos da Lia Burger, Lia Pizza e Lia Salgados em uma plataforma web com login, dashboard, checklists, manuais técnicos e a assistente operacional **Lia**.
 
 O projeto nasceu como uma aplicação Streamlit e hoje evolui sobre uma arquitetura web com **React + TypeScript** no frontend e **FastAPI** no backend. A versão Streamlit permanece apenas como referência legado enquanto a Central LIA atual concentra a evolução do produto.
 
@@ -17,14 +17,12 @@ Principais recursos:
 - Manuais técnicos por unidade.
 - Chatbot **Lia**, com respostas baseadas nos manuais internos.
 - Histórico resumido das conversas da Lia.
-- Configurações do Sistema restritas à administração.
-- Gestão de usuários individuais, perfis e unidades do tipo loja ou fábrica.
-- Área da liderança integrada ao login principal, com cadastro de funcionários, feedbacks e medidas disciplinares.
-- Estoque auditável com catálogo global, saldos decimais e custos médios por unidade.
-- Transferências em duas etapas entre fábrica e lojas, com conferência e justificativa de divergências.
-- Registro de perdas que baixa o estoque na mesma transação e preserva o custo histórico.
+- Painel administrativo inicial para gestão.
+- Gestão administrativa básica de usuários e lojas.
+- Área exclusiva da liderança com login próprio, cadastro de funcionários, feedbacks e medidas disciplinares.
+- Ocorrências operacionais com status e severidade.
 - Upload protegido de fotos como evidências de checklist.
-- Relatórios semanais/mensais de checklists, pendências e evidências.
+- Relatórios semanais/mensais de checklists, pendências, ocorrências e evidências.
 - Auditoria automática de escritas da API.
 - Observabilidade básica com `X-Request-ID` e métricas agregadas.
 - Backend preparado para SQLite em desenvolvimento e PostgreSQL em produção.
