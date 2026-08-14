@@ -93,6 +93,10 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     throw new Error(detail.detail ?? 'Não foi possível completar a solicitação.');
   }
 
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
   return response.json() as Promise<T>;
 }
 
@@ -343,6 +347,10 @@ export const api = {
     request<InventoryItem>(`/inventory/${itemId}`, {
       method: 'PATCH',
       body: JSON.stringify(payload)
+    }),
+  deleteInventoryItem: (itemId: number) =>
+    request<void>(`/inventory/${itemId}`, {
+      method: 'DELETE'
     }),
   reportSummary: (options: { startDate: string; endDate: string; store?: string }) =>
     request<ReportSummary>(

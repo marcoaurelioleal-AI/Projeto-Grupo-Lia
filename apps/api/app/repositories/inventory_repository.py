@@ -41,5 +41,9 @@ class InventoryRepository:
         self.db.refresh(item)
         return item
 
+    def delete(self, item: InventoryItem) -> None:
+        self.db.delete(item)
+        self.db.commit()
+
     def commit(self) -> None:
         self.db.commit()

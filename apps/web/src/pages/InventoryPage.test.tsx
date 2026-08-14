@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { api } from '../api/client';
 import { useAuth } from '../contexts/useAuth';
@@ -10,7 +10,8 @@ vi.mock('../api/client', () => ({
   api: {
     inventory: vi.fn(),
     createInventoryItem: vi.fn(),
-    updateInventoryItem: vi.fn()
+    updateInventoryItem: vi.fn(),
+    deleteInventoryItem: vi.fn()
   }
 }));
 
@@ -60,6 +61,11 @@ describe('InventoryPage', () => {
       created_at: '2026-08-14T12:00:00',
       updated_at: '2026-08-14T12:00:00'
     });
+    mockedApi.deleteInventoryItem.mockResolvedValue(undefined);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('sends the selected measurement unit with a fractional quantity', async () => {
@@ -83,6 +89,50 @@ describe('InventoryPage', () => {
         quantity: 1.5,
         unit: 'kg'
       }, expect.anything());
+    });
+  });
+
+  it('does not delete the product when confirmation is canceled', async () => {
+    mockedApi.inventory.mockResolvedValue([
+      {
+        id: 7,
+        store: 'Lia Burger',
+        product_name: 'Farinha de trigo',
+        quantity: 1.5,
+        unit: 'kg',
+        created_by: 'Administrador',
+        created_at: '2026-08-14T12:00:00',
+        updated_at: '2026-08-14T12:00:00'
+      }
+    ]);
+    vi.spyOn(window, 'confirm').mockReturnValue(false);
+    renderPage();
+
+    fireEvent.click(await screen.findByRole('button', { name: /Excluir Farinha de trigo/i }));
+
+    expect(mockedApi.deleteInventoryItem).not.toHaveBeenCalled();
+  });
+
+  it('deletes the product after confirmation', async () => {
+    mockedApi.inventory.mockResolvedValue([
+      {
+        id: 7,
+        store: 'Lia Burger',
+        product_name: 'Farinha de trigo',
+        quantity: 1.5,
+        unit: 'kg',
+        created_by: 'Administrador',
+        created_at: '2026-08-14T12:00:00',
+        updated_at: '2026-08-14T12:00:00'
+      }
+    ]);
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    renderPage();
+
+    fireEvent.click(await screen.findByRole('button', { name: /Excluir Farinha de trigo/i }));
+
+    await waitFor(() => {
+      expect(mockedApi.deleteInventoryItem).toHaveBeenCalledWith(7, expect.anything());
     });
   });
 });

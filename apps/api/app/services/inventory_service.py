@@ -72,6 +72,14 @@ class InventoryService:
             raise HTTPException(status_code=404, detail="Produto de estoque não encontrado")
         return self.serialize_item(refreshed)
 
+    def delete_item(self, item_id: int, user: User) -> None:
+        require_user_permission(user, "manage_inventory")
+        item = self.repository.get_item(item_id)
+        if not item:
+            raise HTTPException(status_code=404, detail="Produto de estoque não encontrado")
+        require_store_access(user, item.store)
+        self.repository.delete(item)
+
     @staticmethod
     def serialize_item(item: InventoryItem) -> InventoryItemRead:
         return InventoryItemRead(

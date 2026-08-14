@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Boxes, PackagePlus, Save } from 'lucide-react';
+import { Boxes, PackagePlus, Save, Trash2 } from 'lucide-react';
 import { FormEvent, useMemo, useState } from 'react';
 import { api } from '../api/client';
 import { PageHeader } from '../components/PageHeader';
@@ -57,6 +57,15 @@ export function InventoryPage() {
     }
   });
 
+  const deleteItem = useMutation({
+    mutationFn: api.deleteInventoryItem,
+    onSuccess: () => {
+      setEditingItemId(null);
+      setQuantityDraft('');
+      queryClient.invalidateQueries({ queryKey: ['inventory'] });
+    }
+  });
+
   const totalProducts = inventory.data?.length ?? 0;
   const measurementUnits = useMemo(
     () => new Set((inventory.data ?? []).map((item) => item.unit)).size,
@@ -80,6 +89,15 @@ export function InventoryPage() {
   function submitQuantity(event: FormEvent<HTMLFormElement>, item: InventoryItem) {
     event.preventDefault();
     updateItem.mutate({ itemId: item.id, quantity: Number(quantityDraft) });
+  }
+
+  function confirmDeletion(item: InventoryItem) {
+    const confirmed = window.confirm(
+      `Excluir permanentemente o produto "${item.product_name}" do estoque? Esta ação não pode ser desfeita.`
+    );
+    if (confirmed) {
+      deleteItem.mutate(item.id);
+    }
   }
 
   return (
@@ -239,13 +257,31 @@ export function InventoryPage() {
                     </button>
                   </form>
                 ) : (
-                  <button
-                    onClick={() => startEdit(item)}
-                    className="focus-ring mt-3 rounded-lg border border-lia-red/20 px-3 py-2 text-xs font-bold text-lia-burgundy"
-                  >
-                    Ajustar quantidade
-                  </button>
+                  <div className="mt-3 flex items-center justify-between gap-2">
+                    <button
+                      onClick={() => startEdit(item)}
+                      className="focus-ring rounded-lg border border-lia-red/20 px-3 py-2 text-xs font-bold text-lia-burgundy"
+                    >
+                      Ajustar quantidade
+                    </button>
+                    <button
+                      type="button"
+                      aria-label={`Excluir ${item.product_name}`}
+                      title="Excluir produto"
+                      disabled={deleteItem.isPending}
+                      onClick={() => confirmDeletion(item)}
+                      className="focus-ring inline-flex size-9 items-center justify-center rounded-lg border border-lia-red/25 text-lia-red hover:bg-lia-red/10 disabled:opacity-50"
+                    >
+                      <Trash2 size={17} />
+                    </button>
+                  </div>
                 )}
+
+                {deleteItem.error && deleteItem.variables === item.id ? (
+                  <p className="mt-3 rounded-lg bg-lia-red/10 px-3 py-2 text-sm font-semibold text-lia-red">
+                    {deleteItem.error.message}
+                  </p>
+                ) : null}
               </article>
             ))}
 

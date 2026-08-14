@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response, status
 from sqlalchemy.orm import Session
 
 from ..database import get_db
@@ -42,3 +42,17 @@ def update_inventory_item(
     service: InventoryService = Depends(get_inventory_service),
 ) -> InventoryItemRead:
     return service.update_item(item_id, payload, user)
+
+
+@router.delete(
+    "/{item_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    response_class=Response,
+)
+def delete_inventory_item(
+    item_id: int,
+    user: User = Depends(get_current_user),
+    service: InventoryService = Depends(get_inventory_service),
+) -> Response:
+    service.delete_item(item_id, user)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
