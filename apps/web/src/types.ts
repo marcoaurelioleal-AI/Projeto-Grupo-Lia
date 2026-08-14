@@ -292,13 +292,6 @@ export interface ChatResponse {
   response_mode: AiResponseMode;
 }
 
-export interface AiStatus {
-  configured: boolean;
-  key_length: number;
-  key_fingerprint: string | null;
-  model: string;
-}
-
 export interface AiChatHistoryItem {
   id: number;
   session_id: number;

@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+from collections.abc import Callable
+
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
+from apps.api.app.config import settings
 from apps.api.app.services.rag_service import RagService
 
 
@@ -105,3 +108,46 @@ def test_ai_rejects_blank_question(client: TestClient, admin_headers: dict[str, 
 def test_ai_requires_token(client: TestClient) -> None:
     response = client.post("/api/ai/chat", json={"messages": [{"role": "user", "content": "Oi"}]})
     assert response.status_code == 401
+
+
+def test_ai_status_is_restricted_to_administrators(
+    client: TestClient,
+    admin_headers: dict[str, str],
+    login_headers: Callable[[str, str], dict[str, str]],
+) -> None:
+    store = client.get("/api/admin/stores", headers=admin_headers).json()[0]
+    created = client.post(
+        "/api/admin/users",
+        headers=admin_headers,
+        json={
+            "username": "operador_status_ia",
+            "name": "Operador Status IA",
+            "role": "operacao",
+            "store_id": store["id"],
+            "password": "senha123",
+        },
+    )
+    assert created.status_code == 200
+
+    operator_headers = login_headers("operador_status_ia", "senha123")
+    response = client.get("/api/ai/status", headers=operator_headers)
+
+    assert response.status_code == 403
+
+
+def test_ai_status_does_not_expose_key_metadata(
+    client: TestClient,
+    admin_headers: dict[str, str],
+) -> None:
+    original_key = settings.gemini_api_key
+    object.__setattr__(settings, "gemini_api_key", "known-test-key")
+    try:
+        response = client.get("/api/ai/status", headers=admin_headers)
+    finally:
+        object.__setattr__(settings, "gemini_api_key", original_key)
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "configured": True,
+        "model": "gemini-2.5-flash",
+    }

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from datetime import date
-from hashlib import sha256
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
@@ -19,7 +18,7 @@ from ..schemas import (
     ChatRequest,
     ChatResponse,
 )
-from ..security import get_current_user, require_permission
+from ..security import get_current_user, require_admin_user, require_permission
 from ..services.ai_service import AiService
 
 router = APIRouter(prefix="/ai", tags=["ai"])
@@ -30,13 +29,9 @@ def get_ai_service(db: Session = Depends(get_db)) -> AiService:
 
 
 @router.get("/status")
-def ai_status(_: User = Depends(get_current_user)) -> dict[str, str | bool | int | None]:
-    key = settings.gemini_api_key or ""
-    fingerprint = sha256(key.encode()).hexdigest()[:12] if key else None
+def ai_status(_: User = Depends(require_admin_user)) -> dict[str, str | bool]:
     return {
-        "configured": bool(key),
-        "key_length": len(key) if key else 0,
-        "key_fingerprint": fingerprint,
+        "configured": bool(settings.gemini_api_key),
         "model": settings.gemini_model,
     }
 

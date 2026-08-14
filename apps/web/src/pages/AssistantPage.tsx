@@ -3,9 +3,7 @@ import {
   AlertTriangle,
   Bot,
   Clock3,
-  KeyRound,
   Send,
-  ShieldCheck,
   Sparkles,
   ThumbsDown,
   ThumbsUp,
@@ -29,7 +27,6 @@ type UiMessage = ChatMessage & {
 export function AssistantPage() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
-  const isAdmin = user?.role === 'admin';
   const [unit, setUnit] = useState('');
   const [responseMode, setResponseMode] = useState<AiResponseMode>('rapido');
   const [sessionId, setSessionId] = useState<number | null>(null);
@@ -62,13 +59,6 @@ export function AssistantPage() {
 
   const units = useMemo(() => Array.from(new Set(manuals.map((manual) => manual.unit))), [manuals]);
 
-  const statusQuery = useQuery({
-    queryKey: ['ai-status'],
-    queryFn: api.aiStatus,
-    enabled: isAdmin,
-    staleTime: 30_000
-  });
-
   const mutation = useMutation({
     mutationFn: (historyMessages: ChatMessage[]) =>
       api.chat(historyMessages, {
@@ -92,12 +82,12 @@ export function AssistantPage() {
       ]);
       queryClient.invalidateQueries({ queryKey: ['ai-history'] });
     },
-    onError: (error) => {
+    onError: () => {
       setMessages((current) => [
         ...current,
         {
           role: 'assistant',
-          content: error instanceof Error ? error.message : 'Não consegui responder agora.',
+          content: 'A Lia está temporariamente indisponível. Tente novamente em alguns instantes.',
           mode: 'error',
           needsManagerConfirmation: true
         }
@@ -192,38 +182,6 @@ export function AssistantPage() {
 
         <HistoryPanel history={history} />
       </section>
-
-      {isAdmin ? (
-        <section className="mb-4 grid gap-3 rounded-lg border border-lia-red/10 bg-white p-4 shadow-sm md:grid-cols-4">
-          <div className="flex items-center gap-3 md:col-span-1">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-lia-red text-white">
-              <ShieldCheck size={18} />
-            </div>
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-lia-red">Diagnostico IA</p>
-              <p className="font-extrabold text-lia-burgundy">
-                {statusQuery.data?.configured ? 'Gemini configurado' : 'Gemini sem chave'}
-              </p>
-            </div>
-          </div>
-          <div className="rounded-lg bg-lia-cream px-3 py-2">
-            <p className="text-xs font-bold uppercase text-lia-muted">Modelo</p>
-            <p className="truncate font-semibold text-lia-ink">{statusQuery.data?.model ?? 'Carregando...'}</p>
-          </div>
-          <div className="rounded-lg bg-lia-cream px-3 py-2">
-            <p className="text-xs font-bold uppercase text-lia-muted">Tamanho da chave</p>
-            <p className="font-semibold text-lia-ink">{statusQuery.data?.key_length ?? '--'} caracteres</p>
-          </div>
-          <div className="rounded-lg bg-lia-cream px-3 py-2">
-            <p className="flex items-center gap-1 text-xs font-bold uppercase text-lia-muted">
-              <KeyRound size={13} /> Fingerprint
-            </p>
-            <p className="font-mono text-sm font-semibold text-lia-ink">
-              {statusQuery.data?.key_fingerprint ?? 'indisponível'}
-            </p>
-          </div>
-        </section>
-      ) : null}
 
       <section className="surface flex min-h-[62vh] flex-col rounded-lg">
         <div className="flex-1 space-y-3 overflow-y-auto p-4">

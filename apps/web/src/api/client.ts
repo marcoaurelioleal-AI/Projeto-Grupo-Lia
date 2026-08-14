@@ -4,7 +4,6 @@ import type {
   AiInteraction,
   AiKnowledgeGap,
   AiResponseMode,
-  AiStatus,
   AuditLog,
   ChatMessage,
   ChatResponse,
@@ -221,7 +220,6 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ rating, comment })
     }),
-  aiStatus: () => request<AiStatus>('/ai/status'),
   adminUsers: () => request<User[]>('/admin/users'),
   createAdminUser: (payload: UserCreate) =>
     request<User>('/admin/users', {
