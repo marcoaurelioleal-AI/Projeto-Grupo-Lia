@@ -75,17 +75,18 @@ def test_rollback_restores_pre_pilot_schema_and_data(tmp_path: Path) -> None:
         ).fetchall()
         users = connection.execute("select id, role from users order by id").fetchall()
         inventory = connection.execute(
-            "select id, store, product_name, quantity, created_by_user_id "
+            "select id, store, product_name, quantity, unit, created_by_user_id "
             "from inventory_items"
         ).fetchall()
 
-    assert revision == "20260809_0016"
+    assert revision == "20260814_0017"
     assert store_columns == {"id", "name", "active", "created_at"}
     assert inventory_columns == {
         "id": "INTEGER",
         "store": "VARCHAR(80)",
         "product_name": "VARCHAR(160)",
-        "quantity": "INTEGER",
+        "quantity": "NUMERIC(12, 3)",
+        "unit": "VARCHAR(10)",
         "created_by_user_id": "INTEGER",
         "created_at": "DATETIME",
         "updated_at": "DATETIME",
@@ -104,4 +105,4 @@ def test_rollback_restores_pre_pilot_schema_and_data(tmp_path: Path) -> None:
         ("Lia Salgados", 1),
     ]
     assert users == [(1, "admin")]
-    assert inventory == [(1, "Lia Burger", "Farinha", 10, 1)]
+    assert inventory == [(1, "Lia Burger", "Farinha", 10, "un", 1)]

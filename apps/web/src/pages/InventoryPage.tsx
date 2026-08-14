@@ -5,7 +5,20 @@ import { api } from '../api/client';
 import { PageHeader } from '../components/PageHeader';
 import { useAuth } from '../contexts/useAuth';
 import { OPERATIONAL_STORES, resolveOperationalStore } from '../constants/stores';
-import type { InventoryItem, InventoryItemCreate } from '../types';
+import type { InventoryItem, InventoryItemCreate, InventoryUnit } from '../types';
+
+const INVENTORY_UNITS: Array<{ value: InventoryUnit; label: string }> = [
+  { value: 'un', label: 'Unidade (un)' },
+  { value: 'kg', label: 'Quilograma (kg)' },
+  { value: 'g', label: 'Grama (g)' },
+  { value: 'L', label: 'Litro (L)' },
+  { value: 'mL', label: 'Mililitro (mL)' }
+];
+
+const quantityFormatter = new Intl.NumberFormat('pt-BR', {
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 3
+});
 
 export function InventoryPage() {
   const { user } = useAuth();
@@ -15,7 +28,8 @@ export function InventoryPage() {
   const [form, setForm] = useState<InventoryItemCreate>({
     store: defaultStore,
     product_name: '',
-    quantity: 0
+    quantity: 0,
+    unit: 'un'
   });
   const [editingItemId, setEditingItemId] = useState<number | null>(null);
   const [quantityDraft, setQuantityDraft] = useState('');
@@ -44,8 +58,8 @@ export function InventoryPage() {
   });
 
   const totalProducts = inventory.data?.length ?? 0;
-  const totalQuantity = useMemo(
-    () => (inventory.data ?? []).reduce((total, item) => total + item.quantity, 0),
+  const measurementUnits = useMemo(
+    () => new Set((inventory.data ?? []).map((item) => item.unit)).size,
     [inventory.data]
   );
 
@@ -78,7 +92,7 @@ export function InventoryPage() {
 
       <section className="grid gap-3 md:grid-cols-2">
         <SummaryCard label="Produtos cadastrados" value={totalProducts} />
-        <SummaryCard label="Quantidade total" value={totalQuantity} />
+        <SummaryCard label="Unidades de medida" value={measurementUnits} />
       </section>
 
       <section className="mt-5 grid gap-4 lg:grid-cols-[0.85fr_1.15fr]">
@@ -118,11 +132,29 @@ export function InventoryPage() {
               <input
                 className="focus-ring mt-2 w-full rounded-lg border border-lia-red/15 bg-white px-3 py-3"
                 min={0}
+                step="0.001"
                 type="number"
                 value={form.quantity}
                 onChange={(event) => setForm((current) => ({ ...current, quantity: Number(event.target.value) }))}
                 required
               />
+            </label>
+
+            <label className="text-sm font-bold text-lia-burgundy">
+              Unidade de medida
+              <select
+                className="focus-ring mt-2 w-full rounded-lg border border-lia-red/15 bg-white px-3 py-3"
+                value={form.unit}
+                onChange={(event) =>
+                  setForm((current) => ({ ...current, unit: event.target.value as InventoryUnit }))
+                }
+              >
+                {INVENTORY_UNITS.map((unit) => (
+                  <option key={unit.value} value={unit.value}>
+                    {unit.label}
+                  </option>
+                ))}
+              </select>
             </label>
 
             {createItem.error ? (
@@ -178,7 +210,7 @@ export function InventoryPage() {
                     </p>
                   </div>
                   <strong className="rounded-lg bg-lia-red/10 px-3 py-2 text-lg text-lia-red">
-                    {item.quantity}
+                    {quantityFormatter.format(item.quantity)} {item.unit}
                   </strong>
                 </div>
 
@@ -187,6 +219,7 @@ export function InventoryPage() {
                     <input
                       className="focus-ring min-w-28 rounded-lg border border-lia-red/15 bg-lia-cream px-3 py-2 text-sm"
                       min={0}
+                      step="0.001"
                       type="number"
                       value={quantityDraft}
                       onChange={(event) => setQuantityDraft(event.target.value)}

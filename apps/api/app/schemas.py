@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field
 from .store_catalog import DEFAULT_OPERATIONAL_STORE
 
 Role = Literal["admin", "lideranca", "gerente", "operacao", "auditor"]
+InventoryUnit = Literal["un", "kg", "g", "L", "mL"]
 
 
 class LoginRequest(BaseModel):
@@ -247,20 +248,23 @@ class OperationalIncidentRead(BaseModel):
 class InventoryItemCreate(BaseModel):
     store: str = Field(default=DEFAULT_OPERATIONAL_STORE, min_length=1, max_length=80)
     product_name: str = Field(min_length=1, max_length=160)
-    quantity: int = Field(ge=0, le=1_000_000)
+    quantity: float = Field(ge=0, le=1_000_000)
+    unit: InventoryUnit = "un"
 
 
 class InventoryItemUpdate(BaseModel):
     store: str | None = Field(default=None, min_length=1, max_length=80)
     product_name: str | None = Field(default=None, min_length=1, max_length=160)
-    quantity: int | None = Field(default=None, ge=0, le=1_000_000)
+    quantity: float | None = Field(default=None, ge=0, le=1_000_000)
+    unit: InventoryUnit | None = None
 
 
 class InventoryItemRead(BaseModel):
     id: int
     store: str
     product_name: str
-    quantity: int
+    quantity: float
+    unit: InventoryUnit
     created_by: str | None = None
     created_at: datetime
     updated_at: datetime

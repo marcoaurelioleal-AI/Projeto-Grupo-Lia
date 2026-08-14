@@ -173,11 +173,14 @@ export interface ChecklistTemplateItemCreate {
   text: string;
 }
 
+export type InventoryUnit = 'un' | 'kg' | 'g' | 'L' | 'mL';
+
 export interface InventoryItem {
   id: number;
   store: string;
   product_name: string;
   quantity: number;
+  unit: InventoryUnit;
   created_by: string | null;
   created_at: string;
   updated_at: string;
@@ -187,12 +190,14 @@ export interface InventoryItemCreate {
   store: string;
   product_name: string;
   quantity: number;
+  unit: InventoryUnit;
 }
 
 export interface InventoryItemUpdate {
   store?: string;
   product_name?: string;
   quantity?: number;
+  unit?: InventoryUnit;
 }
 
 export interface ChecklistEvidence {

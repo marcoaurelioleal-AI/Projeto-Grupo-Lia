@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from decimal import Decimal
+
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
@@ -28,7 +30,8 @@ class InventoryService:
 
         existing = self.repository.get_by_store_and_product(store, product_name)
         if existing:
-            existing.quantity = payload.quantity
+            existing.quantity = Decimal(str(payload.quantity))
+            existing.unit = payload.unit
             self.repository.commit()
             refreshed = self.repository.get_item(existing.id)
             return self.serialize_item(refreshed or existing)
@@ -36,7 +39,8 @@ class InventoryService:
         item = InventoryItem(
             store=store,
             product_name=product_name,
-            quantity=payload.quantity,
+            quantity=Decimal(str(payload.quantity)),
+            unit=payload.unit,
             created_by_user_id=user.id,
         )
         item = self.repository.add(item)
@@ -58,7 +62,9 @@ class InventoryService:
                 raise HTTPException(status_code=400, detail="Nome do produto é obrigatório")
             item.product_name = product_name
         if "quantity" in changes and changes["quantity"] is not None:
-            item.quantity = changes["quantity"]
+            item.quantity = Decimal(str(changes["quantity"]))
+        if "unit" in changes and changes["unit"] is not None:
+            item.unit = changes["unit"]
 
         self.repository.commit()
         refreshed = self.repository.get_item(item_id)
@@ -72,7 +78,8 @@ class InventoryService:
             id=item.id,
             store=item.store,
             product_name=item.product_name,
-            quantity=item.quantity,
+            quantity=float(item.quantity),
+            unit=item.unit,
             created_by=item.created_by.name if item.created_by else None,
             created_at=item.created_at,
             updated_at=item.updated_at,
